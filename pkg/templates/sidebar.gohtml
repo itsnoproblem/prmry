@@ -1,0 +1,61 @@
+{{define "sidebar"}}
+    <div id="sidebar" class="sidebar pure-u-1 pure-u-md-1-4" hx-swap-oob="{{if .IsOutOfBand}}true{{else}}false{{end}}">
+        <div class="header">
+
+            <a hx-get="/" hx-target="#content-root" hx-push-url="true">
+                <img title="RGB" class="pure-img-responsive rgb-logo" src="/favicon.png"/>
+            </a>
+
+            <div id="menuToggle">
+                <input type="checkbox" />
+                <span></span>
+                <span></span>
+                <span></span>
+                <ul id="menu">
+                    <ul>
+                        <li>
+                            <a hx-get="/interactions"
+                               hx-target="#content-root"
+                               hx-push-url="true"
+                               class="pure-menu-link">interactions</a>
+                        </li>
+                        <li>
+                            <a href="#" class="pure-menu-link">personas</a>
+                        </li>
+                        <li>
+                            <a hx-get="/interactions/chat"
+                               hx-target="#content-root"
+                               hx-push-url="true"
+                               class="pure-menu-link">&gt; live prompt</a>
+                        </li>
+                    </ul>
+                </ul>
+            </div>
+
+            <ul class="nav nav-pills nav-stacked">
+            {{if .IsAuthenticated}}
+                <li role="presentation">
+                    <a hx-get="/interactions"
+                       hx-target="#content-root"
+                       hx-push-url="true"
+                       class="pure-menu-link">interactions</a>
+                </li>
+                <li role="presentation">
+                    <a href="#" class="pure-menu-link">personas</a>
+                </li>
+                <li role="presentation">
+                    <a hx-get="/interactions/chat"
+                       hx-target="#content-root"
+                       hx-push-url="true"
+                       class="pure-menu-link">&gt; live prompt</a>
+                </li>
+            {{else}}
+                <li role="presentation">
+                    start here <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                </li>
+            {{end}}
+            </ul>
+
+        </div>
+    </div>
+{{end}}

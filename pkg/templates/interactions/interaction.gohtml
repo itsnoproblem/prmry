@@ -1,0 +1,65 @@
+{{- /* gotype: github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction.DetailViewModel */ -}}
+{{define "interaction"}}
+<div class="post-container detail interaction">
+    <div class="interaction-meta">
+        <div class="btn-group" role="group">
+
+            <button type="button"
+                    class="btn btn-link"
+                    aria-label="go back"
+                    hx-get="/interactions"
+                    hx-target="#content-root"
+                    hx-push-url="true"
+            >
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            </button>
+
+            <div style="float: left">
+                <div class="interaction-date">
+                    {{.Date}}
+                    <div class="interaction-summary">
+                        <span class="pure-button pure-button-primary">
+                            Model: {{.Model}} |
+                        </span>
+                        <span class="pure-button pure-button-primary">
+                            {{.Usage.TotalTokens}} tokens
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="prompt-display">
+            {{.PromptHTML}}
+        </div>
+
+        <div class="post-description">
+            <div class="response-display">
+                {{.ResponseHTML }}
+            </div>
+        </div>
+
+        <ul class="usage">
+            <li class="usage-prompt">
+                <b>prompt</b>
+                <hr/>
+                {{.Usage.PromptTokens}} tokens
+            </li>
+            <li class="operator">+</li>
+            <li class="usage-completion">
+                <b>completion</b>
+                <hr/>
+                {{.Usage.CompletionTokens}} tokens
+            </li>
+            <li class="operator">=</li>
+            <li class="usage-total">
+                <b>total</b>
+                <hr/>
+                {{.Usage.TotalTokens}} tokens
+            </li>
+        </ul>
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,74 @@
+{{- /* gotype: github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth.User */ -}}
+{{define "fragment-user-navbar"}}
+{{/*    <div class="navbar navbar-dark">*/}}
+        <div>
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <ul class="nav nav-logo">
+                    <li>
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <img title="RGB"
+                                 class="navbar-img"
+                                 src="/favicon.png"
+                            />
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#"
+                           class="dropdown-toggle"
+                           data-toggle="dropdown"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            <img class="img-fluid navbar-avatar" alt="{{.Nickname}}" src="{{.AvatarURL}}"/>
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a hx-get="/profile"
+                                   hx-target="#content-root"
+                                   hx-push-url="true"
+                                >Profile</a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                >Settings</a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="/auth/logout/{{.Provider}}">Log out</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/interactions"
+                           hx-target="#content-root"
+                           hx-push-url="true">interactions</a>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/personas"
+                           hx-target="#content-root"
+                           hx-push-url="true">personas</a>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/interactions/chat"
+                           hx-target="#content-root"
+                           hx-push-url="true">prompt</a>
+                    </li>
+
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div>
+{{/*    </div>*/}}
+{{end}}

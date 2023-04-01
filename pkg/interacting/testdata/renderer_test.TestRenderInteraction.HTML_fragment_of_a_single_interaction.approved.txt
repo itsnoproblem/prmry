@@ -1,0 +1,53 @@
+
+<nav role="navigation">
+    <div>
+        <a hx-get="/interactions"
+           hx-target="#content-root"
+           hx-push-url="true">&lt; back</a>
+    </div>
+</nav>
+
+
+<div class="post-container detail interaction">
+    <div class="interaction-meta">
+        <div class="interaction-date">
+            Wednesday, December 31, 1969 at 7:00pm
+        </div>
+        <div class="interaction-summary">
+            Model: text-davinci-003 |
+            <span class="pure-button pure-button-primary">3333 tokens</span>
+        </div>
+    </div>
+
+    <div class="prompt-display">
+        What is this thing supposed to be?
+    </div>
+
+    <div class="post-description">
+        <div class="response-display">
+            Well, nobody is quite sure what anything is <i>supposed</i>? to do.
+        </div>
+    </div>
+
+    <ul class="usage">
+        <li class="usage-prompt">
+            <b>prompt</b>
+            <hr/>
+            1001 tokens
+        </li>
+        <li class="operator">+</li>
+        <li class="usage-completion">
+            <b>completion</b>
+            <hr/>
+            2332 tokens
+        </li>
+        <li class="operator">=</li>
+        <li class="usage-total">
+            <b>total</b>
+            <hr/>
+            3333 tokens
+        </li>
+    </ul>
+</div>
+
+
