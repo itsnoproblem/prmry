@@ -1,11 +1,11 @@
+{{- /*gotype: github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting.ChatControls*/ -}}
 {{define "chat-controls"}}
-    <div class="container navbar-fixed-bottom" id="chat-controls" {{if .}}hx-swap-oob="true"{{end}}>
-        <form>
+    <div class="container navbar-fixed-bottom" id="chat-controls" {{if .BaseComponent.IsOutOfBand}}hx-swap-oob="true"{{end}}>
+
             <div class="form-row">
                 <div class="form-group col-lg-2">
-                    <select class="form-control"
-                            name="persona">
-                        <option value="RAW">Plain Input</option>
+                    <select class="form-control text-light input-dark" name="persona">
+                        <option value="RAW">Default Persona</option>
                         <option value="03b1fe">Sarcastic Cop</option>
                         <option value="742eac">Classic Libertarian</option>
                         <option value="a1f4b1">Concerned Parent</option>
@@ -14,7 +14,7 @@
                 <div class="form-group col-lg-10">
                     <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-light input-dark"
                             aria-label="chat prompt"
                             name="prompt"
                             hx-post="/interactions"
@@ -27,7 +27,7 @@
                             placeholder="type something..."
                     />
                 </div>
-            </div><!-- /.row -->
-        </form>
+            </div>
+        
     </div>
 {{end}}

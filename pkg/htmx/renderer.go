@@ -31,6 +31,18 @@ func (rnd *renderer) RenderComponent(w http.ResponseWriter, r *http.Request, ful
 	}
 }
 
+type ErrorView struct {
+	Error string
+	BaseComponent
+}
+
+func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err error) {
+	cmp := ErrorView{
+		Error: err.Error(),
+	}
+	_ = rnd.RenderComponent(w, r, "page-error", "error", &cmp)
+}
+
 func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
 	if IsHXRequest(r) {
 		cmp := BaseComponent{

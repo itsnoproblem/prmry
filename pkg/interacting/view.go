@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const PromptMaxCharacters = 140
+const PromptMaxCharacters = 210
 
 type ListViewModel struct {
 	Interactions []SummaryViewModel
@@ -38,6 +38,16 @@ type UsageViewModel struct {
 	PromptTokens     int
 	CompletionTokens int
 	TotalTokens      int
+}
+
+type PersonaSelector struct {
+	ID   string
+	Name string
+}
+
+type ChatControls struct {
+	Personas []PersonaSelector
+	htmx.BaseComponent
 }
 
 type ChatResponse struct {
@@ -89,15 +99,16 @@ func trimWordsToMaxCharacters(maxChars int, text string) string {
 		trimmed = ""
 		strlen  = 0
 	)
+
 	fields := strings.Fields(text)
 	for i, f := range fields {
-		strlen += len(f)
+		strlen += len(f) + 1
 		if strlen > maxChars {
 			trimmed = strings.TrimSuffix(trimmed, " ") + "..."
-			break
+			return trimmed
 		}
 
-		if i < len(fields)-1 {
+		if i < len(fields) {
 			trimmed += f + " "
 		}
 	}

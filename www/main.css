@@ -18,6 +18,11 @@ html {
     font-weight: 300;
 }
 
+body {
+    background: rgb(61, 79, 93);
+    color: #eeeeee;
+}
+
 a {
     text-decoration: none;
     color: rgb(61, 146, 201);
@@ -45,12 +50,6 @@ h3 {
 
 .nav.nav-logo>li>a, ul.nav-logo {
     display: inline-block;
-}
-
-.sidebar {
-    background: rgb(61, 79, 93);
-    color: #fff;
-    border: none;
 }
 
 img.rgb-logo {
@@ -110,6 +109,9 @@ img.rgb-logo {
     border-radius: 2em;
     padding: 0.3em 1em 0.3em 1em;
 }
+#chat-controls .form-group {
+    padding: 4px;
+}
 .content {
     padding: 2em 1em 0;
 }
@@ -130,7 +132,6 @@ ul.usage li {
     background-color: unset;
     border-radius: 0.8em;
     margin: 2em 0.8em 2em 0;
-    color: #333333;
     font-family: 'Public Sans', sans-serif;
     font-size: 0.6em;
     padding: 0.2em 0.7em;
@@ -184,7 +185,6 @@ ul.usage hr {
 }
 .post-title {
     font-size: 1.2em;
-    color: #222;
     margin-bottom: 0.2em;
 }
 
@@ -194,7 +194,7 @@ ul.usage hr {
 
 .post-title>a,
 .post-title>a:visited {
-    color:#222;
+    color:#CCCCCC;
 }
 
 .post-avatar {
@@ -202,9 +202,7 @@ ul.usage hr {
     float: right;
     margin-left: 1em;
 }
-.post-description {
-    color: #444;
-}
+
 .post-meta {
     color: #999;
     font-size: 90%;
@@ -215,38 +213,28 @@ ul.usage hr {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 500;
     font-size: 1.2em;
-    color: #222;
 }
 
 .prompt-display {
     margin-bottom: 0.2em;
     padding: 0.6em 0 0.6em 1.2em;
     border-left: 1.2em solid rgb(32 185 118);
+    font-size: 24px;
+    line-height: 40px;
+    font-family: 'Public Sans', sans-serif;
 }
 
 .response-display {
     padding: 0.6em 0 0.6em 1.2em;
-    border-left: 1.2em solid rgb(62 165 236);
+    border-left: 1.6em solid rgb(62 165 236);
+    font-size: 18px;
+    font-weight: 200;
+    font-family: 'Public Sans', sans-serif;
+    line-height: 32px;
 }
 
-.post-category {
-    margin: 0 0.1em;
-    padding: 0.3em 1em;
-    color: #fff;
-    background: #999;
-    font-size: 80%;
-}
-.post-category-design {
-    background: #5aba59;
-}
-.post-category-pure {
-    background: #b4cef3;
-}
-.post-category-yui {
-    background: #8156a7;
-}
-.post-category-js {
-    background: #df2d4f;
+.token-badge {
+    text-transform: uppercase;
 }
 
 .post-images {
@@ -256,7 +244,11 @@ ul.usage hr {
     margin-top: -3.5em;
     margin-left: 1em;
     color: #fff;
-    text-shadow: 0 1px 1px #333;
+}
+
+.input-dark {
+    background-color: #213a4d;
+    color: #EEE;
 }
 
 .footer {

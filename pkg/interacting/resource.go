@@ -23,6 +23,7 @@ type Service interface {
 
 type Renderer interface {
 	RenderComponent(w http.ResponseWriter, r *http.Request, fullPageTemplate, fragmentTemplate string, cmp htmx.Component) error
+	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
 type Resource struct {
@@ -61,23 +62,44 @@ func (rs Resource) Routes() chi.Router {
 // Create - POST /interactions - send a prompt and receive the prompt + response
 func (rs Resource) Create(w http.ResponseWriter, r *http.Request) {
 	ixn, err := rs.service.NewInteraction(r.Context(), r.PostFormValue("prompt"))
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
 	cmp := ChatResponse{
 		Interaction: DetailView(ixn),
 	}
 	cmp.Lock()
 
 	if err = rs.renderer.RenderComponent(w, r, "chat-response.gohtml", "chat-response.gohtml", &cmp); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 }
 
 // Chat - GET /interactions/chat
 func (rs Resource) Chat(w http.ResponseWriter, r *http.Request) {
-	cmp := htmx.BaseComponent{}
+	cmp := ChatControls{
+		Personas: []PersonaSelector{
+			{
+				ID:   "123",
+				Name: "No Persona",
+			},
+			{
+				ID:   "234",
+				Name: "Sarcastic Cop",
+			},
+			{
+				ID:   "345",
+				Name: "Concerned Parent",
+			},
+		},
+	}
+
 	cmp.Lock()
 	if err := rs.renderer.RenderComponent(w, r, "page-chat.gohtml", "fragment-chat.gohtml", &cmp); err != nil {
-		writeError(w, err)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 }
@@ -87,20 +109,20 @@ func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, paramNameID)
 	if id == "" {
-		writeError(w, fmt.Errorf("missing required 'id'"))
+		rs.renderer.RenderError(w, r, fmt.Errorf("missing required 'id'"))
 		return
 	}
 
 	ixn, err := rs.service.Interaction(r.Context(), id)
 	if err != nil {
-		writeError(w, err)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 	cmp := DetailView(ixn)
 	cmp.Lock()
 
 	if err := rs.renderer.RenderComponent(w, r, "page-interaction.gohtml", "interaction-single.gohtml", &cmp); err != nil {
-		writeError(w, err)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 }
@@ -116,13 +138,7 @@ func (rs Resource) List(w http.ResponseWriter, r *http.Request) {
 	cmp := ListView(ixns)
 	cmp.Lock()
 	if err := rs.renderer.RenderComponent(w, r, "page-interactions.gohtml", "interactions-list.gohtml", &cmp); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		rs.renderer.RenderError(w, r, err)
 		return
-	}
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
