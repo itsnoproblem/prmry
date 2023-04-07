@@ -2,100 +2,123 @@ package interacting_test
 
 import (
 	"bytes"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
-	"io"
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	approvals "github.com/approvals/go-approval-tests"
-	"github.com/approvals/go-approval-tests/reporters"
 	gogpt "github.com/sashabaranov/go-gpt3"
-	"github.com/stretchr/testify/require"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/templates"
 )
 
 const (
 	testDataDir = "testdata"
 )
 
+type RenderFunc func(w http.ResponseWriter, r *http.Request, fullPageTemplate string, fragmentTemplate string, cmp htmx.Component) error
+
 func TestRenderChat(t *testing.T) {
-	r := approvals.UseReporter(reporters.NewGoLandReporter())
-	defer r.Close()
+	//r := approvals.UseReporter(reporters.NewGoLandReporter())
+	//defer r.Close()
 	approvals.UseFolder(testDataDir)
 
-	renderer, err := interacting.NewRenderer()
-	require.NoError(t, err)
+	recorder := httptest.NewRecorder()
+
+	usr := authUser()
+	ctx := context.WithValue(context.Background(), auth.ContextKey, &usr)
+	reader := bytes.NewReader([]byte(``))
+	reqWithUser, err := http.NewRequestWithContext(ctx, http.MethodGet, "/fake", reader)
+
+	if err != nil {
+		t.Fatalf("failed to create http request: %s", err)
+	}
+
+	tpl, err := templates.Parse()
+	if err != nil {
+		t.Fatalf("Failed to parse templates: %s", err)
+	}
+	renderer := htmx.NewRenderer(tpl)
+	testInteraction := newInteraction()
+	detailView := interacting.DetailView(testInteraction)
+
+	testInteractions := newSummaries(5)
+	listView := interacting.ListView(testInteractions)
+	listView.SetUser(usr)
 
 	tt := []struct {
-		Description string
-		RenderFn    func(w io.Writer) error
+		Description      string
+		PageTemplate     string
+		FragmentTemplate string
+		Component        htmx.Component
 	}{
 		{
-			"HTML fragment of the chat console",
-			renderer.RenderChatConsole,
+			Description:      "HTML fragment of the chat console",
+			PageTemplate:     "chat-response.gohtml",
+			FragmentTemplate: "chat-response.gohtml",
+			Component: &interacting.ChatResponse{
+				Interaction: detailView,
+			},
 		},
 		{
-			"HTML document of the chat console",
-			renderer.RenderChatPage,
+			Description:      "Single Interaction",
+			PageTemplate:     "page-interaction.gohtml",
+			FragmentTemplate: "interaction-single.gohtml",
+			Component:        &detailView,
+		},
+		{
+			Description:      "Interaction List",
+			PageTemplate:     "page-interactions.gohtml",
+			FragmentTemplate: "interactions-list.gohtml",
+			Component:        &listView,
 		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.Description, func(t *testing.T) {
-			buf := bytes.Buffer{}
-			err = tc.RenderFn(&buf)
+			err = renderer.RenderComponent(recorder, reqWithUser, tc.PageTemplate, tc.FragmentTemplate, tc.Component)
 			if err != nil {
 				t.Errorf("ERROR in %s: %s", tc.Description, err)
 			}
 
-			approvals.VerifyString(t, buf.String())
+			approvals.VerifyString(t, recorder.Body.String())
 		})
 	}
 }
 
-func TestRenderInteraction(t *testing.T) {
-	r := approvals.UseReporter(reporters.NewGoLandReporter())
-	defer r.Close()
-	approvals.UseFolder(testDataDir)
-
-	renderer, err := interacting.NewRenderer()
-	require.NoError(t, err)
-
-	testInteraction := newInteraction()
-
-	tt := []struct {
-		Description string
-		Interaction interaction.Interaction
-		RenderFn    func(w io.Writer, ixn interaction.Interaction) error
-	}{
-		{
-			Description: "HTML fragment of a single interaction",
-			Interaction: testInteraction,
-			RenderFn:    renderer.RenderInteraction,
-		},
-		{
-			Description: "HTML document of a single interaction",
-			Interaction: testInteraction,
-			RenderFn:    renderer.RenderInteractionPage,
-		},
-		{
-			Description: "HTML fragment of a chat interaction",
-			Interaction: testInteraction,
-			RenderFn:    renderer.RenderChatResponse,
-		},
+func authUser() *auth.User {
+	return &auth.User{
+		ID:         "abcdefg",
+		Name:       "Joey Calzone",
+		Nickname:   "jcalzone",
+		Email:      "jcal@zone.org",
+		AvatarURL:  "http://fake.com/avatar.jpg",
+		Provider:   "fakeProv",
+		ProviderID: "1234",
 	}
+}
 
-	for _, tc := range tt {
-		t.Run(tc.Description, func(t *testing.T) {
-			buf := bytes.Buffer{}
-			err = tc.RenderFn(&buf, tc.Interaction)
-			if err != nil {
-				t.Errorf("ERROR in %s: %s", tc.Description, err)
-			}
-
-			approvals.VerifyString(t, buf.String())
-		})
+func newSummaries(num int) []interaction.Summary {
+	ixns := make([]interaction.Summary, num)
+	for i := 0; i < num; i++ {
+		ixns[i] = interaction.Summary{
+			ID:             "1234abde",
+			Type:           "textresponse",
+			Model:          "dabubu",
+			Prompt:         "What is this?",
+			TokensUsed:     20,
+			ResponseLength: 429,
+			Error:          "",
+			CreatedAt:      time.Date(2022, 12, 12, 0, 0, 0, 0, time.UTC),
+		}
 	}
+	return ixns
 }
 
 func newInteraction() interaction.Interaction {

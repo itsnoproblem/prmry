@@ -1,4 +1,13 @@
 
+<nav role="navigation">
+    <div>
+        <a hx-get="/interactions"
+           hx-target="#content-root"
+           hx-push-url="true">&lt; back</a>
+    </div>
+</nav>
+
+
 <div class="post-container detail interaction">
     <div class="interaction-meta">
         <div class="interaction-date">
@@ -41,20 +50,4 @@
     </ul>
 </div>
 
-
-
-    <div id="chat-controls" hx-swap-oob="true">
-        <input
-            type="text"
-            name="prompt"
-            hx-post="/interactions"
-            hx-target="#chat-content-root"
-            hx-indicator="#chat-loader"
-            hx-swap="afterend"
-            autofocus="true"
-            hx-ext="disable-element"
-            hx-disable-element="self"
-            placeholder="type something..."
-        />
-    </div>
 

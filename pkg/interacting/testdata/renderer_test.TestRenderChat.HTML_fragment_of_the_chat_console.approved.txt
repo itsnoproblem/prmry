@@ -1,23 +1,97 @@
 
-<div id="chat-content">
-    <span id="chat-loader" class="htmx-indicator loader"></span>
-    <div id="chat-content-root"></div>
+<div class="post-container detail interaction">
+    <div class="interaction-meta">
+        <div class="btn-group" role="group">
+
+            <button type="button"
+                    class="btn btn-link"
+                    aria-label="go back"
+                    hx-get="/interactions"
+                    hx-target="#content-root"
+                    hx-push-url="true"
+            >
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            </button>
+
+            <div style="float: left">
+                <div class="interaction-date">
+                    Wednesday, December 31, 1969 at 7:00pm
+                    <div class="interaction-summary">
+                        <span class="pure-button pure-button-primary">
+                            Model: text-davinci-003 |
+                        </span>
+                        <span class="pure-button pure-button-primary">
+                            3333 tokens
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="prompt-display text-lg-left">
+            What is this thing supposed to be?
+        </div>
+
+        <div class="post-description">
+            <div class="response-display">
+                Well, nobody is quite sure what anything is <i>supposed</i>? to do.
+            </div>
+        </div>
+
+        <ul class="usage">
+            <li class="usage-prompt">
+                <b>prompt</b>
+                <hr/>
+                1001 tokens
+            </li>
+            <li class="operator">+</li>
+            <li class="usage-completion">
+                <b>completion</b>
+                <hr/>
+                2332 tokens
+            </li>
+            <li class="operator">=</li>
+            <li class="usage-total">
+                <b>total</b>
+                <hr/>
+                3333 tokens
+            </li>
+        </ul>
+    </div>
 </div>
 
 
-    <div id="chat-controls" >
-        <input
-            type="text"
-            name="prompt"
-            hx-post="/interactions"
-            hx-target="#chat-content-root"
-            hx-indicator="#chat-loader"
-            hx-swap="afterend"
-            autofocus="true"
-            hx-ext="disable-element"
-            hx-disable-element="self"
-            placeholder="type something..."
-        />
-    </div>
 
+    <div class="container navbar-fixed-bottom" id="chat-controls" >
+
+            <div class="form-row">
+                <div class="form-group col-lg-2">
+                    <select class="form-control text-light input-dark" name="persona">
+                        <option value="RAW">Default Persona</option>
+                        <option value="03b1fe">Sarcastic Cop</option>
+                        <option value="742eac">Classic Libertarian</option>
+                        <option value="a1f4b1">Concerned Parent</option>
+                    </select>
+                </div>
+                <div class="form-group col-lg-10">
+                    <input
+                            type="text"
+                            class="form-control text-light input-dark"
+                            aria-label="chat prompt"
+                            name="prompt"
+                            hx-post="/interactions"
+                            hx-target="#chat-content-root"
+                            hx-indicator="#chat-loader"
+                            hx-swap="afterend"
+                            autofocus="true"
+                            hx-ext="disable-element"
+                            hx-disable-element="self"
+                            placeholder="type something..."
+                    />
+                </div>
+            </div>
+
+    </div>
 

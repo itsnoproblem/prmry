@@ -36,7 +36,7 @@ func New(name string, user goth.User) (http.Cookie, error) {
 		Name:     name,
 		Value:    buf.String(),
 		Path:     "/",
-		MaxAge:   3600,
+		MaxAge:   60 * 60 * 72,
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,

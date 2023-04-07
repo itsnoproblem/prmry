@@ -1,0 +1,448 @@
+
+<div class="post-container detail interaction">
+    <div class="interaction-meta">
+        <div class="btn-group" role="group">
+
+            <button type="button"
+                    class="btn btn-link"
+                    aria-label="go back"
+                    hx-get="/interactions"
+                    hx-target="#content-root"
+                    hx-push-url="true"
+            >
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            </button>
+
+            <div style="float: left">
+                <div class="interaction-date">
+                    Wednesday, December 31, 1969 at 7:00pm
+                    <div class="interaction-summary">
+                        <span class="pure-button pure-button-primary">
+                            Model: text-davinci-003 |
+                        </span>
+                        <span class="pure-button pure-button-primary">
+                            3333 tokens
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="prompt-display text-lg-left">
+            What is this thing supposed to be?
+        </div>
+
+        <div class="post-description">
+            <div class="response-display">
+                Well, nobody is quite sure what anything is <i>supposed</i>? to do.
+            </div>
+        </div>
+
+        <ul class="usage">
+            <li class="usage-prompt">
+                <b>prompt</b>
+                <hr/>
+                1001 tokens
+            </li>
+            <li class="operator">+</li>
+            <li class="usage-completion">
+                <b>completion</b>
+                <hr/>
+                2332 tokens
+            </li>
+            <li class="operator">=</li>
+            <li class="usage-total">
+                <b>total</b>
+                <hr/>
+                3333 tokens
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+
+    <div class="container navbar-fixed-bottom" id="chat-controls" >
+
+            <div class="form-row">
+                <div class="form-group col-lg-2">
+                    <select class="form-control text-light input-dark" name="persona">
+                        <option value="RAW">Default Persona</option>
+                        <option value="03b1fe">Sarcastic Cop</option>
+                        <option value="742eac">Classic Libertarian</option>
+                        <option value="a1f4b1">Concerned Parent</option>
+                    </select>
+                </div>
+                <div class="form-group col-lg-10">
+                    <input
+                            type="text"
+                            class="form-control text-light input-dark"
+                            aria-label="chat prompt"
+                            name="prompt"
+                            hx-post="/interactions"
+                            hx-target="#chat-content-root"
+                            hx-indicator="#chat-loader"
+                            hx-swap="afterend"
+                            autofocus="true"
+                            hx-ext="disable-element"
+                            hx-disable-element="self"
+                            placeholder="type something..."
+                    />
+                </div>
+            </div>
+
+    </div>
+
+
+
+<html lang="en">
+<head>
+    <title>RGB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-png" href="/favicon.png">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    
+    <script src="https://code.jquery.com/jquery-3.6.3.slim.min.js" integrity="sha256-ZwqZIVdD3iXNyGHbSYdsmWP//UBokj2FHAxKuSBKDSo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/js/collapse.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/js/transition.min.js" crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Cormorant+Garamond:wght@300;400&family=Public+Sans:wght@200;300;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/main.css"/>
+
+    <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+
+</head>
+<body>
+
+<div id="layout" class="container">
+
+    
+    
+    <nav id="top-nav"
+         class="navbar container navbar-fixed-top navbar-dark"
+         hx-swap-oob="false"
+    >
+        
+            <div class="nav-placeholder">
+                <img title="RGB" class="navbar-img" src="/favicon.png"/>
+            </div>
+        
+    </nav>
+
+
+    
+    <div id="content-root">
+        <div>
+
+
+<div class="post-container detail interaction">
+    <div class="interaction-meta">
+        <div class="btn-group" role="group">
+
+            <button type="button"
+                    class="btn btn-link"
+                    aria-label="go back"
+                    hx-get="/interactions"
+                    hx-target="#content-root"
+                    hx-push-url="true"
+            >
+                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            </button>
+
+            <div style="float: left">
+                <div class="interaction-date">
+                    Wednesday, December 31, 1969 at 7:00pm
+                    <div class="interaction-summary">
+                        <span class="pure-button pure-button-primary">
+                            Model: text-davinci-003 |
+                        </span>
+                        <span class="pure-button pure-button-primary">
+                            3333 tokens
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="prompt-display text-lg-left">
+            What is this thing supposed to be?
+        </div>
+
+        <div class="post-description">
+            <div class="response-display">
+                Well, nobody is quite sure what anything is <i>supposed</i>? to do.
+            </div>
+        </div>
+
+        <ul class="usage">
+            <li class="usage-prompt">
+                <b>prompt</b>
+                <hr/>
+                1001 tokens
+            </li>
+            <li class="operator">+</li>
+            <li class="usage-completion">
+                <b>completion</b>
+                <hr/>
+                2332 tokens
+            </li>
+            <li class="operator">=</li>
+            <li class="usage-total">
+                <b>total</b>
+                <hr/>
+                3333 tokens
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+
+
+
+<html lang="en">
+<head>
+    <title>RGB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-png" href="/favicon.png">
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    
+    <script src="https://code.jquery.com/jquery-3.6.3.slim.min.js" integrity="sha256-ZwqZIVdD3iXNyGHbSYdsmWP//UBokj2FHAxKuSBKDSo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/js/collapse.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/js/transition.min.js" crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Cormorant+Garamond:wght@300;400&family=Public+Sans:wght@200;300;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/main.css"/>
+
+    <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+
+</head>
+<body>
+
+<div id="layout" class="container">
+
+    
+    
+    <nav id="top-nav"
+         class="navbar container navbar-fixed-top navbar-dark"
+         hx-swap-oob="false"
+    >
+        
+            
+
+        <div>
+            
+            <div class="navbar-header">
+                <ul class="nav nav-logo">
+                    <li>
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <img title="RGB"
+                                 class="navbar-img"
+                                 src="/favicon.png"
+                            />
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#"
+                           class="dropdown-toggle"
+                           data-toggle="dropdown"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            <img class="img-fluid navbar-avatar" alt="jcalzone" src="http://fake.com/avatar.jpg"/>
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a hx-get="/profile"
+                                   hx-target="#content-root"
+                                   hx-push-url="true"
+                                >Profile</a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                >Settings</a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="/auth/logout/fakeProv">Log out</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/interactions"
+                           hx-target="#content-root"
+                           hx-push-url="true">interactions</a>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/personas"
+                           hx-target="#content-root"
+                           hx-push-url="true">personas</a>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="text-link"
+                           hx-get="/interactions/chat"
+                           hx-target="#content-root"
+                           hx-push-url="true">prompt</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+
+        
+    </nav>
+
+
+    
+    <div id="content-root">
+        <div>
+
+
+    <div class="posts">
+        <h1 class="content-subhead">Recent Interactions</h1>
+        
+        
+            <section class="post">
+                <header class="post-header">
+                    <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar pure-img" src="http://fake.com/avatar.jpg">
+
+                    <h2 class="post-title list-post-title">
+                        <a hx-get="/interactions/1234abde"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >What is this? </a>
+                    </h2>
+
+                    <p class="post-meta">
+                        <b>Dec 12, 2022 12:00am</b> using <b>dabubu</b>
+                        <span class="badge badge-info">20 tokens</span>
+                    </p>
+                </header>
+            </section>
+        
+            <section class="post">
+                <header class="post-header">
+                    <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar pure-img" src="http://fake.com/avatar.jpg">
+
+                    <h2 class="post-title list-post-title">
+                        <a hx-get="/interactions/1234abde"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >What is this? </a>
+                    </h2>
+
+                    <p class="post-meta">
+                        <b>Dec 12, 2022 12:00am</b> using <b>dabubu</b>
+                        <span class="badge badge-info">20 tokens</span>
+                    </p>
+                </header>
+            </section>
+        
+            <section class="post">
+                <header class="post-header">
+                    <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar pure-img" src="http://fake.com/avatar.jpg">
+
+                    <h2 class="post-title list-post-title">
+                        <a hx-get="/interactions/1234abde"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >What is this? </a>
+                    </h2>
+
+                    <p class="post-meta">
+                        <b>Dec 12, 2022 12:00am</b> using <b>dabubu</b>
+                        <span class="badge badge-info">20 tokens</span>
+                    </p>
+                </header>
+            </section>
+        
+            <section class="post">
+                <header class="post-header">
+                    <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar pure-img" src="http://fake.com/avatar.jpg">
+
+                    <h2 class="post-title list-post-title">
+                        <a hx-get="/interactions/1234abde"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >What is this? </a>
+                    </h2>
+
+                    <p class="post-meta">
+                        <b>Dec 12, 2022 12:00am</b> using <b>dabubu</b>
+                        <span class="badge badge-info">20 tokens</span>
+                    </p>
+                </header>
+            </section>
+        
+            <section class="post">
+                <header class="post-header">
+                    <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar pure-img" src="http://fake.com/avatar.jpg">
+
+                    <h2 class="post-title list-post-title">
+                        <a hx-get="/interactions/1234abde"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >What is this? </a>
+                    </h2>
+
+                    <p class="post-meta">
+                        <b>Dec 12, 2022 12:00am</b> using <b>dabubu</b>
+                        <span class="badge badge-info">20 tokens</span>
+                    </p>
+                </header>
+            </section>
+        
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+

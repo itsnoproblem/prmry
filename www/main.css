@@ -99,6 +99,8 @@ img.rgb-logo {
 
 #chat-content {
     overflow: hidden;
+    margin-bottom: 72px;
+    height: 100vh;
 }
 #chat-controls {
     padding: 1em 0 1em 0;
