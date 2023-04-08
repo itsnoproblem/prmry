@@ -2,20 +2,20 @@ package sql
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/jmoiron/sqlx"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type interactionsRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewInteractionsRepo(db *sql.DB) interactionsRepo {
+func NewInteractionsRepo(db *sqlx.DB) interactionsRepo {
 	return interactionsRepo{
 		db: db,
 	}

@@ -3,17 +3,19 @@ package main
 import (
 	"bufio"
 	"context"
-	gosql "database/sql"
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	sql2 "github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	gogpt "github.com/sashabaranov/go-gpt3"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
 )
 
 const (
@@ -45,15 +47,15 @@ func main() {
 	}
 
 	db := initDb()
-	defer func(db *gosql.DB) {
+	defer func(db *sqlx.DB) {
 		err := db.Close()
 		if err != nil {
 			log.Fatalf("db.Close: %s", err)
 		}
 	}(db)
 
-	interactionsRepo := sql2.NewInteractionsRepo(db)
-	moderationsRepo := sql2.NewModerationsRepo(db)
+	interactionsRepo := sql.NewInteractionsRepo(db)
+	moderationsRepo := sql.NewModerationsRepo(db)
 
 	openAIKey := os.Getenv(env.VarOpenAIKey)
 	gptClient := gogpt.NewClient(openAIKey)
@@ -79,7 +81,7 @@ func main() {
 	}
 }
 
-func initDb() *gosql.DB {
+func initDb() *sqlx.DB {
 	var (
 		dbHost = os.Getenv(env.VarDBHost)
 		dbUser = os.Getenv(env.VarDBUser)
@@ -87,7 +89,7 @@ func initDb() *gosql.DB {
 		dbName = os.Getenv(env.VarDBName)
 	)
 
-	db, err := gosql.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
+	db, err := sqlx.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

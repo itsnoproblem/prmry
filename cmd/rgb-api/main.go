@@ -1,23 +1,26 @@
 package main
 
 import (
-	gosql "database/sql"
 	"flag"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
-	interacting2 "github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	sql2 "github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
 )
 
 const (
-	defaultListen = ":3333"
+	defaultListen = ":3332"
 )
 
 func main() {
@@ -34,7 +37,7 @@ func main() {
 	}
 
 	db := initDb()
-	defer func(db *gosql.DB) {
+	defer func(db *sqlx.DB) {
 		err := db.Close()
 		if err != nil {
 			log.Fatalf("db.Close: %s", err)
@@ -50,24 +53,19 @@ func main() {
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	interactionsRepo := sql2.NewInteractionsRepo(db)
-	moderationsRepo := sql2.NewModerationsRepo(db)
+	interactionsRepo := sql.NewInteractionsRepo(db)
+	moderationsRepo := sql.NewModerationsRepo(db)
+	interactingService := interacting.NewService(nil, &interactionsRepo, &moderationsRepo)
 
-	interactingService := interacting2.NewService(nil, &interactionsRepo, &moderationsRepo)
-	interactionRenderer, err := interacting2.NewRenderer()
-	if err != nil {
-		log.Fatalf("Failed to load interaction renderer: %s", err)
-	}
+	r.Group(interacting.RouteHandler(interactingService))
 
-	r.Group(interacting2.RouteHandler(interactingService, interactionRenderer))
-
-	log.Println("Listening on " + listen)
+	log.Println("RGB API Listening on " + listen)
 	if err := http.ListenAndServe(listen, r); err != nil {
 		panic(err)
 	}
 }
 
-func initDb() *gosql.DB {
+func initDb() *sqlx.DB {
 	var (
 		dbHost = os.Getenv(env.VarDBHost)
 		dbUser = os.Getenv(env.VarDBUser)
@@ -75,7 +73,7 @@ func initDb() *gosql.DB {
 		dbName = os.Getenv(env.VarDBName)
 	)
 
-	db, err := gosql.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
+	db, err := sqlx.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

@@ -2,18 +2,20 @@ package sql
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
 )
 
 type moderationsRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewModerationsRepo(db *sql.DB) moderationsRepo {
+func NewModerationsRepo(db *sqlx.DB) moderationsRepo {
 	return moderationsRepo{
 		db: db,
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/api"
 )
 
-func RouteHandler(svc service, renderer *Renderer) func(chi.Router) {
+func RouteHandler(svc service) func(chi.Router) {
 	listInteractionsEndpoint := api.NewEndpoint(
 		makeListInteractionsEndpoint(svc),
 		decodeEmptyRequest,

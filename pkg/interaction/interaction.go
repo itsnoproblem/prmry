@@ -7,6 +7,14 @@ import (
 	gogpt "github.com/sashabaranov/go-gpt3"
 )
 
+type Interaction struct {
+	ID        string
+	Request   gogpt.CompletionRequest
+	Response  gogpt.CompletionResponse
+	Error     string
+	CreatedAt time.Time
+}
+
 type Summary struct {
 	ID             string
 	Type           string
@@ -16,14 +24,6 @@ type Summary struct {
 	ResponseLength int
 	Error          string
 	CreatedAt      time.Time
-}
-
-type Interaction struct {
-	ID        string
-	Request   gogpt.CompletionRequest
-	Response  gogpt.CompletionResponse
-	Error     string
-	CreatedAt time.Time
 }
 
 // PromptHTML returns the prompt as HTML

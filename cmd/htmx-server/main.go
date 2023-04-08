@@ -1,32 +1,33 @@
 package main
 
 import (
-	gosql "database/sql"
 	"encoding/hex"
 	"flag"
+	"log"
+	"net/http"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	"github.com/gorilla/sessions"
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/github"
+	"github.com/markbates/goth/providers/google"
+	gogpt "github.com/sashabaranov/go-gpt3"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/authorizing"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/profiling"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/templates"
-	"github.com/markbates/goth/gothic"
-	"log"
-	"net/http"
-	"os"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/github"
-	"github.com/markbates/goth/providers/google"
-	gogpt "github.com/sashabaranov/go-gpt3"
-
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
 )
 
 const (
@@ -47,7 +48,7 @@ func main() {
 	}
 
 	db := initDb()
-	defer func(db *gosql.DB) {
+	defer func(db *sqlx.DB) {
 		err := db.Close()
 		if err != nil {
 			log.Fatalf("db.Close: %s", err)
@@ -123,7 +124,7 @@ func main() {
 	}
 }
 
-func initDb() *gosql.DB {
+func initDb() *sqlx.DB {
 	var (
 		dbHost = os.Getenv(env.VarDBHost)
 		dbUser = os.Getenv(env.VarDBUser)
@@ -131,7 +132,7 @@ func initDb() *gosql.DB {
 		dbName = os.Getenv(env.VarDBName)
 	)
 
-	db, err := gosql.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
+	db, err := sqlx.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

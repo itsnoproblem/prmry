@@ -3,17 +3,33 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/user"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/user"
 )
 
-type usersRepo struct {
-	db *sql.DB
+type UserRow struct {
+	ID    string `db:"id"`
+	Name  string `db:"name"`
+	Email string `db:"email"`
 }
 
-func NewUsersRepo(db *sql.DB) usersRepo {
+func (r UserRow) ToUser() user.User {
+	return user.User{
+		ID:    r.ID,
+		Name:  r.Name,
+		Email: r.Email,
+	}
+}
+
+type usersRepo struct {
+	db *sqlx.DB
+}
+
+func NewUsersRepo(db *sqlx.DB) usersRepo {
 	return usersRepo{
 		db: db,
 	}
@@ -60,13 +76,19 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 		LIMIT 1
 	`
 
-	row := r.db.QueryRowContext(ctx, query, provider, providerUserID)
-	err = row.Scan(&usr.ID, &usr.Email, &usr.Name)
+	rows, err := r.db.QueryxContext(ctx, query, provider, providerUserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user.User{}, false, nil
 		}
-		return user.User{}, false, errors.Wrapf(err, "usersRepo.FindUserViaOAuth")
+		return user.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
+	}
+
+	for rows.Next() {
+		var userRow UserRow
+		if err = rows.StructScan(&userRow); err != nil {
+			return user.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
+		}
 	}
 
 	return usr, true, nil
@@ -82,13 +104,19 @@ func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr user.
 		WHERE email = ?
 	`
 
-	row := r.db.QueryRowContext(ctx, query, email)
-	err = row.Scan(&usr.ID, &usr.Email, &usr.Name)
+	rows, err := r.db.QueryxContext(ctx, query, email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user.User{}, false, nil
 		}
 		return user.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
+	}
+
+	for rows.Next() {
+		var userRow UserRow
+		if err = rows.StructScan(&userRow); err != nil {
+			return user.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
+		}
 	}
 
 	return usr, true, nil
