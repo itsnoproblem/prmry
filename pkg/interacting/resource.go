@@ -3,7 +3,6 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -31,9 +30,9 @@ type Resource struct {
 	service  Service
 }
 
-func NewResource(tpl *template.Template, svc Service) *Resource {
+func NewResource(renderer Renderer, svc Service) *Resource {
 	return &Resource{
-		renderer: htmx.NewRenderer(tpl),
+		renderer: renderer,
 		service:  svc,
 	}
 }

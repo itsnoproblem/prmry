@@ -1,6 +1,9 @@
 package authorizing
 
-import "github.com/markbates/goth"
+import (
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
+	"github.com/markbates/goth"
+)
 
 type UserView struct {
 	ID        string
@@ -9,6 +12,7 @@ type UserView struct {
 	Email     string
 	AvatarURL string
 	Provider  string
+	htmx.BaseComponent
 }
 
 func NewUserView(g goth.User) UserView {

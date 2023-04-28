@@ -47,26 +47,36 @@
                             </li>
                         </ul>
                     </li>
-                    <li>
+                    <li class="dropdown">
                         <a class="text-link"
-                           hx-get="/interactions"
+                           hx-get="/interactions/chat"
                            hx-target="#content-root"
-                           hx-push-url="true">interactions</a>
-                    </li>
-                    <li>
-                        <a class="text-link"
-                           hx-get="/personas"
-                           hx-target="#content-root"
-                           hx-push-url="true">personas</a>
+                           hx-push-url="true"
+                           title="Prompt"
+                        >
+                            <i class="fa fa-message fa-2x" aria-hidden="true"></i>
                         </a>
                     </li>
                     <li>
                         <a class="text-link"
-                           hx-get="/interactions/chat"
+                           title="Interactions"
+                           hx-get="/interactions"
                            hx-target="#content-root"
-                           hx-push-url="true">prompt</a>
+                           hx-push-url="true"
+                        >
+                            <i class="fa fa-list fa-2x"></i>
+                        </a>
                     </li>
-
+                    <li>
+                        <a class="text-link"
+                           title="Personas"
+                           hx-get="/personas"
+                           hx-target="#content-root"
+                           hx-push-url="true"
+                        >
+                            <i class="fa fa-robot fa-2x"></i>
+                        </a>
+                    </li>
                 </ul>
             </div><!-- /.navbar-collapse -->
         </div>

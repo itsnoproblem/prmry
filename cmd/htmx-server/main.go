@@ -24,6 +24,7 @@ import (
 	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/authorizing"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/profiling"
 	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
@@ -77,12 +78,14 @@ func main() {
 		os.Getenv(env.GoogleClientID),
 		os.Getenv(env.GoogleClientSecret),
 		os.Getenv(env.GoogleCallbackURL),
+		"email",
 	)
 
 	githubClient := github.New(
 		os.Getenv(env.GithubClientID),
 		os.Getenv(env.GithubClientSecret),
 		os.Getenv(env.GithubCallbackURL),
+		"user:email",
 	)
 
 	goth.UseProviders(
@@ -92,16 +95,17 @@ func main() {
 
 	gothic.Store = sessions.NewCookieStore([]byte(os.Getenv(env.SessionSecret)))
 
-	usersRepo := sql.NewUsersRepo(db)
-	authService := authorizing.NewService(usersRepo)
-	authResource, err := authorizing.NewResource(authSecret, authService)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
 	tpl, err := templates.Parse()
 	if err != nil {
 		log.Fatalf("Failed to parse templates: %s", err)
+	}
+	renderer := htmx.NewRenderer(tpl)
+
+	usersRepo := sql.NewUsersRepo(db)
+	authService := authorizing.NewService(usersRepo)
+	authResource, err := authorizing.NewResource(renderer, authSecret, authService)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	profileResource, err := profiling.NewResource(tpl)
@@ -112,7 +116,7 @@ func main() {
 	ixnRepo := sql.NewInteractionsRepo(db)
 	modRepo := sql.NewModerationsRepo(db)
 	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
-	ixnResource := interacting.NewResource(tpl, ixnService)
+	ixnResource := interacting.NewResource(renderer, ixnService)
 
 	r.Mount("/", profileResource.Routes())
 	r.Mount("/auth", authResource.Routes())

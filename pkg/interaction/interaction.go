@@ -13,6 +13,7 @@ type Interaction struct {
 	Response  gogpt.CompletionResponse
 	Error     string
 	CreatedAt time.Time
+	UserID    string
 }
 
 type Summary struct {
@@ -24,6 +25,7 @@ type Summary struct {
 	ResponseLength int
 	Error          string
 	CreatedAt      time.Time
+	UserID         string
 }
 
 // PromptHTML returns the prompt as HTML

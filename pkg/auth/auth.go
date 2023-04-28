@@ -2,9 +2,8 @@ package auth
 
 import (
 	"context"
+	"log"
 	"sort"
-
-	"github.com/markbates/goth"
 )
 
 const (
@@ -30,17 +29,11 @@ func Providers() (keys []string, providersByName map[string]string) {
 
 func UserFromContext(ctx context.Context) *User {
 	userFromContext := ctx.Value(ContextKey)
-	u, isUser := userFromContext.(goth.User)
-	if !isUser || u.UserID == "" {
+	u, isUser := userFromContext.(User)
+	if !isUser || u.ID == "" {
+		log.Printf("auth.UserFromContext: failed to cast user")
 		return nil
 	}
 
-	return &User{
-		ID:        u.UserID,
-		Name:      u.Name,
-		Nickname:  u.NickName,
-		Email:     u.Email,
-		AvatarURL: u.AvatarURL,
-		Provider:  u.Provider,
-	}
+	return &u
 }

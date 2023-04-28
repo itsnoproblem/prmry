@@ -1,14 +1,13 @@
 {{- /*gotype: github.com/itsnoproblem/mall-fountain-cop-bot/profiling.LoginView*/ -}}
 {{define "fragment-login"}}
-    <div class="jumbotron text-center text-success">
-        <h1><span class="fa fa-lock"></span> Social Authentication</h1>
-        <p>Login or Register with:</p>
-        {{range $key, $val := .ProvidersMap}}
-            <a hx-get="/auth/{{$key}}"
+    <div class="jumbotron background-unset text-center text-success">
+        <p>Login with:</p>
+        {{range $providerID, $providerName := .ProvidersMap}}
+            <a hx-get="/auth/{{$providerID}}"
                hx-target="#content-root"
                class="btn btn-light">
-                <span class="fa fa-{{$key}}"></span>
-                SignIn with {{$val}}
+                <span class="fa fa-{{$providerID}}"></span>
+                {{$providerName}}
             </a>
         {{end}}
     </div>

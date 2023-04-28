@@ -3,13 +3,16 @@ package interacting
 import (
 	"context"
 	"fmt"
-	interaction2 "github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
+	"github.com/pkg/errors"
 	"log"
 	"math/rand"
 	"strings"
 	"time"
 
 	gogpt "github.com/sashabaranov/go-gpt3"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
 )
 
 const (
@@ -25,16 +28,16 @@ type Responder interface {
 }
 
 type InteractionRepo interface {
-	Add(ctx context.Context, in interaction2.Interaction) (id string, err error)
+	Add(ctx context.Context, in interaction.Interaction) (id string, err error)
 	Remove(ctx context.Context, id string) error
-	Summaries(ctx context.Context) ([]interaction2.Summary, error)
-	Interaction(ctx context.Context, id string) (interaction2.Interaction, error)
+	SummariesForUser(ctx context.Context, userID string) ([]interaction.Summary, error)
+	Interaction(ctx context.Context, id string) (interaction.Interaction, error)
 }
 
 type ModerationRepo interface {
-	Add(ctx context.Context, mod interaction2.Moderation) error
+	Add(ctx context.Context, mod interaction.Moderation) error
 	Remove(ctx context.Context, id string) error
-	All(ctx context.Context) ([]interaction2.Moderation, error)
+	All(ctx context.Context) ([]interaction.Moderation, error)
 }
 
 func NewService(c *gogpt.Client, r InteractionRepo, m ModerationRepo) service {
@@ -54,7 +57,11 @@ type service struct {
 	moderations ModerationRepo
 }
 
-func (s service) NewInteraction(ctx context.Context, msg string) (interaction2.Interaction, error) {
+func (s service) NewInteraction(ctx context.Context, msg string) (interaction.Interaction, error) {
+	if auth.UserFromContext(ctx) == nil {
+		return interaction.Interaction{}, errors.New("Unauthorized")
+	}
+
 	prompt := s.prompt(msg)
 	promptTokens := s.tokenCount(prompt)
 	maxTokens := GPTMaxTokens - promptTokens
@@ -67,68 +74,81 @@ func (s service) NewInteraction(ctx context.Context, msg string) (interaction2.I
 
 	resp, gptErr := s.gptClient.CreateCompletion(ctx, req)
 	if gptErr != nil {
-		return interaction2.Interaction{}, gptErr
+		return interaction.Interaction{}, gptErr
 	}
 
-	newInteraction := interaction2.Interaction{
+	newInteraction := interaction.Interaction{
 		Request:   req,
 		Response:  resp,
 		CreatedAt: time.Now(),
+		UserID:    auth.UserFromContext(ctx).ID,
 	}
 
 	id, err := s.history.Add(ctx, newInteraction)
 	if err != nil {
-		return interaction2.Interaction{}, fmt.Errorf("ERROR - Failed to save interaction history: %s", err)
+		return interaction.Interaction{}, fmt.Errorf("ERROR - Failed to save interaction history: %s", err)
 	}
 
 	go s.moderate(ctx, id, msg)
 
 	ixn, err := s.history.Interaction(ctx, id)
 	if err != nil {
-		return interaction2.Interaction{}, fmt.Errorf("ERROR - Failed to save interaction history: %s", err)
+		return interaction.Interaction{}, fmt.Errorf("ERROR - Failed to save interaction history: %s", err)
 	}
 
 	return ixn, nil
 }
 
 func (s service) GenerateResponse(ctx context.Context, msg string) (string, error) {
-	prompt := s.prompt(msg)
-	promptTokens := s.tokenCount(prompt)
-	maxTokens := GPTMaxTokens - promptTokens
-
-	req := gogpt.CompletionRequest{
-		Model:     GPTModel,
-		MaxTokens: maxTokens,
-		Prompt:    prompt,
+	ix, err := s.NewInteraction(ctx, msg)
+	if err != nil {
+		return "", errors.Wrap(err, "inetracting.GenerateResponse")
 	}
 
-	resp, gptErr := s.gptClient.CreateCompletion(ctx, req)
-	err := ""
-	if gptErr != nil {
-		err = gptErr.Error()
+	if len(ix.Response.Choices) == 0 {
+		return "", errors.Wrap(err, "interacting.GenerateResponse: no choices")
 	}
 
-	interactionID, histErr := s.history.Add(ctx, interaction2.Interaction{
-		Request:   req,
-		Response:  resp,
-		Error:     err,
-		CreatedAt: time.Now(),
-	})
-	if histErr != nil {
-		log.Printf("ERROR - Failed to save interaction history: %s", histErr)
-	}
+	return ix.Response.Choices[0].Text, nil
 
-	if gptErr != nil {
-		return "", gptErr
-	}
-
-	go s.moderate(ctx, interactionID, msg)
-
-	return resp.Choices[0].Text, nil
+	//prompt := s.prompt(msg)
+	//promptTokens := s.tokenCount(prompt)
+	//maxTokens := GPTMaxTokens - promptTokens
+	//
+	//req := gogpt.CompletionRequest{
+	//	Model:     GPTModel,
+	//	MaxTokens: maxTokens,
+	//	Prompt:    prompt,
+	//}
+	//
+	//resp, gptErr := s.gptClient.CreateCompletion(ctx, req)
+	//err := ""
+	//if gptErr != nil {
+	//	err = gptErr.Error()
+	//}
+	//
+	//interactionID, histErr := s.history.Add(ctx, interaction.Interaction{
+	//	Request:   req,
+	//	Response:  resp,
+	//	Error:     err,
+	//	CreatedAt: time.Now(),
+	//})
+	//if histErr != nil {
+	//	log.Printf("ERROR - Failed to save interaction history: %s", histErr)
+	//}
+	//
+	//if gptErr != nil {
+	//	return "", gptErr
+	//}
+	//
+	//go s.moderate(ctx, interactionID, msg)
+	//
+	//return resp.Choices[0].Text, nil
 }
 
-func (s service) Interactions(ctx context.Context) ([]interaction2.Summary, error) {
-	history, err := s.history.Summaries(ctx)
+func (s service) Interactions(ctx context.Context) ([]interaction.Summary, error) {
+	usr := auth.UserFromContext(ctx)
+	history, err := s.history.SummariesForUser(ctx, usr.ID)
 	if err != nil {
 		return nil, fmt.Errorf("interacting.Interactions: %s", err)
 	}
@@ -136,21 +156,21 @@ func (s service) Interactions(ctx context.Context) ([]interaction2.Summary, erro
 	return history, nil
 }
 
-func (s service) Interaction(ctx context.Context, interactionID string) (interaction2.Interaction, error) {
+func (s service) Interaction(ctx context.Context, interactionID string) (interaction.Interaction, error) {
 	in, err := s.history.Interaction(ctx, interactionID)
 	if err != nil {
-		return interaction2.Interaction{}, fmt.Errorf("interacting.Interaction: %s", err)
+		return interaction.Interaction{}, fmt.Errorf("interacting.Interaction: %s", err)
 	}
 
 	return in, nil
 }
 
-func (s service) Moderation(ctx context.Context, interactionID string) (interaction2.Moderation, error) {
-	return interaction2.Moderation{}, fmt.Errorf("Not implemented")
+func (s service) Moderation(ctx context.Context, interactionID string) (interaction.Moderation, error) {
+	return interaction.Moderation{}, fmt.Errorf("Not implemented")
 }
 
-func (s service) ModerationByID(ctx context.Context, moderationID string) (interaction2.Moderation, error) {
-	return interaction2.Moderation{}, fmt.Errorf("Not implemented")
+func (s service) ModerationByID(ctx context.Context, moderationID string) (interaction.Moderation, error) {
+	return interaction.Moderation{}, fmt.Errorf("Not implemented")
 }
 
 func (s service) moderate(ctx context.Context, interactionID, msg string) {
@@ -164,7 +184,7 @@ func (s service) moderate(ctx context.Context, interactionID, msg string) {
 		log.Printf("ERROR - interactingService.moderate: %s", err)
 	}
 
-	s.moderations.Add(ctx, interaction2.Moderation{
+	s.moderations.Add(ctx, interaction.Moderation{
 		ID:            modRes.ID,
 		InteractionID: interactionID,
 		Model:         modRes.Model,

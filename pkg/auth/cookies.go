@@ -1,4 +1,4 @@
-package cookies
+package auth
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/markbates/goth"
 	"io"
 	"net/http"
 	"strings"
@@ -22,12 +21,12 @@ var (
 	ErrInvalidValue = errors.New("invalid cookie value")
 )
 
-func New(name string, user goth.User) (http.Cookie, error) {
+func NewCookie(name string, usr User) (http.Cookie, error) {
 	// Initialize a buffer to hold the gob-encoded data.
 	var buf bytes.Buffer
 
-	// Gob-encode the user data, storing the encoded output in the buffer.
-	err := gob.NewEncoder(&buf).Encode(&user)
+	// Gob-encode the usr data, storing the encoded output in the buffer.
+	err := gob.NewEncoder(&buf).Encode(&usr)
 	if err != nil {
 		return http.Cookie{}, fmt.Errorf("NewCookie: %s", err)
 	}

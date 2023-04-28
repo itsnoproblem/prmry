@@ -17,12 +17,16 @@ func NewRenderer(tpl *template.Template) *renderer {
 }
 
 func (rnd *renderer) RenderComponent(w http.ResponseWriter, r *http.Request, fullPageTemplate, fragmentTemplate string, cmp Component) error {
-	usr := auth.UserFromContext(r.Context())
-	if cmp.IsLocked() && usr == nil {
-		rnd.Unauthorized(w, r)
-	}
+	var usr *auth.User
 
-	cmp.SetUser(usr)
+	if cmp.IsLocked() {
+		usr = auth.UserFromContext(r.Context())
+		if usr == nil && r != nil && r.URL.Path != "/" {
+			rnd.Unauthorized(w, r)
+			return nil
+		}
+		cmp.SetUser(usr)
+	}
 
 	if IsHXRequest(r) {
 		return rnd.tpl.ExecuteTemplate(w, fragmentTemplate, cmp)
@@ -40,7 +44,8 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 	cmp := ErrorView{
 		Error: err.Error(),
 	}
-	_ = rnd.RenderComponent(w, r, "page-error", "error", &cmp)
+
+	_ = rnd.tpl.ExecuteTemplate(w, "top-navigation", cmp)
 }
 
 func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +57,6 @@ func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
 		_ = rnd.tpl.ExecuteTemplate(w, "top-navigation", cmp)
 		//_ = rnd.tpl.ExecuteTemplate(w, "fragment-login", nil)
 	} else {
-		url := "/"
-		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	}
 }

@@ -3,16 +3,13 @@ package authorizing
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/cookies"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/httperr"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/user"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
-	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/markbates/goth/gothic"
+
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
 )
 
 const (
@@ -20,11 +17,11 @@ const (
 )
 
 type AuthService interface {
-	CreateUser(ctx context.Context, usr user.User) (id string, err error)
+	CreateUser(ctx context.Context, usr auth.User) (id string, err error)
 	DeleteUser(ctx context.Context, id string) error
-	SaveUserWithOAuthConnection(ctx context.Context, usr user.User, provider, providerUserID string) error
-	GetUserByProvider(ctx context.Context, provider, providerUserID string) (usr user.User, exists bool, err error)
-	GetUserByEmail(ctx context.Context, email string) (usr user.User, exists bool, err error)
+	SaveUserWithOAuthConnection(ctx context.Context, usr auth.User, provider, providerUserID string) error
+	GetUserByProvider(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error)
+	GetUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error)
 }
 
 type Resource struct {
@@ -33,19 +30,19 @@ type Resource struct {
 	secret      auth.Byte32
 }
 
-func NewResource(authSecret auth.Byte32, authService AuthService) (Resource, error) {
-	renderer, err := NewRenderer()
-	if err != nil {
-		return Resource{}, fmt.Errorf("authorizing.NewResource: %s", err)
-	}
+type Renderer interface {
+	RenderComponent(w http.ResponseWriter, r *http.Request, fullPageTemplate, fragmentTemplate string, cmp htmx.Component) error
+	RenderError(w http.ResponseWriter, r *http.Request, err error)
+}
 
+func NewResource(renderer Renderer, authSecret auth.Byte32, authService AuthService) (Resource, error) {
 	gothic.GetProviderName = func(req *http.Request) (string, error) {
 		return chi.URLParam(req, paramNameProvider), nil
 	}
 
 	return Resource{
 		authService: authService,
-		renderer:    *renderer,
+		renderer:    renderer,
 		secret:      authSecret,
 	}, nil
 }
@@ -55,26 +52,44 @@ func (rs Resource) Routes() chi.Router {
 	r.Get(fmt.Sprintf("/{%s}", paramNameProvider), rs.AuthHandler)
 	r.Get(fmt.Sprintf("/{%s}/callback", paramNameProvider), rs.AuthSuccessHandler)
 	r.Get(fmt.Sprintf("/logout/{%s}", paramNameProvider), rs.LogoutHandler)
+	r.Get("/logout", rs.LogoutHandler)
 	return r
 }
 
 func (rs Resource) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	// try to get the user without re-authenticating
-	if user, err := gothic.CompleteUserAuth(w, r); err == nil {
-		if err := rs.saveUserCookie(w, user); err != nil {
-			httperr.Internal(err.Error(), err, w, r)
+	if usr, err := gothic.CompleteUserAuth(w, r); err == nil {
+		authUser, exists, err := rs.authService.GetUserByProvider(r.Context(), usr.Provider, usr.UserID)
+		if err != nil {
+			rs.renderer.RenderError(w, r, err)
 			return
 		}
 
-		if err = rs.renderer.RenderLoginSuccess(w, NewUserView(user)); err != nil {
-			httperr.Internal("AuthHandler: "+err.Error(), err, w, r)
+		if !exists {
+			authUser = auth.User{
+				Name:  usr.FirstName + " " + usr.LastName,
+				Email: usr.Email,
+			}
+			if err = rs.authService.SaveUserWithOAuthConnection(r.Context(), authUser, usr.Provider, usr.UserID); err != nil {
+				rs.renderer.RenderError(w, r, err)
+				return
+			}
+		}
+
+		if err := rs.saveUserCookie(w, authUser); err != nil {
+			rs.renderer.RenderError(w, r, err)
+			return
+		}
+
+		cmp := NewUserView(usr)
+		if err = rs.renderer.RenderComponent(w, r, "page-login-success", "page-login-success", &cmp); err != nil {
+			rs.renderer.RenderError(w, r, err)
 			return
 		}
 	} else {
 		url, err := gothic.GetAuthURL(w, r)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			httperr.BadRequest("AuthHandler: "+err.Error(), err, w, r)
+			rs.renderer.RenderError(w, r, err)
 			return
 		}
 
@@ -94,101 +109,88 @@ func (rs Resource) AuthSuccessHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusFound)
+		if r != nil && r.URL.Path != "/" {
+			http.Redirect(w, r, "/", http.StatusFound)
+		}
 	}
 
 	userFromProvider, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		httperr.Internal("CompleteUserAuth: "+err.Error(), err, w, r)
-	}
-
-	if userFromProvider.Email != "" {
-		userByEmail, userByEmailExists, err := rs.authService.GetUserByEmail(r.Context(), userFromProvider.Email)
-		if err != nil {
-			httperr.Internal("AuthSuccessHandler: "+err.Error(), err, w, r)
-		}
-
-		if userByEmailExists {
-			if err = rs.authService.SaveUserWithOAuthConnection(r.Context(), userByEmail, userFromProvider.Provider, userFromProvider.UserID); err != nil {
-				httperr.Internal("failed to save oauth connection", err, w, r)
-				return
-			}
-
-			finishWithRedirect()
-			return
-		}
-	}
-
-	existingUser, exists, err := rs.authService.GetUserByProvider(r.Context(), userFromProvider.Provider, userFromProvider.UserID)
-	if err != nil {
-		httperr.Internal("AuthSuccessHandler: "+err.Error(), err, w, r)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 
-	if exists {
-		log.Printf("Wuthenticated User: %s", existingUser.ID)
-		if err = rs.authService.SaveUserWithOAuthConnection(r.Context(), existingUser, userFromProvider.Provider, userFromProvider.UserID); err != nil {
-			httperr.Internal("failed to save oauth connection", err, w, r)
-			return
-		}
-	} else {
+	if userFromProvider.Email == "" {
+		rs.renderer.RenderError(w, r, fmt.Errorf("user from provider missing email"))
+		return
+	}
+
+	userByEmail, userByEmailExists, err := rs.authService.GetUserByEmail(r.Context(), userFromProvider.Email)
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	if !userByEmailExists {
 		name := userFromProvider.NickName
 		if userFromProvider.FirstName != "" {
-			name = userFromProvider.Name
+			name = userFromProvider.FirstName + " " + userFromProvider.LastName
 		}
-		usr := user.User{
-			Name:  name,
-			Email: userFromProvider.Email,
+		userByEmail = auth.User{
+			Name:      name,
+			Email:     userFromProvider.Email,
+			Nickname:  userFromProvider.NickName,
+			AvatarURL: userFromProvider.AvatarURL,
 		}
 
-		usr.ID, err = rs.authService.CreateUser(r.Context(), usr)
+		userByEmail.ID, err = rs.authService.CreateUser(r.Context(), userByEmail)
 		if err != nil {
-			httperr.Internal("Failed to create user", err, w, r)
+			rs.renderer.RenderError(w, r, err)
+			return
 		}
 
-		log.Printf("Created User: %s", usr.ID)
-
-		if err = rs.authService.SaveUserWithOAuthConnection(r.Context(), usr, userFromProvider.Provider, userFromProvider.UserID); err != nil {
-			log.Printf("ERROR (rollback): Failed to save oauth connection: %s", err)
-			if err := rs.authService.DeleteUser(r.Context(), usr.ID); err != nil {
-				log.Printf("ERROR: Failed to delete user during rollback: %s", usr.ID)
-			}
-
-			httperr.Internal("failed to save oauth connection", err, w, r)
+		if err = rs.authService.SaveUserWithOAuthConnection(r.Context(), userByEmail, userFromProvider.Provider, userFromProvider.UserID); err != nil {
+			rs.renderer.RenderError(w, r, err)
 			return
 		}
 	}
 
-	if err := rs.saveUserCookie(w, userFromProvider); err != nil {
-		httperr.Internal("saveUserCookie: "+err.Error(), err, w, r)
+	if err := rs.saveUserCookie(w, userByEmail); err != nil {
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 
 	finishWithRedirect()
-
 }
 
 func (rs Resource) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	err := gothic.Logout(w, r)
 	if err != nil {
-		httperr.Internal("LogoutHandler: "+err.Error(), err, w, r)
+		rs.renderer.RenderError(w, r, err)
+		return
 	}
 
 	if err = rs.deleteUserCookie(w); err != nil {
-		httperr.Internal("LogoutHandler: "+err.Error(), err, w, r)
+		rs.renderer.RenderError(w, r, err)
+		return
 	}
 
-	w.Header().Add("HX-Redirect", "/")
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	if htmx.IsHXRequest(r) {
+		w.Header().Add("HX-Redirect", "/")
+	}
+
+	if r != nil && r.URL.Path != "/" {
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
 }
 
-func (rs Resource) saveUserCookie(w http.ResponseWriter, user goth.User) error {
-	cookie, err := cookies.New(auth.CookieName, user)
+func (rs Resource) saveUserCookie(w http.ResponseWriter, user auth.User) error {
+	cookie, err := auth.NewCookie(auth.CookieName, user)
 	if err != nil {
 		return fmt.Errorf("saveUserCookie: %s", err)
 	}
 
-	if err = cookies.WriteEncrypted(w, cookie, rs.secret); err != nil {
+	if err = auth.WriteEncrypted(w, cookie, rs.secret); err != nil {
 		return fmt.Errorf("saveUserCookie: %s", err)
 	}
 
@@ -196,7 +198,7 @@ func (rs Resource) saveUserCookie(w http.ResponseWriter, user goth.User) error {
 }
 
 func (rs Resource) deleteUserCookie(w http.ResponseWriter) error {
-	if err := rs.saveUserCookie(w, goth.User{}); err != nil {
+	if err := rs.saveUserCookie(w, auth.User{}); err != nil {
 		return fmt.Errorf("deleteUserCookie: %s", err)
 	}
 

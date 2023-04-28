@@ -3,25 +3,28 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/user"
 )
 
 type UserRow struct {
-	ID    string `db:"id"`
-	Name  string `db:"name"`
-	Email string `db:"email"`
+	ID        string `db:"id"`
+	Email     string `db:"email"`
+	Name      string `db:"name"`
+	Nickname  string `db:"nickname"`
+	AvatarURL string `db:"avatar_url"`
 }
 
-func (r UserRow) ToUser() user.User {
-	return user.User{
-		ID:    r.ID,
-		Name:  r.Name,
-		Email: r.Email,
+func (r UserRow) ToUser() auth.User {
+	return auth.User{
+		ID:        r.ID,
+		Email:     r.Email,
+		Name:      r.Name,
+		Nickname:  r.Nickname,
+		AvatarURL: r.AvatarURL,
 	}
 }
 
@@ -35,12 +38,19 @@ func NewUsersRepo(db *sqlx.DB) usersRepo {
 	}
 }
 
-func (r usersRepo) InsertUser(ctx context.Context, usr user.User) error {
-	//id = uuid.New().String()
+func (r usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
+	//id = uuid.NewCookie().String()
 	query := `
-		INSERT INTO users (id, name, email) VALUES (?, ?, ?)
+		INSERT INTO 
+		    users (
+			   id, 
+			   email, 
+			   name, 
+			   nickname, 
+			   avatar_url
+		   ) VALUES (?, ?, ?, ?, ?)
 	`
-	_, err := r.db.ExecContext(ctx, query, usr.ID, usr.Name, usr.Email)
+	_, err := r.db.ExecContext(ctx, query, usr.ID, usr.Email, usr.Name, usr.Nickname, usr.AvatarURL)
 	if err != nil {
 		return errors.Wrapf(err, "usersRepo.InsertUser")
 	}
@@ -63,12 +73,14 @@ func (r usersRepo) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr user.User, exists bool, err error) {
+func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			u.id, 
 			u.email, 
-			u.name
+			u.name,
+			u.nickname,
+			u.avatar_url
 		FROM oauth_users AS oa
 		INNER JOIN users AS u ON u.id = oa.user_id
 		WHERE oa.provider = ?
@@ -79,47 +91,42 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 	rows, err := r.db.QueryxContext(ctx, query, provider, providerUserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return user.User{}, false, nil
+			return auth.User{}, false, nil
 		}
-		return user.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
+		return auth.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
 	}
 
 	for rows.Next() {
 		var userRow UserRow
 		if err = rows.StructScan(&userRow); err != nil {
-			return user.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
+			return auth.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
 		}
 	}
 
 	return usr, true, nil
 }
 
-func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr user.User, exists bool, err error) {
+func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			id, 
 			email, 
-			name
+			name,
+			nickname,
+			avatar_url
 		FROM users
 		WHERE email = ?
 	`
 
-	rows, err := r.db.QueryxContext(ctx, query, email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return user.User{}, false, nil
+	var userRow UserRow
+	if err := r.db.QueryRowxContext(ctx, query, email).StructScan(&userRow); err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return auth.User{}, false, nil
 		}
-		return user.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
+		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
 	}
 
-	for rows.Next() {
-		var userRow UserRow
-		if err = rows.StructScan(&userRow); err != nil {
-			return user.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
-		}
-	}
-
-	return usr, true, nil
+	return userRow.ToUser(), true, nil
 }
 
 func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
@@ -161,7 +168,7 @@ func (r usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, e
 	return numRows > 0, nil
 }
 
-func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr user.User, oauthProvider, providerUserID string) error {
+func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error {
 	query := `
 		INSERT INTO oauth_users (
 			user_id, 

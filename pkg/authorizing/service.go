@@ -2,18 +2,17 @@ package authorizing
 
 import (
 	"context"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/user"
-
 	"github.com/google/uuid"
+	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"github.com/pkg/errors"
 )
 
 type UserRepository interface {
-	InsertUser(ctx context.Context, usr user.User) error
+	InsertUser(ctx context.Context, usr auth.User) error
 	DeleteUser(ctx context.Context, id string) error
-	SaveUserFromOAuth(ctx context.Context, usr user.User, oauthProvider, providerUserID string) error
-	FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (user.User, bool, error)
-	FindUserByEmail(ctx context.Context, email string) (user.User, bool, error)
+	SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error
+	FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (auth.User, bool, error)
+	FindUserByEmail(ctx context.Context, email string) (auth.User, bool, error)
 	ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error)
 }
 
@@ -27,7 +26,7 @@ func NewService(userRepo UserRepository) service {
 	}
 }
 
-func (s service) CreateUser(ctx context.Context, usr user.User) (id string, err error) {
+func (s service) CreateUser(ctx context.Context, usr auth.User) (id string, err error) {
 	usr.ID = uuid.NewString()
 	if err = s.userRepo.InsertUser(ctx, usr); err != nil {
 		return "", errors.Wrap(err, "authService.CreateUser")
@@ -53,7 +52,14 @@ func (s service) UserExistsForOAuthProvider(ctx context.Context, provider, provi
 	return exists, nil
 }
 
-func (s service) SaveUserWithOAuthConnection(ctx context.Context, usr user.User, provider, providerUserID string) error {
+func (s service) SaveUserWithOAuthConnection(ctx context.Context, usr auth.User, provider, providerUserID string) error {
+	if usr.ID == "" {
+		var err error
+		if usr.ID, err = s.CreateUser(ctx, usr); err != nil {
+			return errors.Wrap(err, "authService.SaveUserWithOAuthConnection")
+		}
+	}
+
 	if err := s.userRepo.SaveUserFromOAuth(ctx, usr, provider, providerUserID); err != nil {
 		return errors.Wrap(err, "authService.SaveUserWithOAuthConnection")
 	}
@@ -61,19 +67,19 @@ func (s service) SaveUserWithOAuthConnection(ctx context.Context, usr user.User,
 	return nil
 }
 
-func (s service) GetUserByProvider(ctx context.Context, provider, providerUserID string) (usr user.User, exists bool, err error) {
+func (s service) GetUserByProvider(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
 	usr, exists, err = s.userRepo.FindUserViaOAuth(ctx, provider, providerUserID)
 	if err != nil {
-		return user.User{}, false, errors.Wrap(err, "authService.GetUserByProvider")
+		return auth.User{}, false, errors.Wrap(err, "authService.GetUserByProvider")
 	}
 
 	return usr, exists, nil
 }
 
-func (s service) GetUserByEmail(ctx context.Context, email string) (usr user.User, exists bool, err error) {
+func (s service) GetUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
 	usr, exists, err = s.userRepo.FindUserByEmail(ctx, email)
 	if err != nil {
-		return user.User{}, false, errors.Wrap(err, "authService.GetUserByEmail")
+		return auth.User{}, false, errors.Wrap(err, "authService.GetUserByEmail")
 	}
 
 	return usr, exists, nil

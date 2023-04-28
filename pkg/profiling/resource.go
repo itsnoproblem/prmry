@@ -37,6 +37,7 @@ func (rs Resource) Home(w http.ResponseWriter, r *http.Request) {
 		Providers:    keys,
 		ProvidersMap: providersByName,
 	}
+	home.Lock()
 
 	if err := rs.renderer.RenderComponent(w, r, "page-home.gohtml", "fragment-home.gohtml", &home); err != nil {
 		writeError(w, err)

@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+.background-unset {
+    background: unset;
+}
+
 .htmx-indicator {
     display:none !important;
 }
@@ -97,13 +101,17 @@ img.rgb-logo {
     margin-top: 97px;
 }
 
+#content-root>.jumbotron-fluid {
+    padding: 1.3em 3.65em;
+}
+
 #chat-content {
     overflow: hidden;
     margin-bottom: 72px;
     height: 100vh;
 }
 #chat-controls {
-    padding: 1em 0 1em 0;
+    padding: 1.3em 3.65em;
     /*margin-bottom: 16px;*/
 }
 #chat-controls>input {
@@ -172,6 +180,7 @@ ul.usage hr {
 .post-container {
     width: 95%;
     line-height: 1.36;
+    padding: 0 3.65em
 }
 
 .post-container hr {
@@ -179,7 +188,7 @@ ul.usage hr {
 }
 
 .posts {
-    margin: 1.3em;
+    margin: 1.3em 3.65em;
 }
 
 .post {
@@ -400,12 +409,12 @@ ul.usage hr {
 }
 
 .nav>li>a.text-link {
-    margin-top: 10px;
     color: #CCC;
 }
 
-.nav>li>a:hover {
+.nav>li>a:focus, .nav>li>a:hover {
     color: #4d85d1;
+    background-color: rgb(51, 65, 76);
 }
 
 .navbar, .nav {
