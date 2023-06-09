@@ -4,7 +4,7 @@ package mocks
 
 import (
 	context "context"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 
 	mock "github.com/stretchr/testify/mock"
 )

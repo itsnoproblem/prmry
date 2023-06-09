@@ -23,8 +23,8 @@ html {
 }
 
 body {
-    background: rgb(61, 79, 93);
-    color: #eeeeee;
+    /*background: rgb(61, 79, 93);*/
+    /*color: #eeeeee;*/
 }
 
 a {
@@ -97,9 +97,9 @@ img.rgb-logo {
     letter-spacing: 0.1em;
 }
 
-#content-root {
-    margin-top: 97px;
-}
+/*#content-root {*/
+/*    margin-top: 97px;*/
+/*}*/
 
 #content-root>.jumbotron-fluid {
     padding: 1.3em 3.65em;
@@ -108,11 +108,9 @@ img.rgb-logo {
 #chat-content {
     overflow: hidden;
     margin-bottom: 72px;
-    height: 100vh;
 }
 #chat-controls {
     padding: 1.3em 3.65em;
-    /*margin-bottom: 16px;*/
 }
 #chat-controls>input {
     width: 100%;
@@ -414,11 +412,9 @@ ul.usage hr {
 
 .nav>li>a:focus, .nav>li>a:hover {
     color: #4d85d1;
-    background-color: rgb(51, 65, 76);
 }
 
 .navbar, .nav {
-    background: rgb(61, 79, 93);
     font-size: 1.125em;
     letter-spacing: .125em;
     font-weight: 400;

@@ -12,11 +12,11 @@ import (
 	"github.com/turnage/graw"
 	"github.com/turnage/graw/reddit"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/log"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/rgb"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
+	"github.com/itsnoproblem/prmry/env"
+	"github.com/itsnoproblem/prmry/pkg/interacting"
+	"github.com/itsnoproblem/prmry/pkg/log"
+	"github.com/itsnoproblem/prmry/pkg/rgb"
+	"github.com/itsnoproblem/prmry/pkg/sql"
 )
 
 const (

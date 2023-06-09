@@ -2,9 +2,11 @@ package authorizing
 
 import (
 	"context"
+
 	"github.com/google/uuid"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/pkg/auth"
 )
 
 type UserRepository interface {

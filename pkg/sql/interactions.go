@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
-	"github.com/jmoiron/sqlx"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 type InteractionRow struct {

@@ -1,7 +1,7 @@
 package rgb_test
 
 import (
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/rgb"
+	"github.com/itsnoproblem/prmry/pkg/rgb"
 	"testing"
 )
 

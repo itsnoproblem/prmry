@@ -1,0 +1,41 @@
+package home
+
+import (
+    "github.com/itsnoproblem/prmry/pkg/auth"
+    "github.com/itsnoproblem/prmry/pkg/components/page"
+)
+
+templ HomePage(view HomeView) {
+    @page.Page(&view) {
+        <div>
+            @HomeFragment(view)
+        </div>
+    }
+}
+
+templ HomeFragment(view HomeView) {
+    if view.User() == nil {
+        @Login(view)
+    } else {
+        @Dashboard(*view.User())
+    }
+}
+
+templ Dashboard(user auth.User) {
+    <h1>Welcome { user.Name }</h1>
+    <div></div> 
+}
+
+templ Login(view HomeView) {
+    <div class="jumbotron background-unset text-center text-success">
+        <p>Login with:</p>
+        for id, name := range view.ProvidersMap {
+            <a hx-get={ "/auth/"+id }
+               hx-target="#content-root"
+               class="btn btn-light">
+                <span class={ "fa fa-"+id }></span>
+                { name }
+            </a>
+        }
+    </div>
+}

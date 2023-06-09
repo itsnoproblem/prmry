@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/markbates/goth/gothic"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
+	"github.com/itsnoproblem/prmry/pkg/auth"
+	"github.com/itsnoproblem/prmry/pkg/components/home"
+	"github.com/itsnoproblem/prmry/pkg/htmx"
 )
 
 const (
@@ -31,7 +33,7 @@ type Resource struct {
 }
 
 type Renderer interface {
-	RenderComponent(w http.ResponseWriter, r *http.Request, fullPageTemplate, fragmentTemplate string, cmp htmx.Component) error
+	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
 	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
@@ -81,8 +83,8 @@ func (rs Resource) AuthHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cmp := NewUserView(usr)
-		if err = rs.renderer.RenderComponent(w, r, "page-login-success", "page-login-success", &cmp); err != nil {
+		cmp := home.HomeView{}
+		if err = rs.renderer.RenderTemplComponent(w, r, home.HomePage(cmp), home.HomeFragment(cmp)); err != nil {
 			rs.renderer.RenderError(w, r, err)
 			return
 		}
@@ -93,7 +95,7 @@ func (rs Resource) AuthHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if htmx.IsHXRequest(r) {
+		if htmx.IsHXRequest(r.Context()) {
 			w.Header().Set("HX-Redirect", url)
 		} else {
 			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
@@ -104,7 +106,7 @@ func (rs Resource) AuthHandler(w http.ResponseWriter, r *http.Request) {
 
 func (rs Resource) AuthSuccessHandler(w http.ResponseWriter, r *http.Request) {
 	finishWithRedirect := func() {
-		if htmx.IsHXRequest(r) {
+		if htmx.IsHXRequest(r.Context()) {
 			htmx.Redirect(w, "/")
 			return
 		}
@@ -175,7 +177,7 @@ func (rs Resource) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if htmx.IsHXRequest(r) {
+	if htmx.IsHXRequest(r.Context()) {
 		w.Header().Add("HX-Redirect", "/")
 	}
 

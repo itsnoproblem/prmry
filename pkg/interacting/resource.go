@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+
+	"github.com/itsnoproblem/prmry/pkg/components/chat"
+	"github.com/itsnoproblem/prmry/pkg/components/interactions"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 const (
@@ -21,8 +24,9 @@ type Service interface {
 }
 
 type Renderer interface {
-	RenderComponent(w http.ResponseWriter, r *http.Request, fullPageTemplate, fragmentTemplate string, cmp htmx.Component) error
 	RenderError(w http.ResponseWriter, r *http.Request, err error)
+	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
+	Unauthorized(w http.ResponseWriter, r *http.Request)
 }
 
 type Resource struct {
@@ -66,12 +70,16 @@ func (rs Resource) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmp := ChatResponse{
-		Interaction: DetailView(ixn),
+	cmp := chat.ChatResponseView{
+		Interaction: chat.NewChatDetailView(ixn),
 	}
-	cmp.Lock()
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.Unauthorized(w, r)
+		return
+	}
 
-	if err = rs.renderer.RenderComponent(w, r, "chat-response.gohtml", "chat-response.gohtml", &cmp); err != nil {
+	templComponent := chat.ChatResponse(cmp)
+	if err = rs.renderer.RenderTemplComponent(w, r, templComponent, templComponent); err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}
@@ -79,8 +87,8 @@ func (rs Resource) Create(w http.ResponseWriter, r *http.Request) {
 
 // Chat - GET /interactions/chat
 func (rs Resource) Chat(w http.ResponseWriter, r *http.Request) {
-	cmp := ChatControls{
-		Personas: []PersonaSelector{
+	cmp := chat.ChatControlsView{
+		Personas: []chat.PersonaSelector{
 			{
 				ID:   "123",
 				Name: "No Persona",
@@ -96,8 +104,15 @@ func (rs Resource) Chat(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	cmp.Lock()
-	if err := rs.renderer.RenderComponent(w, r, "page-chat.gohtml", "fragment-chat.gohtml", &cmp); err != nil {
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.Unauthorized(w, r)
+		return
+	}
+
+	chatFragment := chat.ChatConsole(cmp)
+	chatPage := chat.ChatPage(cmp)
+
+	if err := rs.renderer.RenderTemplComponent(w, r, chatPage, chatFragment); err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}
@@ -117,10 +132,16 @@ func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}
-	cmp := DetailView(ixn)
-	cmp.Lock()
 
-	if err := rs.renderer.RenderComponent(w, r, "page-interaction.gohtml", "interaction-single.gohtml", &cmp); err != nil {
+	cmp := chat.NewChatDetailView(ixn)
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.Unauthorized(w, r)
+		return
+	}
+
+	page := interactions.InteractionDetailPage(cmp)
+	fragment := interactions.InteractionDetail(cmp)
+	if err := rs.renderer.RenderTemplComponent(w, r, page, fragment); err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}
@@ -130,13 +151,20 @@ func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 func (rs Resource) List(w http.ResponseWriter, r *http.Request) {
 	ixns, err := rs.service.Interactions(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 
-	cmp := ListView(ixns)
-	cmp.Lock()
-	if err := rs.renderer.RenderComponent(w, r, "page-interactions.gohtml", "interactions-list.gohtml", &cmp); err != nil {
+	cmp := chat.NewInteractionListView(ixns)
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.Unauthorized(w, r)
+		return
+	}
+
+	fragment := interactions.InteractionsList(cmp)
+	page := interactions.InteractionsListPage(cmp)
+
+	if err := rs.renderer.RenderTemplComponent(w, r, page, fragment); err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}

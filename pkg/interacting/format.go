@@ -2,8 +2,9 @@ package interacting
 
 import (
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
 	"time"
+
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 type interactionSummaryResponse struct {

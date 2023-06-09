@@ -3,7 +3,7 @@ package rgb
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/log"
+	"github.com/itsnoproblem/prmry/pkg/log"
 	"math/rand"
 	"strings"
 	"time"

@@ -1,0 +1,172 @@
+package flow
+
+import "github.com/itsnoproblem/prmry/pkg/components/page"
+
+templ FlowBuilderPage(view Detail) {
+    @page.Page(&view) {
+        @FlowBuilder(view)
+    }
+}
+
+templ FlowBuilder(view Detail) {
+    <form 
+        id="flow-builder" 
+        hx-post="/flows/new" 
+        hx-target="#content-root" 
+        hx-push-url="false"
+        hx-ext="json-enc"
+    >
+        <input type="hidden" name="id" value={ view.ID }/>
+        <div class="row">
+            <div class="col col-8">
+                <div class="form-floating mb-3">
+                    <input name="name" 
+                        type="text" 
+                        class="form-control" 
+                        placeholder="Welcome Flow"
+                        value={ view.Name }
+                    />
+                    <label for="name">Flow Name</label>
+                </div>
+            </div>
+            <div class="col col-4 d-none d-sm-block">
+                <h6>BUILD FLOWS BY DEFINING RULES</h6>
+                <small>
+                    Rules consist of an input field to check, the condition that determines a match, 
+                    and the value to match with the condition.
+                </small>
+            </div>
+        </div>
+        
+        <div class="row pt-4">
+            <div class="col col-1 align-bottom">
+                <span class="text-info align-baseline">
+                    Rules
+                </span>
+            </div>
+            <div class="col col-10"></div>
+            <div class="col col-1">
+                <button 
+                    id="add-rule"
+                    hx-post="/flows/new/add-rule"
+                    hx-target="#content-root"
+                    hx-push-url="false"
+                    class="btn btn-info btn-sm mb-2">New</button>
+            </div>
+        </div>
+        <hr class="text-info mb-5 mt-0"/>
+        
+        <div id="conditions-container" class="container pb-4">
+            if len(view.Conditions) == 0 {
+                
+                <h2>No rules yet</h2>
+                
+            }
+            for _, cond := range view.Conditions {
+                <div class="row flow-rule">
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <select name={ "fieldName" } class="form-select form-select-md" aria-label="Field name">
+                                <option></option>
+                                for _, name := range view.SupportedFields {
+                                    if name == cond.Field {
+                                        <option value={ name } selected="true">{ name }</option>
+                                    } else {
+                                        <option value={ name }>{ name }</option>
+                                    }
+                                }
+                            </select>
+                            <label for={ "fieldName" }>Field Name</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <select name={ "condition" } class="form-select form-select-md" aria-label="Condition">
+                                <option></option>
+
+                                for _, c := range view.SupportedConditions {
+                                    if c == cond.Type {
+                                        <option value={ c } selected="true">
+                                            { c }
+                                        </option>
+                                    } else {
+                                        <option value={ c }>
+                                            { c }
+                                        </option>
+                                    }
+                                    
+                                }
+                            </select>
+                            <label for={ "condition" }>Condition</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <input type="text"
+                                name={ "value" } 
+                                class="form-control form-control-md" 
+                                placeholder="Field Value"
+                                value={ cond.Value }
+                            />
+                            <label for="value">Field Value</label>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+        </div>
+        
+        <hr class="text-info mb-4 mt-4"/>
+
+        <div class="row">
+            <div class="col col-1">
+                <input
+                    class="btn btn-primary" 
+                    type="submit" 
+                    value="Save"
+                />
+            </div>
+            <div class="col col-1">
+                <button 
+                    class="btn btn-secondary" 
+                    hx-get="/flows" 
+                    hx-target="#content-root"
+                    hx-push-url="true"
+                    hx-confirm="Abandon changes?"
+                >
+                    Cancel
+                </button>
+            </div>
+            <div class="col col-10"></div>
+        </div>
+    </form>
+}
+
+templ FlowsListPage(view FlowsListView) {
+    @page.Page(&view) {
+        @FlowsList(view)
+    }
+}
+
+templ FlowsList(view FlowsListView) {
+    <div class="d-flex align-items-end flex-column mb-3">
+        <button 
+            hx-push-url="true"
+            hx-target="#content-root"
+            hx-get="/flows/new"
+        >
+            New Flow
+        </button>
+    </div>
+
+    <div class="container flows-list-wrapper">
+    for _, f := range view.Flows {
+        <div class="row">
+            <div class="col">ID: { f.ID }</div>
+            <div class="col">Name: { f.Name }</div>
+            <div class="col">edit</div>
+            <div class="col">delete</div>
+        </div>
+    }
+    </div>
+}

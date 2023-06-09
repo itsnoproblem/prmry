@@ -8,7 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 type moderationsRepo struct {

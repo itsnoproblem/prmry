@@ -3,11 +3,12 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/pkg/auth"
 )
 
 type UserRow struct {

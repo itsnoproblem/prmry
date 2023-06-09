@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/api"
+	"github.com/itsnoproblem/prmry/pkg/api"
 )
 
 func RouteHandler(svc service) func(chi.Router) {

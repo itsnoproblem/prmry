@@ -2,10 +2,12 @@ package interacting
 
 import (
 	"context"
-	interaction2 "github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
-	gogpt "github.com/sashabaranov/go-gpt3"
 	"reflect"
 	"testing"
+
+	gogpt "github.com/sashabaranov/go-gpt3"
+
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 func TestNewService(t *testing.T) {
@@ -44,7 +46,7 @@ func Test_service_Interaction(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    interaction2.Interaction
+		want    interaction.Interaction
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -81,7 +83,7 @@ func Test_service_Interactions(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    []interaction2.Summary
+		want    []interaction.Summary
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -119,7 +121,7 @@ func Test_service_Moderation(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    interaction2.Moderation
+		want    interaction.Moderation
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -157,7 +159,7 @@ func Test_service_ModerationByID(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    interaction2.Moderation
+		want    interaction.Moderation
 		wantErr bool
 	}{
 		// TODO: Add test cases.

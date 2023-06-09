@@ -3,8 +3,9 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/api"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+
+	"github.com/itsnoproblem/prmry/pkg/api"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 type interactingService interface {

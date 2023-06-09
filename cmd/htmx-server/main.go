@@ -21,14 +21,15 @@ import (
 	"github.com/markbates/goth/providers/google"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/authorizing"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/profiling"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/templates"
+	"github.com/itsnoproblem/prmry/env"
+	"github.com/itsnoproblem/prmry/pkg/auth"
+	"github.com/itsnoproblem/prmry/pkg/authorizing"
+	"github.com/itsnoproblem/prmry/pkg/components"
+	"github.com/itsnoproblem/prmry/pkg/flowing"
+	"github.com/itsnoproblem/prmry/pkg/htmx"
+	"github.com/itsnoproblem/prmry/pkg/interacting"
+	"github.com/itsnoproblem/prmry/pkg/profiling"
+	"github.com/itsnoproblem/prmry/pkg/sql"
 )
 
 const (
@@ -59,7 +60,6 @@ func main() {
 	openAIKey := os.Getenv(env.VarOpenAIKey)
 	gptClient := gogpt.NewClient(openAIKey)
 
-	// Authorizer Middleware
 	authSecret, err := hex.DecodeString("1ad6bbbff4d1c1e08608f814570d562c9b5ef2fc4c9e6b5ec4c9f3234b595bcb")
 	if err != nil {
 		log.Fatal(err)
@@ -72,6 +72,7 @@ func main() {
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(render.SetContentType(render.ContentTypeHTML))
+	r.Use(htmx.Middleware)
 	r.Use(auth.Middleware(authSecret))
 
 	googleClient := google.New(
@@ -94,33 +95,29 @@ func main() {
 	)
 
 	gothic.Store = sessions.NewCookieStore([]byte(os.Getenv(env.SessionSecret)))
-
-	tpl, err := templates.Parse()
-	if err != nil {
-		log.Fatalf("Failed to parse templates: %s", err)
-	}
-	renderer := htmx.NewRenderer(tpl)
+	renderer := components.NewRenderer()
 
 	usersRepo := sql.NewUsersRepo(db)
+	ixnRepo := sql.NewInteractionsRepo(db)
+	modRepo := sql.NewModerationsRepo(db)
+
 	authService := authorizing.NewService(usersRepo)
+	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
+	flowService := flowing.NewService()
+
 	authResource, err := authorizing.NewResource(renderer, authSecret, authService)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	profileResource, err := profiling.NewResource(tpl)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	ixnRepo := sql.NewInteractionsRepo(db)
-	modRepo := sql.NewModerationsRepo(db)
-	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
+	homeResource := profiling.NewResource(renderer)
 	ixnResource := interacting.NewResource(renderer, ixnService)
+	flowResource := flowing.NewResource(renderer, flowService)
 
-	r.Mount("/", profileResource.Routes())
+	r.Mount("/", homeResource.Routes())
 	r.Mount("/auth", authResource.Routes())
 	r.Mount("/interactions", ixnResource.Routes())
+	r.Mount("/flows", flowResource.Routes())
 
 	log.Println("Listening on " + listen)
 	if err := http.ListenAndServe(listen, r); err != nil {

@@ -3,16 +3,16 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
-	"github.com/pkg/errors"
 	"log"
 	"math/rand"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interaction"
+	"github.com/itsnoproblem/prmry/pkg/auth"
+	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
 const (
@@ -110,40 +110,6 @@ func (s service) GenerateResponse(ctx context.Context, msg string) (string, erro
 	}
 
 	return ix.Response.Choices[0].Text, nil
-
-	//prompt := s.prompt(msg)
-	//promptTokens := s.tokenCount(prompt)
-	//maxTokens := GPTMaxTokens - promptTokens
-	//
-	//req := gogpt.CompletionRequest{
-	//	Model:     GPTModel,
-	//	MaxTokens: maxTokens,
-	//	Prompt:    prompt,
-	//}
-	//
-	//resp, gptErr := s.gptClient.CreateCompletion(ctx, req)
-	//err := ""
-	//if gptErr != nil {
-	//	err = gptErr.Error()
-	//}
-	//
-	//interactionID, histErr := s.history.Add(ctx, interaction.Interaction{
-	//	Request:   req,
-	//	Response:  resp,
-	//	Error:     err,
-	//	CreatedAt: time.Now(),
-	//})
-	//if histErr != nil {
-	//	log.Printf("ERROR - Failed to save interaction history: %s", histErr)
-	//}
-	//
-	//if gptErr != nil {
-	//	return "", gptErr
-	//}
-	//
-	//go s.moderate(ctx, interactionID, msg)
-	//
-	//return resp.Choices[0].Text, nil
 }
 
 func (s service) Interactions(ctx context.Context) ([]interaction.Summary, error) {

@@ -1,26 +1,31 @@
 package profiling
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/auth"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/htmx"
-	"html/template"
+	"fmt"
 	"net/http"
+
+	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
+
+	"github.com/itsnoproblem/prmry/pkg/auth"
+	"github.com/itsnoproblem/prmry/pkg/components/home"
+	"github.com/itsnoproblem/prmry/pkg/components/profile"
 )
 
 type Renderer interface {
-	RenderComponent(
-		w http.ResponseWriter, r *http.Request, fullPagetemplate, fragmentTemplate string, cmp htmx.Component) error
+	RenderError(w http.ResponseWriter, r *http.Request, err error)
+	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
+	Unauthorized(w http.ResponseWriter, r *http.Request)
 }
 
 type Resource struct {
 	renderer Renderer
 }
 
-func NewResource(tpl *template.Template) (Resource, error) {
+func NewResource(renderer Renderer) Resource {
 	return Resource{
-		renderer: htmx.NewRenderer(tpl),
-	}, nil
+		renderer: renderer,
+	}
 }
 
 func (rs Resource) Routes() chi.Router {
@@ -32,30 +37,38 @@ func (rs Resource) Routes() chi.Router {
 
 func (rs Resource) Home(w http.ResponseWriter, r *http.Request) {
 	keys, providersByName := auth.Providers()
-
-	home := HomeView{
+	cmp := home.HomeView{
 		Providers:    keys,
 		ProvidersMap: providersByName,
 	}
-	home.Lock()
 
-	if err := rs.renderer.RenderComponent(w, r, "page-home.gohtml", "fragment-home.gohtml", &home); err != nil {
-		writeError(w, err)
+	if r == nil {
+		rs.renderer.RenderError(w, r, fmt.Errorf("empty request"))
+		return
+	}
+
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	if err := rs.renderer.RenderTemplComponent(w, r, home.HomePage(cmp), home.HomeFragment(cmp)); err != nil {
+		rs.renderer.RenderError(w, r, err)
 		return
 	}
 }
 
 func (rs Resource) GetProfile(w http.ResponseWriter, r *http.Request) {
-	cmp := htmx.BaseComponent{}
-	cmp.Lock()
-	if err := rs.renderer.RenderComponent(w, r, "page-profile.gohtml", "fragment-profile.gohtml", &cmp); err != nil {
-		writeError(w, err)
-		return
+	cmp := profile.ProfileView{}
+	if err := cmp.Lock(r); err != nil {
+		rs.renderer.RenderError(w, r, err)
 	}
-}
 
-func writeError(w http.ResponseWriter, err error) {
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	page := profile.ProfilePage(cmp)
+	fragment := profile.Profile(cmp)
+
+	if err := rs.renderer.RenderTemplComponent(w, r, page, fragment); err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
 	}
 }

@@ -13,9 +13,9 @@ import (
 	"github.com/joho/godotenv"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/mall-fountain-cop-bot/env"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/interacting"
-	"github.com/itsnoproblem/mall-fountain-cop-bot/pkg/sql"
+	"github.com/itsnoproblem/prmry/env"
+	"github.com/itsnoproblem/prmry/pkg/interacting"
+	"github.com/itsnoproblem/prmry/pkg/sql"
 )
 
 const (

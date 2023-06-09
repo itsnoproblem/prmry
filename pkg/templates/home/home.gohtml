@@ -1,8 +1,0 @@
-{{- /* gotype: github.com/itsnoproblem/mall-fountain-cop-bot/pkg/profiling.HomeView */ -}}
-{{define "home"}}
-    {{if .IsAuthenticated }}
-        {{template "dashboard" .User}}
-    {{else}}
-        {{template "fragment-login" .}}
-    {{end}}
-{{end}}
