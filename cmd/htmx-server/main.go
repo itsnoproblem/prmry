@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"flag"
+	"github.com/itsnoproblem/prmry/pkg/env"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +22,6 @@ import (
 	"github.com/markbates/goth/providers/google"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/prmry/env"
 	"github.com/itsnoproblem/prmry/pkg/auth"
 	"github.com/itsnoproblem/prmry/pkg/authorizing"
 	"github.com/itsnoproblem/prmry/pkg/components"
@@ -100,10 +100,11 @@ func main() {
 	usersRepo := sql.NewUsersRepo(db)
 	ixnRepo := sql.NewInteractionsRepo(db)
 	modRepo := sql.NewModerationsRepo(db)
+	flowsRepo := sql.NewFlowsRepository(db)
 
 	authService := authorizing.NewService(usersRepo)
 	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
-	flowService := flowing.NewService()
+	flowService := flowing.NewService(flowsRepo)
 
 	authResource, err := authorizing.NewResource(renderer, authSecret, authService)
 	if err != nil {

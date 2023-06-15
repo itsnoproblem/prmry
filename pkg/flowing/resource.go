@@ -4,21 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
+	"github.com/itsnoproblem/prmry/pkg/components/success"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"reflect"
-
-	"github.com/a-h/templ"
-	"github.com/go-chi/chi/v5"
-	"github.com/pkg/errors"
+	"regexp"
+	"strconv"
 
 	flowcmp "github.com/itsnoproblem/prmry/pkg/components/flow"
-	"github.com/itsnoproblem/prmry/pkg/components/success"
 	"github.com/itsnoproblem/prmry/pkg/flow"
 )
 
 type Service interface {
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
+	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
 }
 
 type Renderer interface {
@@ -44,7 +46,9 @@ func (rs Resource) Routes() chi.Router {
 
 	r.Post("/new", rs.CreateFlow)
 	r.Get("/new", rs.FlowBuilder)
-	r.Post("/new/add-rule", rs.FlowBuilderAddRule)
+	r.Put("/new/prompt", rs.FlowBuilderUpdatePrompt)
+	r.Post("/new/rules", rs.FlowBuilderAddRule)
+	r.Delete("/new/rules/{index}", rs.FlowBuilderRemoveRule)
 
 	//
 	r.Get("/", rs.ListFlows)
@@ -57,8 +61,7 @@ func (rs Resource) Routes() chi.Router {
 	return r
 }
 
-// Flow Builder
-
+// FlowBuilder GET /flows/new
 func (rs Resource) FlowBuilder(w http.ResponseWriter, r *http.Request) {
 	cmp := flowcmp.Detail{
 		SupportedFields:     flow.SupportedFields(),
@@ -82,6 +85,7 @@ func (rs Resource) FlowBuilder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FlowBuilderAddRule POST /flows/new/rules
 func (rs Resource) FlowBuilderAddRule(w http.ResponseWriter, r *http.Request) {
 	cmp, err := readForm(r)
 	if err != nil {
@@ -89,7 +93,61 @@ func (rs Resource) FlowBuilderAddRule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmp.Conditions = append(cmp.Conditions, flowcmp.ConditionView{})
+	cmp.Rules = append(cmp.Rules, flowcmp.RuleView{})
+	rs.FlowBuilder(w, r.WithContext(context.WithValue(r.Context(), "view", cmp)))
+}
+
+// FlowBuilderRemoveRule DELETE /flows/new/rules/{index}
+func (rs Resource) FlowBuilderRemoveRule(w http.ResponseWriter, r *http.Request) {
+	index := chi.URLParam(r, "index")
+	if index == "" {
+		rs.renderer.RenderError(w, r, fmt.Errorf("missing required parameter: index"))
+		return
+	}
+
+	idx, err := strconv.Atoi(index)
+	if err != nil {
+		rs.renderer.RenderError(w, r, errors.Wrap(err, "FlowBuilderRemoveRule"))
+	}
+
+	cmp, err := readForm(r)
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	conditions := make([]flowcmp.RuleView, 0)
+	conditions = append(conditions, cmp.Rules[:idx]...)
+	cmp.Rules = append(conditions, cmp.Rules[idx+1:]...)
+
+	rs.FlowBuilder(w, r.WithContext(context.WithValue(r.Context(), "view", cmp)))
+}
+
+// FlowBuilderUpdatePrompt PUT /flows/new/prompt
+func (rs Resource) FlowBuilderUpdatePrompt(w http.ResponseWriter, r *http.Request) {
+	cmp, err := readForm(r)
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	re, err := regexp.Compile("%s")
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	matches := re.FindAllString(cmp.Prompt, -1)
+	if len(matches) > len(cmp.PromptArgs) {
+		for i := len(cmp.PromptArgs); i < len(matches); i++ {
+			cmp.PromptArgs = append(cmp.PromptArgs, "")
+		}
+	}
+
+	if len(matches) < len(cmp.PromptArgs) {
+		cmp.PromptArgs = cmp.PromptArgs[:len(matches)]
+	}
+
 	rs.FlowBuilder(w, r.WithContext(context.WithValue(r.Context(), "view", cmp)))
 }
 
@@ -108,18 +166,29 @@ func (rs Resource) CreateFlow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	flw := cmp.ToFlow()
+	ok := true
+	if cmp.ID, err = rs.service.CreateFlow(r.Context(), flw); err != nil {
+		rs.renderer.RenderError(w, r, err)
+		ok = false
+	}
+
 	frag := flowcmp.FlowBuilder(cmp)
 	page := flowcmp.FlowBuilderPage(cmp)
+
+	if ok {
+		notice := success.SuccessView{
+			Message: "Saved " + flw.Name,
+		}
+		if err = success.Success(notice).Render(r.Context(), w); err != nil {
+			rs.renderer.RenderError(w, r, err)
+		}
+	}
 
 	if err = rs.renderer.RenderTemplComponent(w, r, page, frag); err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
 	}
-
-	notice := success.SuccessView{
-		Message: "Saved flow",
-	}
-	success.Success(notice).Render(r.Context(), w)
 }
 
 // ListFlows - GET /flows
@@ -155,6 +224,12 @@ func (rs Resource) ListFlows(w http.ResponseWriter, r *http.Request) {
 // GetFlow - GET /flows/{id}
 func (rs Resource) GetFlow(w http.ResponseWriter, r *http.Request) {
 
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		rs.renderer.RenderError(w, r, fmt.Errorf("missing required parameter 'id'"))
+		return
+	}
+
 	cmp := flowcmp.Detail{
 		ID:   "fake-1234",
 		Name: "Test Fake Flow",
@@ -179,9 +254,12 @@ func (rs Resource) GetFlow(w http.ResponseWriter, r *http.Request) {
 type flowBuilderForm struct {
 	ID              string      `json:"id"`
 	Name            string      `json:"name"`
+	RequireAll      string      `json:"requireAll"`
 	FieldNames      interface{} `json:"fieldName"`
 	ConditionTypes  interface{} `json:"condition"`
 	ConditionValues interface{} `json:"value"`
+	Prompt          string      `json:"prompt"`
+	PromptArgs      interface{} `json:"promptArgs"`
 }
 
 func readForm(r *http.Request) (flowcmp.Detail, error) {
@@ -202,57 +280,80 @@ func readForm(r *http.Request) (flowcmp.Detail, error) {
 	fieldNames := make([]string, 0)
 	conditionTypes := make([]string, 0)
 	conditionValues := make([]string, 0)
+	responseArgs := make([]string, 0)
 
-	if req.FieldNames != nil {
-		v := reflect.ValueOf(req.FieldNames)
-		switch v.Kind() {
-		case reflect.String:
-			fieldNames = append(fieldNames, req.FieldNames.(string))
-			conditionTypes = append(conditionTypes, req.ConditionTypes.(string))
-			conditionValues = append(conditionValues, req.ConditionValues.(string))
-			break
+	fieldNames, err = stringOrSlice(req.FieldNames)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "readForm")
+	}
 
-		case reflect.Slice:
-			fieldNames, err = stringSlice(req.FieldNames)
-			if err != nil {
-				return flowcmp.Detail{}, errors.Wrap(err, "readForm: fieldNames")
-			}
+	conditionTypes, err = stringOrSlice(req.ConditionTypes)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "readForm")
+	}
 
-			conditionTypes, err = stringSlice(req.ConditionTypes)
-			if err != nil {
-				return flowcmp.Detail{}, errors.Wrap(err, "readForm: conditionTypes")
-			}
+	conditionValues, err = stringOrSlice(req.ConditionValues)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "readForm")
+	}
 
-			conditionValues, err = stringSlice(req.ConditionValues)
-			if err != nil {
-				return flowcmp.Detail{}, errors.Wrap(err, "readForm: conditionValues")
-			}
-
-			break
-
-		default:
-			return flowcmp.Detail{}, fmt.Errorf("readForm: FieldNames unknown type %T", fieldNames)
-		}
+	responseArgs, err = stringOrSlice(req.PromptArgs)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "readForm")
 	}
 
 	if len(fieldNames) != len(conditionTypes) || len(fieldNames) != len(conditionValues) {
 		return flowcmp.Detail{}, fmt.Errorf("readForm: condition fields mismatch")
 	}
 
-	conditions := make([]flowcmp.ConditionView, 0)
+	conditions := make([]flowcmp.RuleView, 0)
 	for i, _ := range fieldNames {
-		conditions = append(conditions, flowcmp.ConditionView{
-			Type:  conditionTypes[i],
-			Field: fieldNames[i],
-			Value: conditionValues[i],
+		conditions = append(conditions, flowcmp.RuleView{
+			Condition: conditionTypes[i],
+			Field:     fieldNames[i],
+			Value:     conditionValues[i],
 		})
 	}
 
+	requireAll, err := strconv.ParseBool(req.RequireAll)
+	if err != nil {
+		return flowcmp.Detail{}, fmt.Errorf("readForm: parsing requireAll")
+	}
+
 	return flowcmp.Detail{
-		ID:         req.ID,
-		Name:       req.Name,
-		Conditions: conditions,
+		ID:                  req.ID,
+		Name:                req.Name,
+		Rules:               conditions,
+		RequireAll:          requireAll,
+		Prompt:              req.Prompt,
+		PromptArgs:          responseArgs,
+		SupportedFields:     flow.SupportedFields(),
+		SupportedConditions: flow.SupportedConditions(),
 	}, nil
+}
+
+func stringOrSlice(str interface{}) ([]string, error) {
+	var err error
+	result := make([]string, 0)
+	v := reflect.ValueOf(str)
+
+	switch v.Kind() {
+	case reflect.String:
+		result = append(result, str.(string))
+		break
+
+	case reflect.Slice:
+		result, err = stringSlice(str)
+		if err != nil {
+			return nil, errors.Wrap(err, "stringOrSlice")
+		}
+		break
+
+	default:
+		return nil, nil
+	}
+
+	return result, nil
 }
 
 func stringSlice(input interface{}) ([]string, error) {

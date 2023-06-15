@@ -1,22 +1,46 @@
 package flow
 
-import "github.com/itsnoproblem/prmry/pkg/components"
+import (
+	"github.com/itsnoproblem/prmry/pkg/components"
+	"github.com/itsnoproblem/prmry/pkg/flow"
+)
 
 type Detail struct {
 	ID                  string
 	Name                string
-	Conditions          []ConditionView
+	Rules               []RuleView
 	RequireAll          bool
-	Response            string
+	Prompt              string
+	PromptArgs          []string
 	SupportedFields     []string
 	SupportedConditions []string
 	components.BaseComponent
 }
 
-type ConditionView struct {
-	Type  string
-	Field string
-	Value string
+func (d Detail) ToFlow() flow.Flow {
+	rules := make([]flow.Rule, 0)
+	for _, cnd := range d.Rules {
+		rules = append(rules, flow.Rule{
+			Field:     flow.FieldSource(cnd.Field),
+			Condition: flow.ConditionType(cnd.Condition),
+			Value:     cnd.Value,
+		})
+	}
+
+	return flow.Flow{
+		ID:         d.ID,
+		Name:       d.Name,
+		Rules:      rules,
+		RequireAll: d.RequireAll,
+		Prompt:     d.Prompt,
+		PromptArgs: d.PromptArgs,
+	}
+}
+
+type RuleView struct {
+	Field     string
+	Condition string
+	Value     string
 }
 
 type FlowsListView struct {

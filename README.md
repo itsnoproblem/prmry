@@ -68,7 +68,7 @@ Resources define interfaces for a **Renderer** and a **Service**, ultimately cal
 ### Putting it together:
 
 The view model for a profile page is defined in **profile.go**:
-```go
+```
 type ProfileView struct {
   ID    string
   Name  string
@@ -76,7 +76,7 @@ type ProfileView struct {
 ```
 
 The components are defined in **profile.templ**.  Templ allows us to compose templates, so for the full page component, the _Profile_ component is composed inside the _Page_ component (defined in html.templ):
-```go
+````
 templ Profile(view ProfileView) {
   <div>
     Hello { view.Name }, your id is { view.ID }.
@@ -89,6 +89,13 @@ templ ProfilePage(view ProfileView) {
   }
 }
 ```
+
+---
+
+![img.png](docs/img.png)
+
+---
+
 ### Reference
 
 - [HTMX](https://htmx.org/docs/)

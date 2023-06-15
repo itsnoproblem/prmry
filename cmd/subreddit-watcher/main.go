@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/itsnoproblem/prmry/pkg/env"
 	golog "log"
 	"os"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/turnage/graw"
 	"github.com/turnage/graw/reddit"
 
-	"github.com/itsnoproblem/prmry/env"
 	"github.com/itsnoproblem/prmry/pkg/interacting"
 	"github.com/itsnoproblem/prmry/pkg/log"
 	"github.com/itsnoproblem/prmry/pkg/rgb"

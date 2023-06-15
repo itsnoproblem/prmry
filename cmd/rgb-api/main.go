@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/itsnoproblem/prmry/pkg/env"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +15,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 
-	"github.com/itsnoproblem/prmry/env"
 	"github.com/itsnoproblem/prmry/pkg/interacting"
 	"github.com/itsnoproblem/prmry/pkg/sql"
 )

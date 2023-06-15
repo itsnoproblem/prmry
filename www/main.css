@@ -520,4 +520,16 @@ ul.usage hr {
 
 }
 
+/* -- Transitions -- */
+.smooth {
+    transition: all 1s ease-in;
+}
+
+.fade-in.htmx-added {
+    opacity: 0;
+}
+.fade-in {
+    opacity: 1;
+    transition: opacity 1s ease-out;
+}
 
