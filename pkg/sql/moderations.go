@@ -68,10 +68,10 @@ func (r *moderationsRepo) All(ctx context.Context) ([]interaction.Moderation, er
 		ORDER BY created_at DESC
 	`
 	rows, err := r.db.QueryContext(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
-	defer rows.Close()
 
 	moderations := make([]interaction.Moderation, 0)
 

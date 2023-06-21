@@ -53,20 +53,20 @@ func (s FieldSource) String() string {
 	return string(s)
 }
 
-func SupportedConditions() []string {
-	return []string{
-		ConditionTypeContains.String(),
-		ConditionTypeNotContains.String(),
-		ConditionTypeEquals.String(),
-		ConditionTypeNotEquals.String(),
-		ConditionTypeStartsWith.String(),
-		ConditionTypeEndsWith.String(),
+func SupportedConditions() map[string]string {
+	return map[string]string{
+		ConditionTypeContains.String():    ConditionTypeContains.String(),
+		ConditionTypeNotContains.String(): ConditionTypeNotContains.String(),
+		ConditionTypeEquals.String():      ConditionTypeEquals.String(),
+		ConditionTypeNotEquals.String():   ConditionTypeNotEquals.String(),
+		ConditionTypeStartsWith.String():  ConditionTypeStartsWith.String(),
+		ConditionTypeEndsWith.String():    ConditionTypeEndsWith.String(),
 	}
 }
 
-func SupportedFields() []string {
-	return []string{
-		FieldSourceInput.String(),
-		FieldSourceFlow.String(),
+func SupportedFields() map[string]string {
+	return map[string]string{
+		FieldSourceInput.String(): "Input Message",
+		FieldSourceFlow.String():  "Output from another flow",
 	}
 }

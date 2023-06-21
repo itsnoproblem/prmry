@@ -11,13 +11,19 @@ type Detail struct {
 	Rules               []RuleView
 	RequireAll          bool
 	Prompt              string
-	PromptArgs          []string
-	SupportedFields     []string
-	SupportedConditions []string
+	PromptArgs          []PromptArg
+	SupportedFields     map[string]string
+	SupportedConditions map[string]string
+	AvailableFlowsByID  map[string]string
 	components.BaseComponent
 }
 
-func (d Detail) ToFlow() flow.Flow {
+type PromptArg struct {
+	Source flow.FieldSource
+	Value  string
+}
+
+func (d *Detail) ToFlow() flow.Flow {
 	rules := make([]flow.Rule, 0)
 	for _, cnd := range d.Rules {
 		rules = append(rules, flow.Rule{
@@ -27,13 +33,21 @@ func (d Detail) ToFlow() flow.Flow {
 		})
 	}
 
+	promptArgs := make([]flow.PromptArgs, 0)
+	for _, arg := range d.PromptArgs {
+		promptArgs = append(promptArgs, flow.PromptArgs{
+			Source: arg.Source,
+			Value:  arg.Value,
+		})
+	}
+
 	return flow.Flow{
 		ID:         d.ID,
 		Name:       d.Name,
 		Rules:      rules,
 		RequireAll: d.RequireAll,
 		Prompt:     d.Prompt,
-		PromptArgs: d.PromptArgs,
+		PromptArgs: promptArgs,
 	}
 }
 
@@ -49,6 +63,38 @@ type FlowsListView struct {
 }
 
 type FlowSummary struct {
-	ID   string
-	Name string
+	ID          string
+	Name        string
+	RuleCount   string
+	LastChanged string
+}
+
+func NewDetail(flw flow.Flow) Detail {
+	rules := make([]RuleView, len(flw.Rules))
+	for i, r := range flw.Rules {
+		rules[i] = RuleView{
+			Field:     r.Field.String(),
+			Condition: r.Condition.String(),
+			Value:     r.Value,
+		}
+	}
+
+	promptArgs := make([]PromptArg, 0)
+	for _, arg := range flw.PromptArgs {
+		promptArgs = append(promptArgs, PromptArg{
+			Source: arg.Source,
+			Value:  arg.Value,
+		})
+	}
+
+	return Detail{
+		ID:                  flw.ID,
+		Name:                flw.Name,
+		Rules:               rules,
+		RequireAll:          flw.RequireAll,
+		Prompt:              flw.Prompt,
+		PromptArgs:          promptArgs,
+		SupportedFields:     flow.SupportedFields(),
+		SupportedConditions: flow.SupportedConditions(),
+	}
 }

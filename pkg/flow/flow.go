@@ -12,9 +12,14 @@ type Flow struct {
 	Rules      []Rule
 	RequireAll bool
 	Prompt     string
-	PromptArgs []string
+	PromptArgs []PromptArgs
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+}
+
+type PromptArgs struct {
+	Source FieldSource
+	Value  string
 }
 
 func (f Flow) Respond(prompt string) (string, error) {

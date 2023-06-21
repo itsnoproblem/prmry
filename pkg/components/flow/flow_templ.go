@@ -11,9 +11,10 @@ import "bytes"
 
 // GoExpression
 import (
-    "fmt" 
+    "fmt"
 
     "github.com/itsnoproblem/prmry/pkg/components/page"
+    "github.com/itsnoproblem/prmry/pkg/flow"
 )
 
 func FlowBuilderPage(view Detail) templ.Component {
@@ -80,7 +81,7 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-post=\"/flows/new\"")
+		_, err = templBuffer.WriteString(" hx-post=\"/flows\"")
 		if err != nil {
 			return err
 		}
@@ -154,7 +155,7 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"col col-7 mt-3\"")
+		_, err = templBuffer.WriteString(" class=\"col col-5 mt-3\"")
 		if err != nil {
 			return err
 		}
@@ -163,7 +164,7 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// TemplElement
-		err = RuleBuilder(view).Render(ctx, templBuffer)
+		err = FlowOptions(view).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -177,7 +178,7 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"col col-5\"")
+		_, err = templBuffer.WriteString(" class=\"col col-7\"")
 		if err != nil {
 			return err
 		}
@@ -186,7 +187,7 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// TemplElement
-		err = FlowOptions(view).Render(ctx, templBuffer)
+		err = RuleBuilder(view).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -357,7 +358,7 @@ func FlowBuilder(view Detail) templ.Component {
 	})
 }
 
-func RuleBuilder(view Detail) templ.Component {
+func FieldSelector(name string, options map[string]string, selected, label string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -368,6 +369,187 @@ func RuleBuilder(view Detail) templ.Component {
 		var_5 := templ.GetChildren(ctx)
 		if var_5 == nil {
 			var_5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<select")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" name=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(name))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" class=\"form-select form-select-md\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" aria-label=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(label))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<option>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</option>")
+		if err != nil {
+			return err
+		}
+		// For
+		for value, name := range options {
+			// If
+			if value == selected {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<option")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" value=")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(templ.EscapeString(value))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" selected=\"true\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// StringExpression
+				var var_6 string = name
+				_, err = templBuffer.WriteString(templ.EscapeString(var_6))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option>")
+				if err != nil {
+					return err
+				}
+			} else {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<option")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" value=")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(templ.EscapeString(value))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// StringExpression
+				var var_7 string = name
+				_, err = templBuffer.WriteString(templ.EscapeString(var_7))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option>")
+				if err != nil {
+					return err
+				}
+			}
+		}
+		_, err = templBuffer.WriteString("</select>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<label>")
+		if err != nil {
+			return err
+		}
+		// StringExpression
+		var var_8 string = label
+		_, err = templBuffer.WriteString(templ.EscapeString(var_8))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</label>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func RuleBuilder(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_9 := templ.GetChildren(ctx)
+		if var_9 == nil {
+			var_9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -399,8 +581,8 @@ func RuleBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_6 := `Rules`
-		_, err = templBuffer.WriteString(var_6)
+		var_10 := `Rules`
+		_, err = templBuffer.WriteString(var_10)
 		if err != nil {
 			return err
 		}
@@ -439,8 +621,8 @@ func RuleBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_7 := `New`
-		_, err = templBuffer.WriteString(var_7)
+		var_11 := `New`
+		_, err = templBuffer.WriteString(var_11)
 		if err != nil {
 			return err
 		}
@@ -501,8 +683,8 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_8 := `No rules yet`
-			_, err = templBuffer.WriteString(var_8)
+			var_12 := `No rules yet`
+			_, err = templBuffer.WriteString(var_12)
 			if err != nil {
 				return err
 			}
@@ -577,169 +759,8 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<select")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" name=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("fieldName"))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"form-select form-select-md\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-label=\"Field name\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<option>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</option>")
-			if err != nil {
-				return err
-			}
-			// For
-			for _, name := range view.SupportedFields {
-				// If
-				if name == rule.Field {
-					// Element (standard)
-					_, err = templBuffer.WriteString("<option")
-					if err != nil {
-						return err
-					}
-					// Element Attributes
-					_, err = templBuffer.WriteString(" value=")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(templ.EscapeString(name))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(" selected=\"true\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(">")
-					if err != nil {
-						return err
-					}
-					// StringExpression
-					var var_9 string = name
-					_, err = templBuffer.WriteString(templ.EscapeString(var_9))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("</option>")
-					if err != nil {
-						return err
-					}
-				} else {
-					// Element (standard)
-					_, err = templBuffer.WriteString("<option")
-					if err != nil {
-						return err
-					}
-					// Element Attributes
-					_, err = templBuffer.WriteString(" value=")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(templ.EscapeString(name))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(">")
-					if err != nil {
-						return err
-					}
-					// StringExpression
-					var var_10 string = name
-					_, err = templBuffer.WriteString(templ.EscapeString(var_10))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("</option>")
-					if err != nil {
-						return err
-					}
-				}
-			}
-			_, err = templBuffer.WriteString("</select>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<label")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" for=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("fieldName"))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_11 := `Field Name`
-			_, err = templBuffer.WriteString(var_11)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</label>")
+			// TemplElement
+			err = FieldSelector("fieldName", view.SupportedFields, rule.Field, "Field Name").Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
@@ -779,157 +800,8 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<select")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" name=\"condition\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"form-select form-select-md\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-label=\"Condition\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<option>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</option>")
-			if err != nil {
-				return err
-			}
-			// For
-			for _, c := range view.SupportedConditions {
-				// If
-				if c == rule.Condition {
-					// Element (standard)
-					_, err = templBuffer.WriteString("<option")
-					if err != nil {
-						return err
-					}
-					// Element Attributes
-					_, err = templBuffer.WriteString(" value=")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(templ.EscapeString(c))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(" selected=\"true\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(">")
-					if err != nil {
-						return err
-					}
-					// StringExpression
-					var var_12 string = c
-					_, err = templBuffer.WriteString(templ.EscapeString(var_12))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("</option>")
-					if err != nil {
-						return err
-					}
-				} else {
-					// Element (standard)
-					_, err = templBuffer.WriteString("<option")
-					if err != nil {
-						return err
-					}
-					// Element Attributes
-					_, err = templBuffer.WriteString(" value=")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(templ.EscapeString(c))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("\"")
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString(">")
-					if err != nil {
-						return err
-					}
-					// StringExpression
-					var var_13 string = c
-					_, err = templBuffer.WriteString(templ.EscapeString(var_13))
-					if err != nil {
-						return err
-					}
-					_, err = templBuffer.WriteString("</option>")
-					if err != nil {
-						return err
-					}
-				}
-			}
-			_, err = templBuffer.WriteString("</select>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<label")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" for=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("condition"))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_14 := `Condition`
-			_, err = templBuffer.WriteString(var_14)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</label>")
+			// TemplElement
+			err = FieldSelector("condition", view.SupportedConditions, rule.Condition, "Condition").Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
@@ -979,19 +851,11 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString(" name=")
+			_, err = templBuffer.WriteString(" name=\"value\"")
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("value"))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
+			_, err = templBuffer.WriteString(" id=\"value\"")
 			if err != nil {
 				return err
 			}
@@ -1038,8 +902,8 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_15 := `Value`
-			_, err = templBuffer.WriteString(var_15)
+			var_13 := `Value`
+			_, err = templBuffer.WriteString(var_13)
 			if err != nil {
 				return err
 			}
@@ -1153,9 +1017,9 @@ func FlowOptions(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_16 := templ.GetChildren(ctx)
-		if var_16 == nil {
-			var_16 = templ.NopComponent
+		var_14 := templ.GetChildren(ctx)
+		if var_14 == nil {
+			var_14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1229,8 +1093,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_17 := `Flow Name`
-		_, err = templBuffer.WriteString(var_17)
+		var_15 := `Flow Name`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -1257,8 +1121,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_18 := `Trigger this flow when`
-		_, err = templBuffer.WriteString(var_18)
+		var_16 := `Trigger this flow when`
+		_, err = templBuffer.WriteString(var_16)
 		if err != nil {
 			return err
 		}
@@ -1386,8 +1250,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_19 := `ALL`
-		_, err = templBuffer.WriteString(var_19)
+		var_17 := `ALL`
+		_, err = templBuffer.WriteString(var_17)
 		if err != nil {
 			return err
 		}
@@ -1401,8 +1265,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_20 := `rules match`
-		_, err = templBuffer.WriteString(var_20)
+		var_18 := `rules match`
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -1520,8 +1384,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_21 := `ANY`
-		_, err = templBuffer.WriteString(var_21)
+		var_19 := `ANY`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -1535,8 +1399,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_22 := `rule matches`
-		_, err = templBuffer.WriteString(var_22)
+		var_20 := `rule matches`
+		_, err = templBuffer.WriteString(var_20)
 		if err != nil {
 			return err
 		}
@@ -1585,8 +1449,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_23 := `Prompt generated by this flow`
-		_, err = templBuffer.WriteString(var_23)
+		var_21 := `Prompt generated by this flow`
+		_, err = templBuffer.WriteString(var_21)
 		if err != nil {
 			return err
 		}
@@ -1601,8 +1465,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_24 := `(indicate replacements with `
-		_, err = templBuffer.WriteString(var_24)
+		var_22 := `(indicate replacements with `
+		_, err = templBuffer.WriteString(var_22)
 		if err != nil {
 			return err
 		}
@@ -1612,8 +1476,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_25 := `%s`
-		_, err = templBuffer.WriteString(var_25)
+		var_23 := `%s`
+		_, err = templBuffer.WriteString(var_23)
 		if err != nil {
 			return err
 		}
@@ -1622,8 +1486,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_26 := `)`
-		_, err = templBuffer.WriteString(var_26)
+		var_24 := `)`
+		_, err = templBuffer.WriteString(var_24)
 		if err != nil {
 			return err
 		}
@@ -1666,8 +1530,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_27 string = view.Prompt
-		_, err = templBuffer.WriteString(templ.EscapeString(var_27))
+		var var_25 string = view.Prompt
+		_, err = templBuffer.WriteString(templ.EscapeString(var_25))
 		if err != nil {
 			return err
 		}
@@ -1710,8 +1574,8 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_28 := `Replacements:`
-			_, err = templBuffer.WriteString(var_28)
+			var_26 := `Replacements:`
+			_, err = templBuffer.WriteString(var_26)
 			if err != nil {
 				return err
 			}
@@ -1728,77 +1592,7 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" type=\"text\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("promptArg-" + string(j)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"promptArgs\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"form-control form-control-md\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" placeholder=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("Replacement %d", j + 1)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(arg))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
+			_, err = templBuffer.WriteString(" class=\"row mb-3\"")
 			if err != nil {
 				return err
 			}
@@ -1807,24 +1601,12 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<label")
+			_, err = templBuffer.WriteString("<div")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" for=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString("promptArg-" + string(j)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
+			_, err = templBuffer.WriteString(" class=\"form-floating col\"")
 			if err != nil {
 				return err
 			}
@@ -1832,15 +1614,40 @@ func FlowOptions(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			// StringExpression
-			var var_29 string = fmt.Sprintf("Replacement %d", j + 1)
-			_, err = templBuffer.WriteString(templ.EscapeString(var_29))
+			// TemplElement
+			err = FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + string(j)).Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</label>")
+			_, err = templBuffer.WriteString("</div>")
 			if err != nil {
 				return err
+			}
+			// If
+			if arg.Source == flow.FieldSourceFlow {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<div")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" class=\"form-floating col\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// TemplElement
+				err = FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow").Render(ctx, templBuffer)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</div>")
+				if err != nil {
+					return err
+				}
 			}
 			_, err = templBuffer.WriteString("</div>")
 			if err != nil {
@@ -1866,13 +1673,13 @@ func FlowsListPage(view FlowsListView) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_30 := templ.GetChildren(ctx)
-		if var_30 == nil {
-			var_30 = templ.NopComponent
+		var_27 := templ.GetChildren(ctx)
+		if var_27 == nil {
+			var_27 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// TemplElement
-		var_31 := templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		var_28 := templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 			templBuffer, templIsBuffer := w.(*bytes.Buffer)
 			if !templIsBuffer {
 				templBuffer = templ.GetBuffer()
@@ -1888,7 +1695,7 @@ func FlowsListPage(view FlowsListView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_31), templBuffer)
+		err = page.Page(&view).Render(templ.WithChildren(ctx, var_28), templBuffer)
 		if err != nil {
 			return err
 		}
@@ -1907,9 +1714,9 @@ func FlowsList(view FlowsListView) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_32 := templ.GetChildren(ctx)
-		if var_32 == nil {
-			var_32 = templ.NopComponent
+		var_29 := templ.GetChildren(ctx)
+		if var_29 == nil {
+			var_29 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1918,7 +1725,68 @@ func FlowsList(view FlowsListView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"d-flex align-items-end flex-column mb-3\"")
+		_, err = templBuffer.WriteString(" class=\"container container-fluid flows-list-wrapper\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"row pb-3 pt-3\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"col\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h2>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_30 := `Flows`
+		_, err = templBuffer.WriteString(var_30)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h2>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"col-1\"")
 		if err != nil {
 			return err
 		}
@@ -1932,6 +1800,10 @@ func FlowsList(view FlowsListView) templ.Component {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"btn btn-info\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
 		if err != nil {
 			return err
@@ -1949,8 +1821,8 @@ func FlowsList(view FlowsListView) templ.Component {
 			return err
 		}
 		// Text
-		var_33 := `New Flow`
-		_, err = templBuffer.WriteString(var_33)
+		var_31 := `New`
+		_, err = templBuffer.WriteString(var_31)
 		if err != nil {
 			return err
 		}
@@ -1962,13 +1834,17 @@ func FlowsList(view FlowsListView) templ.Component {
 		if err != nil {
 			return err
 		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<hr")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"container flows-list-wrapper\"")
+		_, err = templBuffer.WriteString(" class=\"text-info mb-5 mt-0\"")
 		if err != nil {
 			return err
 		}
@@ -1976,15 +1852,160 @@ func FlowsList(view FlowsListView) templ.Component {
 		if err != nil {
 			return err
 		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<table")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"table table-striped table-hover\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" width=\"100%\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<tr>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<th")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" scope=\"col\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_32 := `Name`
+		_, err = templBuffer.WriteString(var_32)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<th")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" scope=\"col d-none d-lg-table-cell\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_33 := `# rules`
+		_, err = templBuffer.WriteString(var_33)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<th")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" scope=\"col\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_34 := `Last Changed`
+		_, err = templBuffer.WriteString(var_34)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<th")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" scope=\"col\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</tr>")
+		if err != nil {
+			return err
+		}
 		// For
 		for _, f := range view.Flows {
 			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
+			_, err = templBuffer.WriteString("<tr")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"row\"")
+			_, err = templBuffer.WriteString(" hx-get=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("/flows/" + f.ID + "/edit"))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-trigger=\"click\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" class=\"clickable\"")
 			if err != nil {
 				return err
 			}
@@ -1993,72 +2014,92 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
+			_, err = templBuffer.WriteString("<th")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
+			_, err = templBuffer.WriteString(" scope=\"row\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" class=\"py-3\"")
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_34 := `ID: `
-			_, err = templBuffer.WriteString(var_34)
 			if err != nil {
 				return err
 			}
 			// StringExpression
-			var var_35 string = f.ID
+			var var_35 string = f.Name
 			_, err = templBuffer.WriteString(templ.EscapeString(var_35))
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</div>")
+			_, err = templBuffer.WriteString("</th>")
 			if err != nil {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
+			_, err = templBuffer.WriteString("<td")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
+			_, err = templBuffer.WriteString(" class=\"py-3 d-none d-lg-table-cell\"")
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_36 := `Name: `
-			_, err = templBuffer.WriteString(var_36)
 			if err != nil {
 				return err
 			}
 			// StringExpression
-			var var_37 string = f.Name
+			var var_36 string = f.RuleCount
+			_, err = templBuffer.WriteString(templ.EscapeString(var_36))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td>")
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<td")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"py-3\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+			// StringExpression
+			var var_37 string = f.LastChanged
 			_, err = templBuffer.WriteString(templ.EscapeString(var_37))
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</div>")
+			_, err = templBuffer.WriteString("</td>")
 			if err != nil {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
+			_, err = templBuffer.WriteString("<td")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
+			_, err = templBuffer.WriteString(" class=\"py-3\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" align=\"right\"")
 			if err != nil {
 				return err
 			}
@@ -2066,23 +2107,45 @@ func FlowsList(view FlowsListView) templ.Component {
 			if err != nil {
 				return err
 			}
-			// Text
-			var_38 := `edit`
-			_, err = templBuffer.WriteString(var_38)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
+			_, err = templBuffer.WriteString("<a")
 			if err != nil {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
+			_, err = templBuffer.WriteString(" class=\"button button-secondary\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-delete=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("/flows/" + f.ID))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-confirm=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("Delete flow '" + f.Name + "'?"))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
 			if err != nil {
 				return err
 			}
@@ -2090,20 +2153,40 @@ func FlowsList(view FlowsListView) templ.Component {
 			if err != nil {
 				return err
 			}
-			// Text
-			var_39 := `delete`
-			_, err = templBuffer.WriteString(var_39)
+			// Element (standard)
+			_, err = templBuffer.WriteString("<i")
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</div>")
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"fa fa-trash\"")
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</div>")
+			_, err = templBuffer.WriteString(">")
 			if err != nil {
 				return err
 			}
+			_, err = templBuffer.WriteString("</i>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</a>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</tr>")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString("</table>")
+		if err != nil {
+			return err
 		}
 		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
