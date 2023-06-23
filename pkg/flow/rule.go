@@ -12,13 +12,16 @@ const (
 	ConditionTypeNotContains ConditionType = "does not contain"
 	ConditionTypeStartsWith  ConditionType = "starts with"
 	ConditionTypeEndsWith    ConditionType = "ends with"
-
-	FieldSourceInput FieldSource = "input message"
-	FieldSourceFlow  FieldSource = "interaction result from another flow"
 )
 
+type ConditionType string
+
+func (t ConditionType) String() string {
+	return string(t)
+}
+
 type Rule struct {
-	Field     FieldSource
+	Field     Field
 	Condition ConditionType
 	Value     string
 }
@@ -39,18 +42,6 @@ func (c Rule) Matches(field string) (bool, error) {
 	}
 
 	return false, fmt.Errorf("Rule.Matches: unknown condition type: %s", c.Condition)
-}
-
-type ConditionType string
-
-func (t ConditionType) String() string {
-	return string(t)
-}
-
-type FieldSource string
-
-func (s FieldSource) String() string {
-	return string(s)
 }
 
 func SupportedConditions() map[string]string {

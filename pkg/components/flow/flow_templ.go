@@ -760,13 +760,39 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// TemplElement
-			err = FieldSelector("fieldName", view.SupportedFields, rule.Field, "Field Name").Render(ctx, templBuffer)
+			err = FieldSelector("fieldName", view.SupportedFields, rule.Field.Source, "Field Name").Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString("</div>")
 			if err != nil {
 				return err
+			}
+			// If
+			if rule.Field.Source == flow.FieldSourceFlow.String() {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<div")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// TemplElement
+				err = FieldSelector("selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow").Render(ctx, templBuffer)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</div>")
+				if err != nil {
+					return err
+				}
 			}
 			_, err = templBuffer.WriteString("</div>")
 			if err != nil {

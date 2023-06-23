@@ -324,6 +324,7 @@ type flowBuilderForm struct {
 	Name            string      `json:"name"`
 	RequireAll      string      `json:"requireAll"`
 	FieldNames      interface{} `json:"fieldName"`
+	SelectedFlows   interface{} `json:"selectedFlows"`
 	ConditionTypes  interface{} `json:"condition"`
 	ConditionValues interface{} `json:"value"`
 	RuleFlows       interface{} `json:"ruleConditionFlows"`
@@ -349,6 +350,7 @@ func (rs Resource) readForm(r *http.Request) (flowcmp.Detail, error) {
 	}
 
 	fieldNames := make([]string, 0)
+	selectedFlows := make([]string, 0)
 	conditionTypes := make([]string, 0)
 	conditionValues := make([]string, 0)
 	parsedPromptArgs := make([]string, 0)
@@ -357,6 +359,11 @@ func (rs Resource) readForm(r *http.Request) (flowcmp.Detail, error) {
 	fieldNames, err = stringOrSlice(req.FieldNames)
 	if err != nil {
 		return flowcmp.Detail{}, errors.Wrap(err, "readForm: fieldNames")
+	}
+
+	selectedFlows, err = stringOrSlice(req.SelectedFlows)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "readForm: selectedFlows")
 	}
 
 	conditionTypes, err = stringOrSlice(req.ConditionTypes)
@@ -394,10 +401,10 @@ func (rs Resource) readForm(r *http.Request) (flowcmp.Detail, error) {
 	flowIndex := 0
 	for _, arg := range parsedPromptArgs {
 		pargs := flowcmp.PromptArg{
-			Source: flow.FieldSource(arg),
+			Source: flow.SourceType(arg),
 		}
 
-		if flow.FieldSource(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
+		if flow.SourceType(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
 			pargs.Value = promptArgFlows[flowIndex]
 		}
 
@@ -414,11 +421,21 @@ func (rs Resource) readForm(r *http.Request) (flowcmp.Detail, error) {
 		AvailableFlowsByID:  availableFlowsByID,
 	}
 
+	flowIndex = 0
 	form.Rules = make([]flowcmp.RuleView, 0)
-	for i, _ := range fieldNames {
+	for i, name := range fieldNames {
+		fieldValue := ""
+		if name == flow.FieldSourceFlow.String() && len(selectedFlows) > flowIndex {
+			fieldValue = selectedFlows[flowIndex]
+			flowIndex++
+		}
+
 		form.Rules = append(form.Rules, flowcmp.RuleView{
+			Field: flowcmp.Field{
+				Source: fieldNames[i],
+				Value:  fieldValue,
+			},
 			Condition: conditionTypes[i],
-			Field:     fieldNames[i],
 			Value:     conditionValues[i],
 		})
 	}
@@ -427,19 +444,6 @@ func (rs Resource) readForm(r *http.Request) (flowcmp.Detail, error) {
 	if err != nil {
 		return flowcmp.Detail{}, fmt.Errorf("readForm: parsing requireAll")
 	}
-
-	//form.PromptArgFlows = make([]string, 0)
-	//var i = 0
-	//for _, arg := range parsedPromptArgs {
-	//	if arg == flow.FieldSourceFlow.String() {
-	//		var selected string
-	//		if len(form.PromptArgFlows) > i {
-	//			selected = form.PromptArgFlows[i]
-	//		}
-	//		form.PromptArgFlows = append(form.PromptArgFlows, selected)
-	//		i++
-	//	}
-	//}
 
 	return form, nil
 }

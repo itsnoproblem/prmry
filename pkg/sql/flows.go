@@ -210,7 +210,7 @@ func (r flowsRow) toFlow() (flow.Flow, error) {
 		return flow.Flow{}, errors.Wrap(err, "toFlow")
 	}
 
-	var promptArgs []flow.PromptArgs
+	var promptArgs []flow.Field
 	if err := json.Unmarshal(r.PromptArgs, &promptArgs); err != nil {
 		return flow.Flow{}, errors.Wrap(err, "toFlow")
 	}

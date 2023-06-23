@@ -19,7 +19,7 @@ type Detail struct {
 }
 
 type PromptArg struct {
-	Source flow.FieldSource
+	Source flow.SourceType
 	Value  string
 }
 
@@ -27,15 +27,18 @@ func (d *Detail) ToFlow() flow.Flow {
 	rules := make([]flow.Rule, 0)
 	for _, cnd := range d.Rules {
 		rules = append(rules, flow.Rule{
-			Field:     flow.FieldSource(cnd.Field),
+			Field: flow.Field{
+				Source: flow.SourceType(cnd.Field.Source),
+				Value:  cnd.Field.Value,
+			},
 			Condition: flow.ConditionType(cnd.Condition),
 			Value:     cnd.Value,
 		})
 	}
 
-	promptArgs := make([]flow.PromptArgs, 0)
+	promptArgs := make([]flow.Field, 0)
 	for _, arg := range d.PromptArgs {
-		promptArgs = append(promptArgs, flow.PromptArgs{
+		promptArgs = append(promptArgs, flow.Field{
 			Source: arg.Source,
 			Value:  arg.Value,
 		})
@@ -51,8 +54,13 @@ func (d *Detail) ToFlow() flow.Flow {
 	}
 }
 
+type Field struct {
+	Source string
+	Value  string
+}
+
 type RuleView struct {
-	Field     string
+	Field
 	Condition string
 	Value     string
 }
@@ -73,7 +81,10 @@ func NewDetail(flw flow.Flow) Detail {
 	rules := make([]RuleView, len(flw.Rules))
 	for i, r := range flw.Rules {
 		rules[i] = RuleView{
-			Field:     r.Field.String(),
+			Field: Field{
+				Source: r.Field.Source.String(),
+				Value:  r.Field.Value,
+			},
 			Condition: r.Condition.String(),
 			Value:     r.Value,
 		}

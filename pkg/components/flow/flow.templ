@@ -110,8 +110,13 @@ templ RuleBuilder(view Detail) {
             <div class="row flow-rule fade-in">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        @FieldSelector("fieldName", view.SupportedFields, rule.Field, "Field Name")
+                        @FieldSelector("fieldName", view.SupportedFields, rule.Field.Source, "Field Name")
                     </div>
+                    if rule.Field.Source == flow.FieldSourceFlow.String()   {
+                        <div class="form-floating mb-3">
+                            @FieldSelector("selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
+                        </div>
+                    }
                 </div>
                 <div class="col">
                     <div class="form-floating mb-3">
@@ -123,7 +128,7 @@ templ RuleBuilder(view Detail) {
                         <input type="text"
                             name="value"
                             id="value"
-                            class="form-control form-control-md" 
+                            class="form-control form-control-md"
                             placeholder="Value"
                             value={ rule.Value }
                         />
