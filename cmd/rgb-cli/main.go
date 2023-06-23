@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/itsnoproblem/prmry/pkg/env"
 	"log"
 	"os"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/joho/godotenv"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
-	"github.com/itsnoproblem/prmry/env"
 	"github.com/itsnoproblem/prmry/pkg/interacting"
 	"github.com/itsnoproblem/prmry/pkg/sql"
 )
@@ -32,7 +32,7 @@ func banner() string {
  |__|\__\|______||______/   
  = reddit gpt bot (v0.0.1)     
  
- Type something for the rgb personality to respond to, or prefix with 
+ Condition something for the rgb personality to respond to, or prefix with 
  "` + rawKeyword + `" to bypass the rgb and send your input directly to the AI.
 `
 }

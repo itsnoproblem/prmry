@@ -33,7 +33,7 @@ func (ixn Interaction) PromptHTML() string {
 	return textToHTML(ixn.Request.Prompt)
 }
 
-// ResponseText returns the text of the final element of the Response.Choices slice
+// ResponseText returns the text of the final element of the Prompt.Choices slice
 func (ixn Interaction) ResponseText() string {
 	var text string
 	for _, res := range ixn.Response.Choices {
@@ -42,7 +42,7 @@ func (ixn Interaction) ResponseText() string {
 	return text
 }
 
-// ResponseHTML returns the final element of the Response.Choices slice as HTML
+// ResponseHTML returns the final element of the Prompt.Choices slice as HTML
 func (ixn Interaction) ResponseHTML() string {
 	return textToHTML(ixn.ResponseText())
 }

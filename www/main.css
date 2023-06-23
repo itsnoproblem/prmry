@@ -97,9 +97,9 @@ img.rgb-logo {
     letter-spacing: 0.1em;
 }
 
-/*#content-root {*/
-/*    margin-top: 97px;*/
-/*}*/
+#content-root {
+    width: 100%;
+}
 
 #content-root>.jumbotron-fluid {
     padding: 1.3em 3.65em;
@@ -520,4 +520,20 @@ ul.usage hr {
 
 }
 
+/* -- Transitions -- */
+.smooth {
+    transition: all 1s ease-in;
+}
+
+.fade-in.htmx-added {
+    opacity: 0;
+}
+.fade-in {
+    opacity: 1;
+    transition: opacity 1s ease-out;
+}
+
+.clickable {
+    cursor: pointer;
+}
 

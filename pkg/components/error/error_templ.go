@@ -36,6 +36,16 @@ func Error(ev ErrorView) templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
 		_, err = templBuffer.WriteString(" class=\"alert alert-danger alert-dismissible\"")
 		if err != nil {
 			return err
@@ -81,6 +91,10 @@ func Error(ev ErrorView) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("</button>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}

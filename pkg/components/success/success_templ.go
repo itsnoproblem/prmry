@@ -80,6 +80,16 @@ func Success(sv SuccessView) templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
 		_, err = templBuffer.WriteString(" class=\"alert alert-info alert-dismissible\"")
 		if err != nil {
 			return err
@@ -125,6 +135,10 @@ func Success(sv SuccessView) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("</button>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}

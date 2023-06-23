@@ -48,7 +48,7 @@ func (rs Resource) Routes() chi.Router {
 	r.Get("/", rs.List)
 
 	// Get an interaction by ID
-	r.Route(fmt.Sprintf("/{%s}", paramNameID), func(r chi.Router) {
+	r.Route(fmt.Sprintf("/{%s}", "id"), func(r chi.Router) {
 		//r.Use(WithIDContext)
 		r.Get("/", rs.Get)
 	})
@@ -121,7 +121,7 @@ func (rs Resource) Chat(w http.ResponseWriter, r *http.Request) {
 // Get - GET /interactions/{id} - Read a single interaction by :id.
 func (rs Resource) Get(w http.ResponseWriter, r *http.Request) {
 
-	id := chi.URLParam(r, paramNameID)
+	id := chi.URLParam(r, "id")
 	if id == "" {
 		rs.renderer.RenderError(w, r, fmt.Errorf("missing required 'id'"))
 		return
