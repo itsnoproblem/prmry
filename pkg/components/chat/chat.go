@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"github.com/itsnoproblem/prmry/pkg/flow"
 	"strconv"
 
 	"github.com/itsnoproblem/prmry/pkg/components"
@@ -35,13 +36,33 @@ type ChatUsageView struct {
 	TotalTokens      string
 }
 
-type PersonaSelector struct {
+type FlowSelector struct {
+	Flows        []Flow
+	SelectedFlow string
+}
+
+type Flow struct {
 	ID   string
 	Name string
 }
 
+func NewFlowSelector(flows []flow.Flow, selectedFlow string) FlowSelector {
+	flws := make([]Flow, 0)
+	for _, flw := range flows {
+		flws = append(flws, Flow{
+			ID:   flw.ID,
+			Name: flw.Name,
+		})
+	}
+
+	return FlowSelector{
+		Flows:        flws,
+		SelectedFlow: selectedFlow,
+	}
+}
+
 type ChatControlsView struct {
-	Personas []PersonaSelector
+	FlowSelector FlowSelector
 	components.BaseComponent
 }
 

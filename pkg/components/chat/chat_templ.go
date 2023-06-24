@@ -864,7 +864,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-group col-lg-2\"")
+		_, err = templBuffer.WriteString(" class=\"form-floating col-lg-3\"")
 		if err != nil {
 			return err
 		}
@@ -878,11 +878,15 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-control form-select\"")
+		_, err = templBuffer.WriteString(" name=\"flowSelector\"")
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" name=\"persona\"")
+		_, err = templBuffer.WriteString(" class=\"form-select form-select-md\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" aria-label=\"Flow Selector\"")
 		if err != nil {
 			return err
 		}
@@ -896,7 +900,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" value=\"RAW\"")
+		_, err = templBuffer.WriteString(" value=\"\"")
 		if err != nil {
 			return err
 		}
@@ -905,7 +909,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Text
-		var_25 := `Default Persona`
+		var_25 := `Send input as-is`
 		_, err = templBuffer.WriteString(var_25)
 		if err != nil {
 			return err
@@ -914,79 +918,61 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 		if err != nil {
 			return err
 		}
+		// For
+		for _, flw := range cmp.FlowSelector.Flows {
+			// Element (standard)
+			_, err = templBuffer.WriteString("<option")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" value=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString(flw.ID))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+			// StringExpression
+			var var_26 string = flw.Name
+			_, err = templBuffer.WriteString(templ.EscapeString(var_26))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option>")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString("</select>")
+		if err != nil {
+			return err
+		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<option")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" value=\"03b1fe\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
+		_, err = templBuffer.WriteString("<label>")
 		if err != nil {
 			return err
 		}
 		// Text
-		var_26 := `Sarcastic Cop`
-		_, err = templBuffer.WriteString(var_26)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</option>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<option")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" value=\"742eac\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_27 := `Classic Libertarian`
+		var_27 := `Flow`
 		_, err = templBuffer.WriteString(var_27)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</option>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<option")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" value=\"a1f4b1\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_28 := `Concerned Parent`
-		_, err = templBuffer.WriteString(var_28)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</option>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</select>")
+		_, err = templBuffer.WriteString("</label>")
 		if err != nil {
 			return err
 		}
@@ -1000,7 +986,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-group col-lg-10\"")
+		_, err = templBuffer.WriteString(" class=\"form-group col-lg-9\"")
 		if err != nil {
 			return err
 		}

@@ -27,21 +27,40 @@ type Rule struct {
 }
 
 func (c Rule) Matches(field string) (bool, error) {
+	matches := false
 	fld := strings.ToLower(field)
 	val := strings.ToLower(c.Value)
+	for strings.HasPrefix(val, "\n") {
+		val = strings.TrimPrefix(val, "\n")
+	}
+	for strings.HasPrefix(fld, "\n") {
+		fld = strings.TrimPrefix(fld, "\n")
+	}
 
 	switch c.Condition {
 	case ConditionTypeContains:
-		return strings.Contains(fld, val), nil
+		matches = strings.Contains(fld, val)
+		break
+	case ConditionTypeNotContains:
+		matches = !strings.Contains(fld, val)
+		break
 	case ConditionTypeEquals:
-		return fld == val, nil
+		matches = fld == val
+		break
+	case ConditionTypeNotEquals:
+		matches = fld != val
+		break
 	case ConditionTypeStartsWith:
-		return strings.HasPrefix(fld, val), nil
+		matches = strings.HasPrefix(fld, val)
+		break
 	case ConditionTypeEndsWith:
-		return strings.HasSuffix(fld, val), nil
+		matches = strings.HasSuffix(fld, val)
+		break
+	default:
+		return false, fmt.Errorf("Rule.Matches: unknown condition type: %s", c.Condition)
 	}
 
-	return false, fmt.Errorf("Rule.Matches: unknown condition type: %s", c.Condition)
+	return matches, nil
 }
 
 func SupportedConditions() map[string]string {

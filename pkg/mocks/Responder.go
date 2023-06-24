@@ -14,7 +14,7 @@ type Responder struct {
 }
 
 // RespondToMessage provides a mock function with given fields: ctx, msg
-func (_m *Responder) GenerateResponse(ctx context.Context, msg string) (string, error) {
+func (_m *Responder) GenerateResponse(ctx context.Context, msg, flowID string) (string, error) {
 	ret := _m.Called(ctx, msg)
 
 	var r0 string

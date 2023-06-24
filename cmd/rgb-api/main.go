@@ -55,7 +55,8 @@ func main() {
 
 	interactionsRepo := sql.NewInteractionsRepo(db)
 	moderationsRepo := sql.NewModerationsRepo(db)
-	interactingService := interacting.NewService(nil, &interactionsRepo, &moderationsRepo)
+	flowsRepo := sql.NewFlowsRepository(db)
+	interactingService := interacting.NewService(nil, &interactionsRepo, &moderationsRepo, flowsRepo)
 
 	r.Group(interacting.RouteHandler(interactingService))
 

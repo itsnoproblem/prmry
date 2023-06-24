@@ -103,7 +103,7 @@ func main() {
 	flowsRepo := sql.NewFlowsRepository(db)
 
 	authService := authorizing.NewService(usersRepo)
-	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
+	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo, flowsRepo)
 	flowService := flowing.NewService(flowsRepo)
 
 	authResource, err := authorizing.NewResource(renderer, authSecret, authService)

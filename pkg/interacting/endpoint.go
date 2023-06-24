@@ -13,7 +13,7 @@ type interactingService interface {
 	Interaction(ctx context.Context, interactionID string) (interaction.Interaction, error)
 	Moderation(ctx context.Context, interactionID string) (interaction.Moderation, error)
 	ModerationByID(ctx context.Context, moderationID string) (interaction.Moderation, error)
-	NewInteraction(ctx context.Context, msg string) (interaction.Interaction, error)
+	NewInteraction(ctx context.Context, msg, flowID string) (interaction.Interaction, error)
 }
 
 func makeListInteractionsEndpoint(svc interactingService) api.HandlerFunc {
