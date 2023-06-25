@@ -120,6 +120,9 @@ func main() {
 	r.Mount("/interactions", ixnResource.Routes())
 	r.Mount("/flows", flowResource.Routes())
 
+	fs := http.FileServer(http.Dir("www"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+
 	log.Println("Listening on " + listen)
 	if err := http.ListenAndServe(listen, r); err != nil {
 		panic(err)

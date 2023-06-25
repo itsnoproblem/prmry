@@ -197,7 +197,7 @@ func Page(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" href=\"/main.css\"")
+		_, err = templBuffer.WriteString(" href=\"/static/main.css\"")
 		if err != nil {
 			return err
 		}
