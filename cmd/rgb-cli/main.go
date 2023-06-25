@@ -56,17 +56,19 @@ func main() {
 
 	interactionsRepo := sql.NewInteractionsRepo(db)
 	moderationsRepo := sql.NewModerationsRepo(db)
+	flowsRepo := sql.NewFlowsRepository(db)
 
 	openAIKey := os.Getenv(env.VarOpenAIKey)
 	gptClient := gogpt.NewClient(openAIKey)
-	commenter := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo)
+	commenter := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println(banner())
 	fmt.Print(prompt)
 
 	for scanner.Scan() {
-		response, err := commenter.GenerateResponse(context.Background(), scanner.Text())
+		flowID := ""
+		response, err := commenter.GenerateResponse(context.Background(), scanner.Text(), flowID)
 		if err != nil {
 			log.Printf("ERROR: %s\n", err.Error())
 		}
