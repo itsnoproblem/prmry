@@ -50,10 +50,6 @@ func (rs Resource) Routes() chi.Router {
 	r.Get("/", rs.List)
 
 	// Get an interaction by ID
-	//r.Route(fmt.Sprintf("/{%s}", "id"), func(r chi.Router) {
-	//	//r.Use(WithIDContext)
-	//	r.Get("/", rs.Get)
-	//})
 	r.Get("/{id}", rs.Get)
 
 	// Create an interaction

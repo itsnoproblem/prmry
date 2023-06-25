@@ -2003,6 +2003,44 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			// Element Attributes
+			_, err = templBuffer.WriteString(" id=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("flow-" + f.ID))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" class=\"fade-out\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<th")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" scope=\"row\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" class=\"py-3 clickable\"")
+			if err != nil {
+				return err
+			}
 			_, err = templBuffer.WriteString(" hx-get=")
 			if err != nil {
 				return err
@@ -2028,28 +2066,6 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			_, err = templBuffer.WriteString(" hx-trigger=\"click\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"clickable\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<th")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" scope=\"row\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"py-3\"")
 			if err != nil {
 				return err
 			}
@@ -2129,6 +2145,10 @@ func FlowsList(view FlowsListView) templ.Component {
 			if err != nil {
 				return err
 			}
+			_, err = templBuffer.WriteString(" hx-disinherit=\"hx-get hx-push-url hx-trigger\"")
+			if err != nil {
+				return err
+			}
 			_, err = templBuffer.WriteString(">")
 			if err != nil {
 				return err
@@ -2139,10 +2159,6 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"button button-secondary\"")
-			if err != nil {
-				return err
-			}
 			_, err = templBuffer.WriteString(" hx-delete=")
 			if err != nil {
 				return err
@@ -2159,6 +2175,26 @@ func FlowsList(view FlowsListView) templ.Component {
 			if err != nil {
 				return err
 			}
+			_, err = templBuffer.WriteString(" hx-target=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("#flow-" + f.ID))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" hx-swap=\"outerHTML swap:1s\"")
+			if err != nil {
+				return err
+			}
 			_, err = templBuffer.WriteString(" hx-confirm=")
 			if err != nil {
 				return err
@@ -2172,6 +2208,10 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" class=\"button button-secondary\"")
 			if err != nil {
 				return err
 			}

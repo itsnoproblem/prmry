@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -34,7 +33,7 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 
 func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
 	if htmx.IsHXRequest(r.Context()) {
-		rnd.RenderError(w, r, fmt.Errorf("Unauthorized"))
+		htmx.Redirect(w, "/")
 	} else {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	}

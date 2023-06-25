@@ -255,19 +255,24 @@ templ FlowsList(view FlowsListView) {
             </tr>
 
             for _, f := range view.Flows {
-                <tr hx-get={ "/flows/" + f.ID + "/edit" }
-                    hx-push-url="true"
-                    hx-target="#content-root"
-                    hx-trigger="click"
-                    class="clickable"
-                >
-                    <th scope="row" class="py-3">{f.Name}</th>
-                    <td class="py-3 d-none d-lg-table-cell">{f.RuleCount}</td>
-                    <td class="py-3">{f.LastChanged}</td>
-                    <td class="py-3" align="right">
-                        <a class="button button-secondary"
-                            hx-delete={ "/flows/" + f.ID }
-                            hx-confirm={ "Delete flow '" + f.Name + "'?" }
+                <tr id={ "flow-" + f.ID } class="fade-out">
+                    <th scope="row"
+                        class="py-3 clickable"
+                        hx-get={ "/flows/" + f.ID + "/edit" }
+                        hx-push-url="true"
+                        hx-target="#content-root"
+                        hx-trigger="click"
+                    >
+                        {f.Name}
+                    </th>
+                    <td class="py-3 d-none d-lg-table-cell">{ f.RuleCount }</td>
+                    <td class="py-3">{ f.LastChanged }</td>
+                    <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+                        <a hx-delete={ "/flows/" + f.ID }
+                           hx-target={ "#flow-" + f.ID }
+                           hx-swap="outerHTML swap:1s"
+                           hx-confirm={ "Delete flow '" + f.Name + "'?" }
+                           class="button button-secondary"
                         >
                             <i class="fa fa-trash"></i>
                         </a>

@@ -73,10 +73,3 @@ func SupportedConditions() map[string]string {
 		ConditionTypeEndsWith.String():    ConditionTypeEndsWith.String(),
 	}
 }
-
-func SupportedFields() map[string]string {
-	return map[string]string{
-		FieldSourceInput.String(): "Input Message",
-		FieldSourceFlow.String():  "Output from another flow",
-	}
-}

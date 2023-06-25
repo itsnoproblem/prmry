@@ -190,6 +190,17 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	return nil
 }
 
+func (r repository) DeleteFlow(ctx context.Context, flowID string) error {
+	sql := `
+		DELETE FROM flows WHERE id = ?
+	`
+	if _, err := r.db.ExecContext(ctx, sql, flowID); err != nil {
+		return errors.Wrap(err, "sql.DeleteFLow")
+	}
+
+	return nil
+}
+
 // private
 
 type flowsRow struct {

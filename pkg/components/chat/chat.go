@@ -16,6 +16,8 @@ type ChatSummaryView struct {
 	Type       string
 	Date       string
 	Model      string
+	FlowID     string
+	FlowName   string
 	TokensUsed int
 }
 
@@ -25,6 +27,8 @@ type ChatDetailView struct {
 	Date         string
 	ResponseText string
 	ResponseHTML string
+	FlowID       string
+	FlowName     string
 	Model        string
 	Usage        ChatUsageView
 	components.BaseComponent
@@ -84,6 +88,8 @@ func NewInteractionListView(summaries []interaction.Summary) InteractionListView
 			ID:         s.ID,
 			Prompt:     components.TrimWordsToMaxCharacters(PromptMaxCharacters, s.Prompt),
 			Type:       s.Type,
+			FlowID:     s.FlowID,
+			FlowName:   s.FlowName,
 			Date:       s.CreatedAt.Format("Jan 2, 2006 3:04pm"),
 			Model:      s.Model,
 			TokensUsed: s.TokensUsed,
@@ -102,6 +108,8 @@ func NewChatDetailView(ixn interaction.Interaction) ChatDetailView {
 		Date:         ixn.CreatedAt.Format("Monday, January 2, 2006 at 3:04pm"),
 		ResponseText: ixn.ResponseText(),
 		ResponseHTML: ixn.ResponseHTML(),
+		FlowID:       ixn.FlowID,
+		FlowName:     ixn.FlowName,
 		Model:        ixn.Response.Model,
 		Usage: ChatUsageView{
 			PromptTokens:     strconv.Itoa(ixn.Response.Usage.PromptTokens),
