@@ -93,19 +93,24 @@ templ ChatControls(cmp ChatControlsView) {
     <div class="container navbar-fixed-bottom" id="chat-controls">
         @ChatControlsForm(cmp)  
     </div>
-} 
+}
 
 templ ChatControlsForm(cmp ChatControlsView) {
     <form id="chat-controls" class="row">
-        <div class="form-group col-lg-2">
-            <select class="form-control form-select" name="persona">
-                <option value="RAW">Default Persona</option>
-                <option value="03b1fe">Sarcastic Cop</option>
-                <option value="742eac">Classic Libertarian</option>
-                <option value="a1f4b1">Concerned Parent</option>
+        <div class="form-floating col-lg-3">
+            <select
+                    name="flowSelector"
+                    class="form-select form-select-md"
+                    aria-label="Flow Selector"
+            >
+                <option value="">Send input as-is</option>
+                for _, flw := range cmp.FlowSelector.Flows {
+                    <option value={ flw.ID }>{ flw.Name }</option>
+                }
             </select>
+            <label>Flow</label>
         </div>
-        <div class="form-group col-lg-10">
+        <div class="form-group col-lg-9">
             <textarea
                 type="text"
                 class="form-control text-light input-dark"

@@ -9,6 +9,8 @@ import (
 
 type Interaction struct {
 	ID        string
+	FlowID    string
+	FlowName  string
 	Request   gogpt.CompletionRequest
 	Response  gogpt.CompletionResponse
 	Error     string
@@ -18,6 +20,8 @@ type Interaction struct {
 
 type Summary struct {
 	ID             string
+	FlowID         string
+	FlowName       string
 	Type           string
 	Model          string
 	Prompt         string

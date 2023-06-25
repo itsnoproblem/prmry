@@ -39,6 +39,9 @@ templ InteractionDetail(view chat.ChatDetailView) {
                         { view.Date }
                         <div class="interaction-summary">
                             <span class="pure-button pure-button-primary">
+                                Flow: { view.FlowName } |
+                            </span>
+                            <span class="pure-button pure-button-primary">
                                 Model: { view.Model } |
                             </span>
                             <span class="pure-button pure-button-primary">
@@ -94,18 +97,24 @@ templ InteractionsList(view chat.InteractionListView) {
                     <img width="48" height="48" 
                         alt={view.User().Name} 
                         class="post-avatar pure-img" 
-                        src={view.User().AvatarURL}/>
+                        src={ view.User().AvatarURL }/>
 
                     <h2 class="post-title list-post-title">
                         <a hx-get={"/interactions/"+item.ID}
                            hx-target="#content-root"
                            hx-push-url="true"
-                        >{item.Prompt}</a>
+                        >{ item.Prompt }</a>
                     </h2>
 
                     <p class="post-meta">
-                        <b>{item.Date}</b> using <b>{item.Model}</b>
-                        <span class="badge badge-info">{fmt.Sprintf("%d", item.TokensUsed)} tokens</span>
+                        <span class="text-info"><b>{ item.Date }</b></span> &nbsp; &mdash; &nbsp;
+                        if item.FlowID == "" {
+                            <span class="text-info">created with <b>raw input</b></span>
+                        } else {
+                            <span class="text-info">created via <b>{ item.FlowName }</b></span>
+                        }
+                        &nbsp;<span>using <b>{ item.Model }</b></span>
+                        &nbsp;<span class="badge badge-info">{ fmt.Sprintf("%d", item.TokensUsed) } tokens</span>
                     </p>
                 </header>
             </section>

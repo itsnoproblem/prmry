@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"github.com/itsnoproblem/prmry/pkg/flow"
 	"strconv"
 
 	"github.com/itsnoproblem/prmry/pkg/components"
@@ -15,6 +16,8 @@ type ChatSummaryView struct {
 	Type       string
 	Date       string
 	Model      string
+	FlowID     string
+	FlowName   string
 	TokensUsed int
 }
 
@@ -24,6 +27,8 @@ type ChatDetailView struct {
 	Date         string
 	ResponseText string
 	ResponseHTML string
+	FlowID       string
+	FlowName     string
 	Model        string
 	Usage        ChatUsageView
 	components.BaseComponent
@@ -35,13 +40,33 @@ type ChatUsageView struct {
 	TotalTokens      string
 }
 
-type PersonaSelector struct {
+type FlowSelector struct {
+	Flows        []Flow
+	SelectedFlow string
+}
+
+type Flow struct {
 	ID   string
 	Name string
 }
 
+func NewFlowSelector(flows []flow.Flow, selectedFlow string) FlowSelector {
+	flws := make([]Flow, 0)
+	for _, flw := range flows {
+		flws = append(flws, Flow{
+			ID:   flw.ID,
+			Name: flw.Name,
+		})
+	}
+
+	return FlowSelector{
+		Flows:        flws,
+		SelectedFlow: selectedFlow,
+	}
+}
+
 type ChatControlsView struct {
-	Personas []PersonaSelector
+	FlowSelector FlowSelector
 	components.BaseComponent
 }
 
@@ -63,6 +88,8 @@ func NewInteractionListView(summaries []interaction.Summary) InteractionListView
 			ID:         s.ID,
 			Prompt:     components.TrimWordsToMaxCharacters(PromptMaxCharacters, s.Prompt),
 			Type:       s.Type,
+			FlowID:     s.FlowID,
+			FlowName:   s.FlowName,
 			Date:       s.CreatedAt.Format("Jan 2, 2006 3:04pm"),
 			Model:      s.Model,
 			TokensUsed: s.TokensUsed,
@@ -81,6 +108,8 @@ func NewChatDetailView(ixn interaction.Interaction) ChatDetailView {
 		Date:         ixn.CreatedAt.Format("Monday, January 2, 2006 at 3:04pm"),
 		ResponseText: ixn.ResponseText(),
 		ResponseHTML: ixn.ResponseHTML(),
+		FlowID:       ixn.FlowID,
+		FlowName:     ixn.FlowName,
 		Model:        ixn.Response.Model,
 		Usage: ChatUsageView{
 			PromptTokens:     strconv.Itoa(ixn.Response.Usage.PromptTokens),

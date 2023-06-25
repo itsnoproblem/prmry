@@ -13,6 +13,7 @@ import (
 type FlowsRepo interface {
 	InsertFlow(ctx context.Context, flw flow.Flow) error
 	UpdateFlow(ctx context.Context, flw flow.Flow) error
+	DeleteFlow(ctx context.Context, flowID string) error
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 }
@@ -67,6 +68,14 @@ func (s service) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	flw.UpdatedAt = time.Now()
 	if err := s.flowsRepo.UpdateFlow(ctx, flw); err != nil {
 		return errors.Wrap(err, "flowing.UpdateFlow")
+	}
+
+	return nil
+}
+
+func (s service) DeleteFlow(ctx context.Context, flowID string) error {
+	if err := s.flowsRepo.DeleteFlow(ctx, flowID); err != nil {
+		return errors.Wrap(err, "flowing.DeleteFlow")
 	}
 
 	return nil

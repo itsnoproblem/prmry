@@ -3,6 +3,7 @@ package interacting
 import (
 	"context"
 	"fmt"
+	"github.com/itsnoproblem/prmry/pkg/flow"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -20,7 +21,8 @@ const (
 type Service interface {
 	Interactions(ctx context.Context) ([]interaction.Summary, error)
 	Interaction(ctx context.Context, id string) (interaction.Interaction, error)
-	NewInteraction(ctx context.Context, msg string) (interaction.Interaction, error)
+	NewInteraction(ctx context.Context, msg, flowID string) (interaction.Interaction, error)
+	GetFlows(ctx context.Context) ([]flow.Flow, error)
 }
 
 type Renderer interface {
@@ -48,10 +50,7 @@ func (rs Resource) Routes() chi.Router {
 	r.Get("/", rs.List)
 
 	// Get an interaction by ID
-	r.Route(fmt.Sprintf("/{%s}", "id"), func(r chi.Router) {
-		//r.Use(WithIDContext)
-		r.Get("/", rs.Get)
-	})
+	r.Get("/{id}", rs.Get)
 
 	// Create an interaction
 	r.Post("/", rs.Create)
@@ -64,7 +63,14 @@ func (rs Resource) Routes() chi.Router {
 
 // Create - POST /interactions - send a prompt and receive the prompt + response
 func (rs Resource) Create(w http.ResponseWriter, r *http.Request) {
-	ixn, err := rs.service.NewInteraction(r.Context(), r.PostFormValue("prompt"))
+	flowID := r.PostFormValue("flowSelector")
+	input := r.PostFormValue("prompt")
+	if input == "" {
+		rs.renderer.RenderError(w, r, fmt.Errorf("input was empty"))
+		return
+	}
+
+	ixn, err := rs.service.NewInteraction(r.Context(), input, flowID)
 	if err != nil {
 		rs.renderer.RenderError(w, r, err)
 		return
@@ -87,21 +93,14 @@ func (rs Resource) Create(w http.ResponseWriter, r *http.Request) {
 
 // Chat - GET /interactions/chat
 func (rs Resource) Chat(w http.ResponseWriter, r *http.Request) {
+	flows, err := rs.service.GetFlows(r.Context())
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
 	cmp := chat.ChatControlsView{
-		Personas: []chat.PersonaSelector{
-			{
-				ID:   "123",
-				Name: "No Persona",
-			},
-			{
-				ID:   "234",
-				Name: "Sarcastic Cop",
-			},
-			{
-				ID:   "345",
-				Name: "Concerned Parent",
-			},
-		},
+		FlowSelector: chat.NewFlowSelector(flows, r.URL.Query().Get("selectedFlow")),
 	}
 
 	if err := cmp.Lock(r); err != nil {

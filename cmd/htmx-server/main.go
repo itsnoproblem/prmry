@@ -103,7 +103,7 @@ func main() {
 	flowsRepo := sql.NewFlowsRepository(db)
 
 	authService := authorizing.NewService(usersRepo)
-	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo)
+	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo, flowsRepo)
 	flowService := flowing.NewService(flowsRepo)
 
 	authResource, err := authorizing.NewResource(renderer, authSecret, authService)
@@ -119,6 +119,9 @@ func main() {
 	r.Mount("/auth", authResource.Routes())
 	r.Mount("/interactions", ixnResource.Routes())
 	r.Mount("/flows", flowResource.Routes())
+
+	fs := http.FileServer(http.Dir("www"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	log.Println("Listening on " + listen)
 	if err := http.ListenAndServe(listen, r); err != nil {

@@ -14,16 +14,48 @@ import (
 	"github.com/itsnoproblem/prmry/pkg/interaction"
 )
 
-type InteractionRow struct {
+type summaryRow struct {
+	ID             string    `db:"id"`
+	UserID         string    `db:"user_id"`
+	Type           string    `db:"type"`
+	Model          string    `db:"model"`
+	Prompt         string    `db:"prompt"`
+	TokensUsed     int       `db:"tokens_used"`
+	ResponseLength int       `db:"response_length"`
+	Error          string    `db:"err"`
+	FlowID         string    `db:"flow_id"`
+	FlowName       string    `db:"flow_name"`
+	CreatedAt      time.Time `db:"created_at"`
+}
+
+func (row summaryRow) toSummary() interaction.Summary {
+	return interaction.Summary{
+		ID:             row.ID,
+		FlowID:         row.FlowID,
+		FlowName:       row.FlowName,
+		Type:           row.Type,
+		Model:          row.Model,
+		Prompt:         row.Prompt,
+		TokensUsed:     row.TokensUsed,
+		ResponseLength: row.ResponseLength,
+		Error:          row.Error,
+		CreatedAt:      row.CreatedAt,
+		UserID:         row.UserID,
+	}
+}
+
+type interactionRow struct {
 	ID        string          `db:"id"`
 	Request   json.RawMessage `db:"request"`
 	Response  json.RawMessage `db:"response"`
 	Error     string          `db:"err"`
 	CreatedAt time.Time       `db:"created_at"`
 	UserID    string          `db:"user_id"`
+	FlowID    string          `db:"flow_id"`
+	FlowName  string          `db:"flow_name"`
 }
 
-func (row InteractionRow) toInteraction() (interaction.Interaction, error) {
+func (row interactionRow) toInteraction() (interaction.Interaction, error) {
 	var (
 		req gogpt.CompletionRequest
 		res gogpt.CompletionResponse
@@ -44,6 +76,8 @@ func (row InteractionRow) toInteraction() (interaction.Interaction, error) {
 		Error:     row.Error,
 		CreatedAt: row.CreatedAt,
 		UserID:    row.UserID,
+		FlowID:    row.FlowID,
+		FlowName:  row.FlowName,
 	}, nil
 }
 
@@ -77,8 +111,9 @@ func (r *interactionsRepo) Add(ctx context.Context, ixn interaction.Interaction)
 			response,
 			err,
 			created_at,
-		    user_id
-		) VALUES (?, ?, ?, ?, ?, ?)
+		    user_id, 
+		    flow_id
+		) VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err = r.db.ExecContext(ctx, sql,
@@ -88,6 +123,7 @@ func (r *interactionsRepo) Add(ctx context.Context, ixn interaction.Interaction)
 		ixn.Error,
 		time.Now(),
 		ixn.UserID,
+		ixn.FlowID,
 	)
 	if err != nil {
 		return "", fmt.Errorf("sql.interactionsRepo: %s", err)
@@ -103,34 +139,31 @@ func (r *interactionsRepo) Remove(ctx context.Context, id string) error {
 func (r *interactionsRepo) Interaction(ctx context.Context, id string) (interaction.Interaction, error) {
 	query := `
 		SELECT 
-			id, 
-			request, 
-			response, 
-			err, 
-			created_at
-		FROM interactions
-		WHERE id = ?
+			i.id, 
+			i.user_id,
+			i.flow_id,
+			IF(f.name IS NULL, '', f.name) AS flow_name,
+			i.request, 
+			i.response, 
+			i.err, 
+			i.created_at
+		FROM interactions AS i
+		LEFT JOIN flows AS f ON f.id = i.flow_id
+		WHERE i.id = ?
 		LIMIT 1
 	`
-	var (
-		ixn interaction.Interaction
-		req json.RawMessage
-		res json.RawMessage
-	)
 
-	row := r.db.QueryRowContext(ctx, query, id)
+	var ixnRow interactionRow
+	row := r.db.QueryRowxContext(ctx, query, id)
+	err := row.StructScan(&ixnRow)
 
-	err := row.Scan(&ixn.ID, &req, &res, &ixn.Error, &ixn.CreatedAt)
 	if err != nil { // && err == sql.ErrNoRows{
-		return interaction.Interaction{}, fmt.Errorf("interactionsRepo.Interaction: %s", err)
+		return interaction.Interaction{}, errors.Wrap(err, "interactionsRepo.interaction")
 	}
 
-	if err = json.Unmarshal(req, &ixn.Request); err != nil {
-		return interaction.Interaction{}, fmt.Errorf("interactionsRepo.Interaction unmarshal request: %s", err)
-	}
-
-	if err = json.Unmarshal(res, &ixn.Response); err != nil {
-		return interaction.Interaction{}, fmt.Errorf("interactionsRepo.Interaction unmarshal response: %s", err)
+	ixn, err := ixnRow.toInteraction()
+	if err != nil {
+		return interaction.Interaction{}, errors.Wrap(err, "interactionsRepo.interaction")
 	}
 
 	return ixn, nil
@@ -139,40 +172,36 @@ func (r *interactionsRepo) Interaction(ctx context.Context, id string) (interact
 func (r *interactionsRepo) Summaries(ctx context.Context) ([]interaction.Summary, error) {
 	query := `
 		SELECT 
-		  id, 
-		  IFNULL(response->>'$.object', '') AS type,
-		  IFNULL(request->>'$.model', '') AS model,
-		  IFNULL(request->>'$.prompt', '') AS prompt,
-		  IFNULL(response->>'$.usage.total_tokens', 0) AS tokens_used,
-		  IFNULL(LENGTH(response->>'$.choices[0].text'), 0) AS response_length,
-		  err,
-		  created_at
-		FROM interactions
+		  i.id,
+		  i.user_id,
+		  IFNULL(i.response->>'$.object', '') AS type,
+		  IFNULL(i.request->>'$.model', '') AS model,
+		  IFNULL(i.request->>'$.prompt', '') AS prompt,
+		  IFNULL(i.response->>'$.usage.total_tokens', 0) AS tokens_used,
+		  IFNULL(LENGTH(i.response->>'$.choices[0].text'), 0) AS response_length,
+		  i.err,
+		  i.flow_id,
+		  if(f.name IS NULL, '', f.name) AS flow_name,
+		  i.created_at
+		FROM interactions AS i
+		LEFT JOIN flows AS f ON f.id = i.flow_id 
 		ORDER BY created_at DESC
 	`
-	rows, err := r.db.QueryContext(ctx, query)
+
+	rows, err := r.db.QueryxContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
+		return nil, errors.Wrap(err, "sql.interactionsRepo.Summaries")
 	}
 	defer rows.Close()
 
 	interactions := make([]interaction.Summary, 0)
 	for rows.Next() {
-		var in interaction.Summary
-
-		if err = rows.Scan(
-			&in.ID,
-			&in.Type,
-			&in.Model,
-			&in.Prompt,
-			&in.TokensUsed,
-			&in.ResponseLength,
-			&in.Error,
-			&in.CreatedAt); err != nil {
+		var result summaryRow
+		if err = rows.StructScan(&result); err != nil {
 			return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
 		}
 
-		interactions = append(interactions, in)
+		interactions = append(interactions, result.toSummary())
 	}
 
 	return interactions, nil
@@ -181,41 +210,36 @@ func (r *interactionsRepo) Summaries(ctx context.Context) ([]interaction.Summary
 func (r *interactionsRepo) SummariesForUser(ctx context.Context, userID string) ([]interaction.Summary, error) {
 	query := `
 		SELECT 
-		  id, 
-		  IFNULL(response->>'$.object', '') AS type,
-		  IFNULL(request->>'$.model', '') AS model,
-		  IFNULL(request->>'$.prompt', '') AS prompt,
-		  IFNULL(response->>'$.usage.total_tokens', 0) AS tokens_used,
-		  IFNULL(LENGTH(response->>'$.choices[0].text'), 0) AS response_length,
-		  err,
-		  created_at
-		FROM interactions
-		WHERE user_id = ?
+		  i.id,
+		  i.user_id,
+		  IFNULL(i.response->>'$.object', '') AS type,
+		  IFNULL(i.request->>'$.model', '') AS model,
+		  IFNULL(i.request->>'$.prompt', '') AS prompt,
+		  IFNULL(i.response->>'$.usage.total_tokens', 0) AS tokens_used,
+		  IFNULL(LENGTH(i.response->>'$.choices[0].text'), 0) AS response_length,
+		  i.err,
+		  i.flow_id,
+		  IF(f.name IS NULL, '', f.name) AS flow_name,
+		  i.created_at
+		FROM interactions AS i
+		LEFT JOIN flows AS f ON f.id = i.flow_id 
+		WHERE i.user_id = ?
 		ORDER BY created_at DESC
 	`
-	rows, err := r.db.QueryContext(ctx, query, userID)
+	rows, err := r.db.QueryxContext(ctx, query, userID)
 	if err != nil {
-		return nil, fmt.Errorf("sql.interactionsRepo.SummariesForUser(%s): %s", userID, err)
+		return nil, errors.Wrap(err, "sql.interactionsRepo.SummariesForUser")
 	}
 	defer rows.Close()
 
 	interactions := make([]interaction.Summary, 0)
 	for rows.Next() {
-		var in interaction.Summary
-
-		if err = rows.Scan(
-			&in.ID,
-			&in.Type,
-			&in.Model,
-			&in.Prompt,
-			&in.TokensUsed,
-			&in.ResponseLength,
-			&in.Error,
-			&in.CreatedAt); err != nil {
+		var result summaryRow
+		if err = rows.StructScan(&result); err != nil {
 			return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
 		}
 
-		interactions = append(interactions, in)
+		interactions = append(interactions, result.toSummary())
 	}
 
 	return interactions, nil

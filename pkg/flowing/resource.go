@@ -4,24 +4,26 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/a-h/templ"
-	"github.com/go-chi/chi/v5"
-	"github.com/itsnoproblem/prmry/pkg/auth"
-	"github.com/itsnoproblem/prmry/pkg/htmx"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"regexp"
 	"strconv"
 
+	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
+	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/pkg/auth"
 	flowcmp "github.com/itsnoproblem/prmry/pkg/components/flow"
 	"github.com/itsnoproblem/prmry/pkg/flow"
+	"github.com/itsnoproblem/prmry/pkg/htmx"
 )
 
 type Service interface {
 	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
 	UpdateFlow(ctx context.Context, flw flow.Flow) error
+	DeleteFlow(ctx context.Context, flowID string) error
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 }
@@ -47,25 +49,23 @@ func NewResource(renderer Renderer, svc Service) *Resource {
 func (rs Resource) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/{flowID}/edit", rs.EditFlowForm)
-	r.Put("/{flowID}", rs.SaveFlow)
-
 	r.Post("/", rs.SaveFlow)
+	r.Put("/{flowID}", rs.SaveFlow)
+	r.Delete("/{flowID}", rs.DeleteFlow)
+
+	r.Get("/", rs.ListFlows)
+	r.Get("/{flowID}", rs.GetFlow)
+
+	r.Get("/{flowID}/edit", rs.EditFlowForm)
 	r.Get("/new", rs.NewFlowForm)
 	r.Put("/new/prompt", rs.FlowBuilderUpdatePrompt)
 	r.Post("/new/rules", rs.FlowBuilderAddRule)
 	r.Delete("/new/rules/{index}", rs.FlowBuilderRemoveRule)
 
-	//
-	r.Get("/", rs.ListFlows)
-
-	// Get a flow by ID
-	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", rs.GetFlow)
-	})
-
 	return r
 }
+
+// ----- Flow Builder -----
 
 // NewFlowForm GET /flows/new
 func (rs Resource) NewFlowForm(w http.ResponseWriter, r *http.Request) {
@@ -200,6 +200,8 @@ func (rs Resource) FlowBuilderUpdatePrompt(w http.ResponseWriter, r *http.Reques
 	rs.NewFlowForm(w, r.WithContext(context.WithValue(r.Context(), "view", cmp)))
 }
 
+// ----- Flows -----
+
 // SaveFlow - POST /flows | PUT /flows/{flowID}
 func (rs Resource) SaveFlow(w http.ResponseWriter, r *http.Request) {
 	cmp, err := rs.readForm(r)
@@ -242,6 +244,37 @@ func (rs Resource) SaveFlow(w http.ResponseWriter, r *http.Request) {
 
 	htmx.Redirect(w, "/flows")
 	return
+}
+
+// DeleteFlow - DELETE /flows/{flowID}
+func (rs Resource) DeleteFlow(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	flowID := chi.URLParam(r, "flowID")
+	if flowID == "" {
+		rs.renderer.RenderError(w, r, fmt.Errorf("missing required flowID"))
+		return
+	}
+
+	user := auth.UserFromContext(ctx)
+	if user == nil {
+		rs.renderer.Unauthorized(w, r)
+		return
+	}
+
+	flw, err := rs.service.GetFlow(ctx, flowID)
+	if err != nil {
+		rs.renderer.RenderError(w, r, err)
+		return
+	}
+
+	if flw.UserID != user.ID {
+		rs.renderer.RenderError(w, r, fmt.Errorf("you are not allowed to delete that flow"))
+		return
+	}
+
+	if err := rs.service.DeleteFlow(ctx, flowID); err != nil {
+		rs.renderer.RenderError(w, r, err)
+	}
 }
 
 // ListFlows - GET /flows

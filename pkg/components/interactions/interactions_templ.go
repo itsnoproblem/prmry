@@ -274,13 +274,13 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_7 := `Model: `
+		var_7 := `Flow: `
 		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
 		}
 		// StringExpression
-		var var_8 string = view.Model
+		var var_8 string = view.FlowName
 		_, err = templBuffer.WriteString(templ.EscapeString(var_8))
 		if err != nil {
 			return err
@@ -314,9 +314,15 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 		if err != nil {
 			return err
 		}
+		// Text
+		var_10 := `Model: `
+		_, err = templBuffer.WriteString(var_10)
+		if err != nil {
+			return err
+		}
 		// StringExpression
-		var var_10 string = view.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_10))
+		var var_11 string = view.Model
+		_, err = templBuffer.WriteString(templ.EscapeString(var_11))
 		if err != nil {
 			return err
 		}
@@ -326,8 +332,43 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_11 := `tokens`
-		_, err = templBuffer.WriteString(var_11)
+		var_12 := `|`
+		_, err = templBuffer.WriteString(var_12)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</span>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<span")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"pure-button pure-button-primary\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// StringExpression
+		var var_13 string = view.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_13))
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Text
+		var_14 := `tokens`
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
@@ -467,8 +508,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_12 := `prompt`
-		_, err = templBuffer.WriteString(var_12)
+		var_15 := `prompt`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -482,8 +523,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_13 string = view.Usage.PromptTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_13))
+		var var_16 string = view.Usage.PromptTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_16))
 		if err != nil {
 			return err
 		}
@@ -493,8 +534,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_14 := `tokens`
-		_, err = templBuffer.WriteString(var_14)
+		var_17 := `tokens`
+		_, err = templBuffer.WriteString(var_17)
 		if err != nil {
 			return err
 		}
@@ -517,8 +558,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_15 := `+`
-		_, err = templBuffer.WriteString(var_15)
+		var_18 := `+`
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -546,8 +587,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_16 := `completion`
-		_, err = templBuffer.WriteString(var_16)
+		var_19 := `completion`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -561,8 +602,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_17 string = view.Usage.CompletionTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_17))
+		var var_20 string = view.Usage.CompletionTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_20))
 		if err != nil {
 			return err
 		}
@@ -572,8 +613,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_18 := `tokens`
-		_, err = templBuffer.WriteString(var_18)
+		var_21 := `tokens`
+		_, err = templBuffer.WriteString(var_21)
 		if err != nil {
 			return err
 		}
@@ -596,8 +637,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_19 := `=`
-		_, err = templBuffer.WriteString(var_19)
+		var_22 := `=`
+		_, err = templBuffer.WriteString(var_22)
 		if err != nil {
 			return err
 		}
@@ -625,8 +666,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_20 := `total`
-		_, err = templBuffer.WriteString(var_20)
+		var_23 := `total`
+		_, err = templBuffer.WriteString(var_23)
 		if err != nil {
 			return err
 		}
@@ -640,8 +681,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_21 string = view.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_21))
+		var var_24 string = view.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_24))
 		if err != nil {
 			return err
 		}
@@ -651,8 +692,8 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 			return err
 		}
 		// Text
-		var_22 := `tokens`
-		_, err = templBuffer.WriteString(var_22)
+		var_25 := `tokens`
+		_, err = templBuffer.WriteString(var_25)
 		if err != nil {
 			return err
 		}
@@ -687,9 +728,9 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_23 := templ.GetChildren(ctx)
-		if var_23 == nil {
-			var_23 = templ.NopComponent
+		var_26 := templ.GetChildren(ctx)
+		if var_26 == nil {
+			var_26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -721,8 +762,8 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 			return err
 		}
 		// Text
-		var_24 := `Recent Interactions`
-		_, err = templBuffer.WriteString(var_24)
+		var_27 := `Recent Interactions`
+		_, err = templBuffer.WriteString(var_27)
 		if err != nil {
 			return err
 		}
@@ -863,8 +904,8 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 				return err
 			}
 			// StringExpression
-			var var_25 string = item.Prompt
-			_, err = templBuffer.WriteString(templ.EscapeString(var_25))
+			var var_28 string = item.Prompt
+			_, err = templBuffer.WriteString(templ.EscapeString(var_28))
 			if err != nil {
 				return err
 			}
@@ -891,28 +932,16 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 				return err
 			}
 			// Element (standard)
-			_, err = templBuffer.WriteString("<b>")
+			_, err = templBuffer.WriteString("<span")
 			if err != nil {
 				return err
 			}
-			// StringExpression
-			var var_26 string = item.Date
-			_, err = templBuffer.WriteString(templ.EscapeString(var_26))
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"text-info\"")
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</b>")
-			if err != nil {
-				return err
-			}
-			// Whitespace (normalised)
-			_, err = templBuffer.WriteString(` `)
-			if err != nil {
-				return err
-			}
-			// Text
-			var_27 := `using `
-			_, err = templBuffer.WriteString(var_27)
+			_, err = templBuffer.WriteString(">")
 			if err != nil {
 				return err
 			}
@@ -922,12 +951,166 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 				return err
 			}
 			// StringExpression
-			var var_28 string = item.Model
-			_, err = templBuffer.WriteString(templ.EscapeString(var_28))
+			var var_29 string = item.Date
+			_, err = templBuffer.WriteString(templ.EscapeString(var_29))
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString("</b>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</span>")
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_30 := `&nbsp; &mdash; &nbsp;`
+			_, err = templBuffer.WriteString(var_30)
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// If
+			if item.FlowID == "" {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<span")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" class=\"text-info\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// Text
+				var_31 := `created with `
+				_, err = templBuffer.WriteString(var_31)
+				if err != nil {
+					return err
+				}
+				// Element (standard)
+				_, err = templBuffer.WriteString("<b>")
+				if err != nil {
+					return err
+				}
+				// Text
+				var_32 := `raw input`
+				_, err = templBuffer.WriteString(var_32)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</b>")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</span>")
+				if err != nil {
+					return err
+				}
+			} else {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<span")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" class=\"text-info\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// Text
+				var_33 := `created via `
+				_, err = templBuffer.WriteString(var_33)
+				if err != nil {
+					return err
+				}
+				// Element (standard)
+				_, err = templBuffer.WriteString("<b>")
+				if err != nil {
+					return err
+				}
+				// StringExpression
+				var var_34 string = item.FlowName
+				_, err = templBuffer.WriteString(templ.EscapeString(var_34))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</b>")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</span>")
+				if err != nil {
+					return err
+				}
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_35 := `&nbsp;`
+			_, err = templBuffer.WriteString(var_35)
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<span>")
+			if err != nil {
+				return err
+			}
+			// Text
+			var_36 := `using `
+			_, err = templBuffer.WriteString(var_36)
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<b>")
+			if err != nil {
+				return err
+			}
+			// StringExpression
+			var var_37 string = item.Model
+			_, err = templBuffer.WriteString(templ.EscapeString(var_37))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</b>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</span>")
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Text
+			var_38 := `&nbsp;`
+			_, err = templBuffer.WriteString(var_38)
 			if err != nil {
 				return err
 			}
@@ -946,8 +1129,8 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 				return err
 			}
 			// StringExpression
-			var var_29 string = fmt.Sprintf("%d", item.TokensUsed)
-			_, err = templBuffer.WriteString(templ.EscapeString(var_29))
+			var var_39 string = fmt.Sprintf("%d", item.TokensUsed)
+			_, err = templBuffer.WriteString(templ.EscapeString(var_39))
 			if err != nil {
 				return err
 			}
@@ -957,8 +1140,8 @@ func InteractionsList(view chat.InteractionListView) templ.Component {
 				return err
 			}
 			// Text
-			var_30 := `tokens`
-			_, err = templBuffer.WriteString(var_30)
+			var_40 := `tokens`
+			_, err = templBuffer.WriteString(var_40)
 			if err != nil {
 				return err
 			}

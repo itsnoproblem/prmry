@@ -533,6 +533,11 @@ ul.usage hr {
     transition: opacity 1s ease-out;
 }
 
+.fade-out.htmx-swapping {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
 .clickable {
     cursor: pointer;
 }
