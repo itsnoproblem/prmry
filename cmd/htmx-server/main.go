@@ -77,17 +77,20 @@ func main() {
 	r.Use(htmx.Middleware)
 	r.Use(auth.Middleware(authSecret))
 
+	githubCallback := os.Getenv(env.AppURL) + "/auth/github/callback"
+	googleCallback := os.Getenv(env.AppURL) + "/auth/google/callback"
+
 	googleClient := google.New(
 		os.Getenv(env.GoogleClientID),
 		os.Getenv(env.GoogleClientSecret),
-		os.Getenv(env.GoogleCallbackURL),
+		googleCallback,
 		"email",
 	)
 
 	githubClient := github.New(
 		os.Getenv(env.GithubClientID),
 		os.Getenv(env.GithubClientSecret),
-		os.Getenv(env.GithubCallbackURL),
+		githubCallback,
 		"user:email",
 	)
 
