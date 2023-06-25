@@ -125,8 +125,10 @@ func main() {
 	r.Mount("/interactions", ixnResource.Routes())
 	r.Mount("/flows", flowResource.Routes())
 
-	fs := http.FileServer(http.Dir("www"))
-	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	staticFS := http.FileServer(http.Dir("www/static"))
+	wellknownFS := http.FileServer(http.Dir("www/.well-known"))
+	r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
+	r.Handle("/.well-known/*", http.StripPrefix("/.well-known/", wellknownFS))
 
 	log.Println("Listening on " + listen)
 	if err := http.ListenAndServe(":"+listen, r); err != nil {
