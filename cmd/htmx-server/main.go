@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	listen := os.Getenv(env.VarListenAddress)
+	listen := os.Getenv(env.VarListenPort)
 	if listen == "" {
 		listen = defaultListen
 	}
@@ -126,7 +126,7 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	log.Println("Listening on " + listen)
-	if err := http.ListenAndServe(listen, r); err != nil {
+	if err := http.ListenAndServe(":"+listen, r); err != nil {
 		panic(err)
 	}
 }

@@ -6,7 +6,7 @@ const (
 	VarDBUser          = "DB_USER"
 	VarDBPass          = "DB_PASS"
 	VarDBName          = "DB_NAME"
-	VarListenAddress   = "LISTEN_ADDRESS"
+	VarListenPort      = "PORT"
 	GithubClientID     = "GITHUB_CLIENT_ID"
 	GithubClientSecret = "GITHUB_CLIENT_SECRET"
 	GithubCallbackURL  = "GITHUB_CALLBACK_URL"

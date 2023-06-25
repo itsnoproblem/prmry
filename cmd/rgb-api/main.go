@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load .env: %s", err)
 	}
-	listen := os.Getenv(env.VarListenAddress)
+	listen := os.Getenv(env.VarListenPort)
 	if listen == "" {
 		listen = defaultListen
 	}
