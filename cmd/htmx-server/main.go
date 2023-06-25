@@ -39,9 +39,11 @@ const (
 func main() {
 	flag.Parse()
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Failed to load .env: %s", err)
+	if fileExists(".env") {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatalf("Failed to load .env: %s", err)
+		}
 	}
 
 	listen := os.Getenv(env.VarListenAddress)
@@ -148,4 +150,12 @@ func initDb() *sqlx.DB {
 	log.Println("DB Ping: OK")
 
 	return db
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
