@@ -13,8 +13,8 @@ func Middleware(secret Byte32) func(http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			var usr User
 
-			if r.Header.Get("X-Forwarded-Proto") == "https" && r.Proto != "https" {
-				url := "https://" + r.URL.Host + r.URL.Path
+			if r.Header.Get("X-Forwarded-Proto") == "http" {
+				url := "https://" + r.Host + r.RequestURI
 				http.Redirect(w, r, url, http.StatusFound)
 			}
 
