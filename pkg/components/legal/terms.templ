@@ -1,0 +1,94 @@
+package legal
+
+import "github.com/itsnoproblem/prmry/pkg/components"
+import "github.com/itsnoproblem/prmry/pkg/components/page"
+
+templ TermsPage(view components.Component) {
+    @page.Page(view) {
+        @TermsOfService()
+    }
+}
+
+templ TermsOfService() {
+    <div class="container terms-of-service legal-page">
+
+        @BackArrow()
+
+        <h1>Terms of Service</h1>
+
+        <h4>1. General Agreement</h4>
+        <p>
+            By using this web app, you agree to abide by these Terms of Service. If you do not agree to these terms, you
+            should not use this service.
+        </p>
+
+        <h4>2. Account Registration</h4>
+        <p>
+            To access some features of this service, you may need to create an account. You must provide accurate, current,
+            and complete information during the registration process. You are solely responsible for the activity that
+            occurs on your account, and you must keep your account password secure.
+        </p>
+
+        <h4>3. User Responsibilities</h4>
+        <p>
+            You are responsible for all your activities while using this service. You agree to use this service for lawful
+            purposes only and not engage in any activity that interrupts or harms the service.
+        </p>
+
+        <h4>4. User-Generated Content</h4>
+        <p>
+            You are solely responsible for the content and prompts you generate. The service provider does not claim
+            ownership of your content, but you grant us a license to use, reproduce, distribute, and display your content
+            within the service. You also agree that your content will not infringe the intellectual property rights or
+            other rights of others.
+        </p>
+
+        <h4>5. Data Privacy</h4>
+        <p>
+            We value your privacy. Please refer to our Privacy Policy for information on how we
+            collect, use, and disclose your personal data.
+        </p>
+
+        <h4>6. Intellectual Property</h4>
+        <p>
+            The service and its original content, features, and functionality are and will remain the exclusive property
+            of the service provider and its licensors.
+        </p>
+
+        <h4>7. Modification of Service</h4>
+        <p>
+            We reserve the right to modify or discontinue, temporarily or permanently, the service with or without notice
+            to you. You agree that we shall not be liable to you or any third party for any modification, suspension, or
+            discontinuance of the service.
+        </p>
+
+        <h4>8. Termination</h4>
+        <p>
+            We may, in our sole discretion, terminate or suspend your account with or without notice if you breach any of
+            the terms of this agreement. Upon termination, you continue to be bound by Sections 3 and 4.
+        </p>
+
+        <h4>9. Dispute Resolution</h4>
+        <p>
+            Any disputes arising out of or related to these Terms of Service or the use of the service will be governed
+            by the laws of the jurisdiction in which the service provider is located.
+        </p>
+
+        <h4>10. Changes to Terms of Service</h4>
+        <p>
+            We reserve the right, in our sole discretion, to make changes to these Terms of Service at any time. Your
+            continued use of the service after the date any such changes become effective constitutes your acceptance of
+            the new Terms of Service.
+        </p>
+
+        <p>
+            Please review these Terms of Service carefully and ensure you understand them before you start using the
+            service. If you have any questions regarding these Terms of Service, please contact our customer service:
+            <a href="mailto:help@prmry.io">help@prmry.io</a>
+        </p>
+
+
+        <h4>Date of Last Revision: June 27, 2023</h4>
+
+    </div>
+}

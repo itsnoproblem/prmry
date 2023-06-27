@@ -28,7 +28,7 @@ body {
 }
 
 a {
-    text-decoration: none;
+    text-decoration: none !important;
     color: rgb(61, 146, 201);
 }
 a:hover,
@@ -43,6 +43,7 @@ h3 {
 /* LAYOUT CSS */
 #layout {
     padding: 0;
+    max-width: 990px;
 }
 
 .header {
@@ -118,6 +119,11 @@ img.rgb-logo {
 #chat-controls .form-group {
     padding: 4px;
 }
+label[for=flow-selector] {
+    margin-left: 8px;
+    padding-top: 12px;
+}
+
 .content {
     padding: 2em 1em 0;
 }
@@ -170,13 +176,12 @@ ul.usage hr {
 }
 
 .interaction-meta {
-    margin: 0.7em 0 0.5em 0;
+    margin: 0 0 14px 16px;
 }
 
 .post-container {
-    width: 95%;
     line-height: 1.36;
-    padding: 0 3.65em
+    padding: 0 20px 0 0;
 }
 
 .post-container hr {
@@ -184,7 +189,7 @@ ul.usage hr {
 }
 
 .posts {
-    margin: 1.3em 3.65em;
+    margin: 0 40px;
 }
 
 .post {
@@ -339,9 +344,9 @@ ul.usage hr {
     padding: 10px;
 }
 
-.user-navbar {
-    margin-right: 15px;
-}
+/*.user-navbar {*/
+/*    margin-right: 15px;*/
+/*}*/
 
 .nav-placeholder {
     margin: 0 auto;
@@ -351,6 +356,10 @@ ul.usage hr {
 .navbar-img {
     width: auto;
     height: 72px;
+}
+
+li.dropdown {
+    list-style-type: none;
 }
 
 .m-logo {
@@ -364,12 +373,19 @@ ul.usage hr {
     border-radius: 2em;
 }
 
-/*
- * And let's slide it in from the left
- */
-#menuToggle input:checked ~ ul
-{
-    transform: none;
+.legal-page {
+    line-height: 1.4em;
+    padding: 0 40px;
+    max-width: 1024px;
+}
+
+.legal-page p, .terms-of-service h1 {
+    padding-bottom: 24px;
+}
+
+.legal-page .back-arrow {
+    text-decoration: none;
+    margin-left: -22px;
 }
 
 /* ---------- spinner ----------- */
@@ -452,7 +468,7 @@ ul.usage hr {
     }
 
     #chat-controls {
-        padding: 1.3em 3.65em;
+
     }
 }
 

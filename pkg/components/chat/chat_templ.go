@@ -846,7 +846,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" id=\"chat-controls\"")
+		_, err = templBuffer.WriteString(" id=\"chat-controls-form\"")
 		if err != nil {
 			return err
 		}
@@ -878,6 +878,10 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" id=\"flow-selector\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" name=\"flowSelector\"")
 		if err != nil {
 			return err
@@ -962,7 +966,16 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			return err
 		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<label>")
+		_, err = templBuffer.WriteString("<label")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" for=\"flow-selector\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}

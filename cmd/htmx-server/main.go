@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"github.com/itsnoproblem/prmry/pkg/env"
+	"github.com/itsnoproblem/prmry/pkg/staticrendering"
 	"log"
 	"net/http"
 	"os"
@@ -73,6 +74,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.Heartbeat("/ping"))
+
 	r.Use(render.SetContentType(render.ContentTypeHTML))
 	r.Use(htmx.Middleware)
 	r.Use(auth.Middleware(authSecret))
@@ -120,10 +122,15 @@ func main() {
 	ixnResource := interacting.NewResource(renderer, ixnService)
 	flowResource := flowing.NewResource(renderer, flowService)
 
+	staticResource := staticrendering.NewResource(renderer)
+
 	r.Mount("/", homeResource.Routes())
 	r.Mount("/auth", authResource.Routes())
 	r.Mount("/interactions", ixnResource.Routes())
 	r.Mount("/flows", flowResource.Routes())
+
+	r.Get("/terms", staticResource.Terms)
+	r.Get("/privacy", staticResource.Privacy)
 
 	staticFS := http.FileServer(http.Dir("www/static"))
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))

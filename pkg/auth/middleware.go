@@ -13,6 +13,10 @@ func Middleware(secret Byte32) func(http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			var usr User
 
+			if r.Header.Get("X-Forwarded-Proto") == "https" && r.Proto != "https" {
+				http.Redirect(w, r, r.URL.String(), http.StatusFound)
+			}
+
 			if !strings.HasPrefix(r.URL.Path, "/auth") {
 				gobEncodedValue, err := ReadEncrypted(r, CookieName, secret)
 				if err != nil {

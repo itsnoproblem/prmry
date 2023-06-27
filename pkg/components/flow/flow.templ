@@ -1,223 +1,8 @@
 package flow
 
 import (
-    "fmt"
-
     "github.com/itsnoproblem/prmry/pkg/components/page"
-    "github.com/itsnoproblem/prmry/pkg/flow"
 )
-
-templ FlowBuilderPage(view Detail) {
-    @page.Page(&view) {
-        @FlowBuilder(view)
-    }
-}
-
-templ FlowBuilder(view Detail) {
-    <form 
-        id="flow-builder" 
-        hx-post="/flows" 
-        hx-target="#content-root" 
-        hx-push-url="false"
-        hx-ext="json-enc"
-    >
-        <input type="hidden" name="id" value={ view.ID }/>
-    
-        <div class="row">
-            <div class="col col-5 mt-3">
-                @FlowOptions(view)
-            </div>
-            <div class="col col-7">
-                @RuleBuilder(view)
-            </div>
-        </div>
-
-        <hr class="text-info mb-4 mt-4"/>
-
-        <div class="row">
-            <div class="col col-1">
-                <input
-                    class="btn btn-primary" 
-                    type="submit" 
-                    value="Save"
-                />
-            </div>
-            <div class="col col-1">
-                <button 
-                    class="btn btn-secondary" 
-                    hx-get="/flows" 
-                    hx-target="#content-root"
-                    hx-push-url="true"
-                    hx-confirm="Abandon changes?"
-                >
-                    Cancel
-                </button>
-            </div>
-            <div class="col col-10"></div>
-        </div>
-    </form>
-}
-
-templ FieldSelector(name string, options map[string]string, selected, label string) {
-    <select
-        name={ name }
-        class="form-select form-select-md"
-        aria-label={ label }
-        hx-put="/flows/new/prompt"
-    >
-        <option></option>
-        for value, name := range options {
-            if value == selected {
-                <option value={ value } selected="true">{ name }</option>
-            } else {
-                <option value={ value }>{ name }</option>
-            }
-        }
-    </select>
-    <label>{ label }</label>
-}
-
-templ RuleBuilder(view Detail) {
-    <div class="d-flex justify-content-between">
-        <h4 class="text-info">
-            Rules
-        </h4>
-        <button 
-            id="add-rule"
-            hx-post="/flows/new/rules"
-            hx-target="#content-root"
-            hx-push-url="false"
-            class="btn btn-info btn-sm mb-3">
-            New
-        </button>
-    </div>
-    <hr class="text-info mb-5 mt-0"/>
-
-    <div id="rules-container" class="container pb-4">
-
-        if len(view.Rules) == 0 { 
-
-            <h2 class="text-body-secondary text-body-secondary">
-                No rules yet
-            </h2>
-            
-        }
- 
-        for i, rule := range view.Rules {
-            if i > 0 {
-                <hr class="text-secondary pb-3"/>
-            }
-            <div class="row flow-rule fade-in">
-                <div class="col">
-                    <div class="form-floating mb-3">
-                        @FieldSelector("fieldName", view.SupportedFields, rule.Field.Source, "Field Name")
-                    </div>
-                    if rule.Field.Source == flow.FieldSourceFlow.String()   {
-                        <div class="form-floating mb-3">
-                            @FieldSelector("selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
-                        </div>
-                    }
-                </div>
-                <div class="col">
-                    <div class="form-floating mb-3">
-                        @FieldSelector("condition", view.SupportedConditions, rule.Condition, "Condition")
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-floating mb-3">
-                        <input type="text"
-                            name="value"
-                            id="value"
-                            class="form-control form-control-md"
-                            placeholder="Value"
-                            value={ rule.Value }
-                        />
-                        <label for="value">Value</label>
-                    </div>
-                </div>
-                <div class="col-1 pt-3">
-                    <a
-                        hx-delete={ fmt.Sprintf("/flows/new/rules/%d", i) } 
-                        hx-target="#content-root"
-                        class="button-secondary"
-                    >
-                      <i class="fa fa-close"></i>
-                    </a>
-                </div>
-            </div>
-        }
-    </div>
-}
-
-templ FlowOptions(view Detail) {
-    <div class="form-floating mb-3">
-        <input name="name" 
-            type="text" 
-            class="form-control" 
-            placeholder="Welcome Flow"
-            value={ view.Name }
-        />
-        <label for="name">Flow Name</label>
-    </div>
-
-    <div class="text-body-secondary pb-1">Trigger this flow when</div>   
-    <div class="container pb-3">
-        <div class="form-check">
-            if view.RequireAll {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
-            } else {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true"/>
-            }
-            <label class="form-check-label" for="require-all-true">
-                <em>ALL</em> rules match
-            </label>
-        </div>
-        <div class="form-check">
-            if view.RequireAll {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false"/>
-            } else {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
-            }
-            <label class="form-check-label" for="require-all-false">
-                <em>ANY</em> rule matches
-            </label>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label for="prompt" class="form-label text-body-secondary">Prompt generated by this flow<br/>
-        (indicate replacements with <code>%s</code>)</label>
-        <textarea 
-            class="form-control" 
-            name="prompt" 
-            id="prompt" 
-            rows="5"
-            hx-put="/flows/new/prompt"
-            hx-trigger="keyup changed delay:1100ms"
-        >
-            { view.Prompt }
-        </textarea>
-    </div>
-
-    <div class="mb-3">
-        if len(view.PromptArgs) > 0 { 
-            <div class="mb-2 text-body-secondary">Replacements:</div>
-        }
-
-        for j, arg := range view.PromptArgs {
-        <div class="row mb-3">
-            <div class="form-floating col">
-                @FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + string(j))
-            </div>
-            if arg.Source == flow.FieldSourceFlow {
-                <div class="form-floating col">
-                    @FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
-                </div>
-            }
-        </div>
-        }
-    </div>
-}
 
 templ FlowsListPage(view FlowsListView) {
     @page.Page(&view) {
@@ -232,7 +17,7 @@ templ FlowsList(view FlowsListView) {
             <div class="col">
                 <h2>Flows</h2>
             </div>
-            <div class="col-1">
+            <div class="col text-end">
                 <button 
                     class="btn btn-info"
                     hx-push-url="true"
@@ -249,7 +34,7 @@ templ FlowsList(view FlowsListView) {
         <table class="table table-striped table-hover" width="100%">
             <tr>
                 <th scope="col">Name</th>
-                <th scope="col d-none d-lg-table-cell"># rules</th>
+                <th scope="col" class="d-none d-lg-table-cell"># rules</th>
                 <th scope="col">Last Changed</th>
                 <th scope="col"></th>
             </tr>

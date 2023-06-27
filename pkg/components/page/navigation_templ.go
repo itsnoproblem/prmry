@@ -53,6 +53,14 @@ func TopNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
+		// If
+		if cmp.User() != nil {
+			// TemplElement
+			err = ProfileNavButton(cmp).Render(ctx, templBuffer)
+			if err != nil {
+				return err
+			}
+		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<button")
 		if err != nil {
@@ -199,6 +207,14 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" class=\"navbar-nav guest-nav mb-2 mt-2 mb-lg-0\"")
 		if err != nil {
 			return err
@@ -231,11 +247,7 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" title=\"Documentation\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" href=\"#\"")
+		_, err = templBuffer.WriteString(" title=\"Terms of Service\"")
 		if err != nil {
 			return err
 		}
@@ -247,12 +259,16 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(" hx-get=\"/terms\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}
 		// Text
-		var_3 := `Documentation`
+		var_3 := `TOS`
 		_, err = templBuffer.WriteString(var_3)
 		if err != nil {
 			return err
@@ -313,7 +329,93 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(" title=\"Privacy Policy\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-get=\"/privacy\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_5 := `Privacy`
+		_, err = templBuffer.WriteString(var_5)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_6 := `&nbsp;|&nbsp`
+		_, err = templBuffer.WriteString(var_6)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-link\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" title=\"Source Code\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" target=\"_blank\"")
 		if err != nil {
 			return err
 		}
@@ -326,8 +428,8 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Text
-		var_5 := `Source Code`
-		_, err = templBuffer.WriteString(var_5)
+		var_7 := `Source Code`
+		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
 		}
@@ -350,7 +452,7 @@ func GuestNavigation() templ.Component {
 	})
 }
 
-func UserNavigation(cmp components.Component) templ.Component {
+func ProfileNavButton(cmp components.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -358,25 +460,11 @@ func UserNavigation(cmp components.Component) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_6 := templ.GetChildren(ctx)
-		if var_6 == nil {
-			var_6 = templ.NopComponent
+		var_8 := templ.GetChildren(ctx)
+		if var_8 == nil {
+			var_8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		// Element (standard)
-		_, err = templBuffer.WriteString("<ul")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<li")
 		if err != nil {
@@ -397,10 +485,6 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" href=\"#\"")
-		if err != nil {
-			return err
-		}
 		_, err = templBuffer.WriteString(" class=\"nav-link dropdown-toggle\"")
 		if err != nil {
 			return err
@@ -481,6 +565,14 @@ func UserNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
@@ -504,14 +596,6 @@ func UserNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
-		if err != nil {
-			return err
-		}
 		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
 		if err != nil {
 			return err
@@ -525,8 +609,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_7 := `Profile`
-		_, err = templBuffer.WriteString(var_7)
+		var_9 := `Profile`
+		_, err = templBuffer.WriteString(var_9)
 		if err != nil {
 			return err
 		}
@@ -570,8 +654,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_8 := `Settings`
-		_, err = templBuffer.WriteString(var_8)
+		var_10 := `Settings`
+		_, err = templBuffer.WriteString(var_10)
 		if err != nil {
 			return err
 		}
@@ -629,8 +713,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_9 templ.SafeURL = templ.SafeURL("/auth/logout/"+cmp.User().Provider)
-		_, err = templBuffer.WriteString(templ.EscapeString(string(var_9)))
+		var var_11 templ.SafeURL = templ.SafeURL("/auth/logout/"+cmp.User().Provider)
+		_, err = templBuffer.WriteString(templ.EscapeString(string(var_11)))
 		if err != nil {
 			return err
 		}
@@ -643,8 +727,129 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_10 := `Log out`
-		_, err = templBuffer.WriteString(var_10)
+		var_12 := `Log out`
+		_, err = templBuffer.WriteString(var_12)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li>")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<hr")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"dropdown-divider\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"dropdown-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" title=\"Terms of Service\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-get=\"/terms\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_13 := `TOS`
+		_, err = templBuffer.WriteString(var_13)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"dropdown-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" title=\"Privacy Policy\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-get=\"/privacy\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_14 := `Privacy`
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
@@ -661,6 +866,40 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func UserNavigation(cmp components.Component) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_15 := templ.GetChildren(ctx)
+		if var_15 == nil {
+			var_15 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<ul")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}
@@ -717,12 +956,164 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Element (standard)
+		_, err = templBuffer.WriteString("<span")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"d-lg-none\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_16 := `Flows`
+		_, err = templBuffer.WriteString(var_16)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</span>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_17 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_17)
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Element (standard)
 		_, err = templBuffer.WriteString("<i")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
 		_, err = templBuffer.WriteString(" class=\"fa fa-circle-nodes fa-2x\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</i>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-link\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" title=\"Interact\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-get=\"/interactions/chat\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<span")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"d-lg-none\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_18 := `Interact`
+		_, err = templBuffer.WriteString(var_18)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</span>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_19 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_19)
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<i")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"fa fa-message fa-2x\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" aria-hidden=\"true\"")
 		if err != nil {
 			return err
 		}
@@ -795,94 +1186,47 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Element (standard)
+		_, err = templBuffer.WriteString("<span")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"d-lg-none\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_20 := `Interactions`
+		_, err = templBuffer.WriteString(var_20)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</span>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_21 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_21)
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Element (standard)
 		_, err = templBuffer.WriteString("<i")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
 		_, err = templBuffer.WriteString(" class=\"fa fa-list fa-2x\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</i>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-link\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" title=\"Prompt\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-get=\"/interactions/chat\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-push-url=\"true\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<i")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"fa fa-message fa-2x\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" aria-hidden=\"true\"")
 		if err != nil {
 			return err
 		}
