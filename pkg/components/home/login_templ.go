@@ -36,24 +36,6 @@ func Login(view HomeView) templ.Component {
 		if err != nil {
 			return err
 		}
-		// Element (void)
-		_, err = templBuffer.WriteString("<img")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"m-logo d-md-none\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" src=\"/static/prmry.png\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
@@ -61,6 +43,24 @@ func Login(view HomeView) templ.Component {
 		}
 		// Element Attributes
 		_, err = templBuffer.WriteString(" class=\"col text-center pt-3\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<img")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"m-logo d-md-block\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" src=\"/static/prmry.png\"")
 		if err != nil {
 			return err
 		}

@@ -10,7 +10,7 @@ templ TopNavigation(cmp components.Component) {
             </button>
 
             <div id="top-nav"
-                 class="collapse navbar-collapse"
+                 class="collapse navbar-collapse justify-content-center"
                  hx-swap-oob={ components.TrueFalse(cmp.IsOOB()) }
             >
                 if cmp.User() != nil {
@@ -24,7 +24,7 @@ templ TopNavigation(cmp components.Component) {
 }
 
 templ GuestNavigation() {
-    <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0">
+    <ul class="navbar-nav guest-nav mb-2 mt-2 mb-lg-0">
         <li class="nav-item">
             <a class="nav-link"
                title="Documentation"
@@ -34,6 +34,9 @@ templ GuestNavigation() {
             >
                 Documentation
             </a>
+        </li>
+        <li class="divider d-none d-md-block pt-1">&nbsp;|&nbsp</li>
+        <li class="nav-item">
             <a class="nav-link"
                title="Source Code"
                href="https://github.com/itsnoproblem/prmry"

@@ -123,7 +123,7 @@ func TopNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" class=\"collapse navbar-collapse\"")
+		_, err = templBuffer.WriteString(" class=\"collapse navbar-collapse justify-content-center\"")
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0\"")
+		_, err = templBuffer.WriteString(" class=\"navbar-nav guest-nav mb-2 mt-2 mb-lg-0\"")
 		if err != nil {
 			return err
 		}
@@ -261,6 +261,48 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_4 := `&nbsp;|&nbsp`
+		_, err = templBuffer.WriteString(var_4)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<a")
 		if err != nil {
@@ -284,8 +326,8 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Text
-		var_4 := `Source Code`
-		_, err = templBuffer.WriteString(var_4)
+		var_5 := `Source Code`
+		_, err = templBuffer.WriteString(var_5)
 		if err != nil {
 			return err
 		}
@@ -316,9 +358,9 @@ func UserNavigation(cmp components.Component) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_5 := templ.GetChildren(ctx)
-		if var_5 == nil {
-			var_5 = templ.NopComponent
+		var_6 := templ.GetChildren(ctx)
+		if var_6 == nil {
+			var_6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -483,8 +525,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_6 := `Profile`
-		_, err = templBuffer.WriteString(var_6)
+		var_7 := `Profile`
+		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
 		}
@@ -528,8 +570,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_7 := `Settings`
-		_, err = templBuffer.WriteString(var_7)
+		var_8 := `Settings`
+		_, err = templBuffer.WriteString(var_8)
 		if err != nil {
 			return err
 		}
@@ -587,8 +629,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_8 templ.SafeURL = templ.SafeURL("/auth/logout/"+cmp.User().Provider)
-		_, err = templBuffer.WriteString(templ.EscapeString(string(var_8)))
+		var var_9 templ.SafeURL = templ.SafeURL("/auth/logout/"+cmp.User().Provider)
+		_, err = templBuffer.WriteString(templ.EscapeString(string(var_9)))
 		if err != nil {
 			return err
 		}
@@ -601,8 +643,8 @@ func UserNavigation(cmp components.Component) templ.Component {
 			return err
 		}
 		// Text
-		var_9 := `Log out`
-		_, err = templBuffer.WriteString(var_9)
+		var_10 := `Log out`
+		_, err = templBuffer.WriteString(var_10)
 		if err != nil {
 			return err
 		}

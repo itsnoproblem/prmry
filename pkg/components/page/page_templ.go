@@ -95,7 +95,7 @@ func Page(cmp components.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" href=\"/static/prmry.png\"")
+		_, err = templBuffer.WriteString(" href=\"/static/favicon.png\"")
 		if err != nil {
 			return err
 		}

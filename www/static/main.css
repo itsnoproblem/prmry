@@ -420,6 +420,12 @@ ul.usage hr {
         width: 100%;
     }
 
+    .m-logo {
+        display: block;
+        width: 344px;
+        margin: 48px auto;
+    }
+
     .nav-placeholder {
         margin: 0 auto;
         padding-top: 48px;
