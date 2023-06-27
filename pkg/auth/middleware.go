@@ -14,7 +14,8 @@ func Middleware(secret Byte32) func(http.Handler) http.Handler {
 			var usr User
 
 			if r.Header.Get("X-Forwarded-Proto") == "https" && r.Proto != "https" {
-				http.Redirect(w, r, r.URL.String(), http.StatusFound)
+				url := "https://" + r.URL.Host + r.URL.Path
+				http.Redirect(w, r, url, http.StatusFound)
 			}
 
 			if !strings.HasPrefix(r.URL.Path, "/auth") {
