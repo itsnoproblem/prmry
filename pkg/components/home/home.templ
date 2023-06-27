@@ -26,16 +26,3 @@ templ Dashboard(user auth.User) {
     <div></div> 
 }
 
-templ Login(view HomeView) {
-    <div class="jumbotron background-unset text-center text-success">
-        <p>Login with:</p>
-        for id, name := range view.ProvidersMap {
-            <a hx-get={ "/auth/"+id }
-               hx-target="#content-root"
-               class="btn btn-light">
-                <span class={ "fa fa-"+id }></span>
-                { name }
-            </a>
-        }
-    </div>
-}

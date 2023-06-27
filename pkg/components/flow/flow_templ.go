@@ -1547,7 +1547,7 @@ func FlowOptions(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-trigger=\"keyup changed delay:500ms\"")
+		_, err = templBuffer.WriteString(" hx-trigger=\"keyup changed delay:1100ms\"")
 		if err != nil {
 			return err
 		}

@@ -1,0 +1,119 @@
+package page
+
+import "github.com/itsnoproblem/prmry/pkg/components"
+
+templ TopNavigation(cmp components.Component) {
+    <nav class="navbar navbar-expand-lg bg-body-primary mb-3 mt-1">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="top-nav"
+                 class="collapse navbar-collapse"
+                 hx-swap-oob={ components.TrueFalse(cmp.IsOOB()) }
+            >
+                if cmp.User() != nil {
+                    @UserNavigation(cmp)
+                } else {
+                    @GuestNavigation()
+                }
+            </div>
+        </div>
+    </nav>
+}
+
+templ GuestNavigation() {
+    <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0">
+        <li class="nav-item">
+            <a class="nav-link"
+               title="Documentation"
+               href="#"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                Documentation
+            </a>
+            <a class="nav-link"
+               title="Source Code"
+               href="https://github.com/itsnoproblem/prmry"
+            >
+                Source Code
+            </a>
+        </li>
+    </ul>
+}
+
+templ UserNavigation(cmp components.Component) {
+    <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0">
+        <li class="nav-item dropdown">
+            <a  href="#"
+                class="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <img class="img-fluid navbar-avatar" alt={cmp.User().Name} src={ cmp.User().AvatarURL }/>
+            </a>
+
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item"
+                       hx-get="/profile"
+                       hx-target="#content-root"
+                       hx-push-url="true"
+                       data-bs-toggle="collapse"
+                       data-bs-target=".navbar-collapse.show"
+                    >Profile</a>
+                </li>
+                <li>
+                    <a class="dropdown-item"
+                       href="#"
+                       data-bs-toggle="collapse"
+                       data-bs-target=".navbar-collapse.show"
+                    >Settings</a>
+                </li>
+                <li><hr class="dropdown-divider"/></li>
+                <li>
+                    <a class="dropdown-item" href={ templ.SafeURL("/auth/logout/"+cmp.User().Provider) }>Log out</a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               title="Flows"
+               hx-get="/flows"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <i class="fa fa-circle-nodes fa-2x"></i>
+            </a>
+        </li>
+        <li nav-class="nav-item">
+            <a class="nav-link"
+               title="Interactions"
+               hx-get="/interactions"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <i class="fa fa-list fa-2x"></i>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               title="Prompt"
+               hx-get="/interactions/chat"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <i class="fa fa-message fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+}

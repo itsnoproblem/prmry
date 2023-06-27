@@ -57,7 +57,7 @@ h3 {
 }
 
 img.rgb-logo {
-    width: 8em;
+    width: 16em;
     height: auto;
 }
 
@@ -109,9 +109,7 @@ img.rgb-logo {
     overflow: hidden;
     margin-bottom: 72px;
 }
-#chat-controls {
-    padding: 1.3em 3.65em;
-}
+
 #chat-controls>input {
     width: 100%;
     border-radius: 2em;
@@ -328,92 +326,6 @@ ul.usage hr {
     -webkit-touch-callout: none;
 }
 
-/*
- * Just a quick hamburger
- */
-#menuToggle span
-{
-    display: block;
-    width: 33px;
-    height: 4px;
-    margin-bottom: 5px;
-    position: relative;
-
-    background: #cdcdcd;
-    border-radius: 3px;
-
-    z-index: 1;
-
-    transform-origin: 4px 0px;
-
-    transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-    background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-    opacity 0.55s ease;
-}
-
-#menuToggle span:first-child
-{
-    transform-origin: 0% 0%;
-}
-
-#menuToggle span:nth-last-child(2)
-{
-    transform-origin: 0% 100%;
-}
-
-/*
- * Transform all the slices of hamburger
- * into a crossmark.
- */
-#menuToggle input:checked ~ span
-{
-    opacity: 1;
-    transform: rotate(45deg) translate(-2px, -1px);
-    background: #232323;
-}
-
-/*
- * But let's hide the middle one.
- */
-#menuToggle input:checked ~ span:nth-last-child(3)
-{
-    opacity: 0;
-    transform: rotate(0deg) scale(0.2, 0.2);
-}
-
-/*
- * Ohyeah and the last one should go the other direction
- */
-#menuToggle input:checked ~ span:nth-last-child(2)
-{
-    transform: rotate(-45deg) translate(0, -1px);
-}
-
-#menu li
-{
-    padding: 10px 0;
-    font-size: 22px;
-}
-
-.nav-placeholder {
-    padding: 15px;
-}
-
-.nav>li {
-    font-size: 1.125em;
-    letter-spacing: .125em;
-    font-weight: 400;
-    color: #CCC;
-}
-
-.nav>li>a.text-link {
-    color: #CCC;
-}
-
-.nav>li>a:focus, .nav>li>a:hover {
-    color: #4d85d1;
-}
-
 .navbar, .nav {
     font-size: 1.125em;
     letter-spacing: .125em;
@@ -431,11 +343,19 @@ ul.usage hr {
     margin-right: 15px;
 }
 
+.nav-placeholder {
+    margin: 0 auto;
+    padding-top: 144px;
+}
+
 .navbar-img {
     width: auto;
-    height: 42px;
-    cursor: pointer;
-    margin-top: 5px;
+    height: 72px;
+}
+
+.m-logo {
+    width: 80%;
+    margin: 48px auto;
 }
 
 .navbar-avatar {
@@ -487,7 +407,7 @@ ul.usage hr {
     }
 }
 
-/* ---------- mobile ------------ */
+/* ---------- desktop ------------ */
 @media (min-width: 48em) {
     .content {
         padding: 6em 3em 0;
@@ -500,8 +420,15 @@ ul.usage hr {
         width: 100%;
     }
 
-    .rgb-logo {
-        display: block;
+    .nav-placeholder {
+        margin: 0 auto;
+        padding-top: 48px;
+    }
+
+    .navbar-img {
+        width: auto;
+        height: 244px;
+        cursor: pointer;
     }
 
     .sidebar {
@@ -518,6 +445,9 @@ ul.usage hr {
         display: none !important;
     }
 
+    #chat-controls {
+        padding: 1.3em 3.65em;
+    }
 }
 
 /* -- Transitions -- */
