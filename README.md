@@ -1,6 +1,6 @@
-# RGB
+# prmry
 
-Response Generator Bot.
+A POC for an AI Hub
 
 - Manage, organize and share AI interactions
 - engineer prompts with prompt generation rules
@@ -76,7 +76,7 @@ type ProfileView struct {
 ```
 
 The components are defined in **profile.templ**.  Templ allows us to compose templates, so for the full page component, the _Profile_ component is composed inside the _Page_ component (defined in html.templ):
-````
+```
 templ Profile(view ProfileView) {
   <div>
     Hello { view.Name }, your id is { view.ID }.
