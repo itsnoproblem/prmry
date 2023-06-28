@@ -9,12 +9,14 @@ import (
 )
 
 func Middleware(secret Byte32) func(http.Handler) http.Handler {
-	f := func(h http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
+
+	handlerMaker := func(h http.Handler) http.Handler {
+		handler := func(w http.ResponseWriter, r *http.Request) {
 			var usr User
 
 			if r.Header.Get("X-Forwarded-Proto") == "http" {
-				url := "https://" + r.Host + r.RequestURI
+				nakedHost := strings.TrimPrefix(r.Host, "www.")
+				url := "https://www." + nakedHost + r.RequestURI
 				http.Redirect(w, r, url, http.StatusFound)
 			}
 
@@ -50,8 +52,8 @@ func Middleware(secret Byte32) func(http.Handler) http.Handler {
 
 			h.ServeHTTP(w, reqWithUser)
 		}
-		return http.HandlerFunc(fn)
+		return http.HandlerFunc(handler)
 	}
 
-	return f
+	return handlerMaker
 }
