@@ -37,6 +37,9 @@ const (
 	defaultListen = "9999"
 )
 
+type AppParams struct {
+}
+
 func main() {
 	flag.Parse()
 

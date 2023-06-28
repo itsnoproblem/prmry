@@ -14,11 +14,11 @@ func Middleware(secret Byte32) func(http.Handler) http.Handler {
 		handler := func(w http.ResponseWriter, r *http.Request) {
 			var usr User
 
-			if r.Header.Get("X-Forwarded-Proto") == "http" {
-				nakedHost := strings.TrimPrefix(r.Host, "www.")
-				url := "https://www." + nakedHost + r.RequestURI
-				http.Redirect(w, r, url, http.StatusFound)
-			}
+			//if r.Header.Get("X-Forwarded-Proto") == "http" {
+			//	nakedHost := strings.TrimPrefix(r.Host, "www.")
+			//	url := "https://www." + nakedHost + r.RequestURI
+			//	http.Redirect(w, r, url, http.StatusFound)
+			//}
 
 			if !strings.HasPrefix(r.URL.Path, "/auth") {
 				gobEncodedValue, err := ReadEncrypted(r, CookieName, secret)
