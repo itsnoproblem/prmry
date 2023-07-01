@@ -1,0 +1,69 @@
+package flow
+
+import (
+    "github.com/itsnoproblem/prmry/internal/components/page"
+)
+
+templ FlowsListPage(view FlowsListView) {
+    @page.Page(&view) {
+        @FlowsList(view)
+    }
+}
+
+templ FlowsList(view FlowsListView) {
+    <div class="container container-fluid flows-list-wrapper">
+
+        <div class="row pb-3 pt-3">
+            <div class="col">
+                <h2>Flows</h2>
+            </div>
+            <div class="col text-end">
+                <button 
+                    class="btn btn-info"
+                    hx-push-url="true"
+                    hx-target="#content-root"
+                    hx-get="/flows/new"
+                >
+                    New
+                </button>
+            </div>
+        </div>
+
+        <hr class="text-info mb-5 mt-0"/>
+
+        <table class="table table-striped table-hover" width="100%">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col" class="d-none d-lg-table-cell"># rules</th>
+                <th scope="col">Last Changed</th>
+                <th scope="col"></th>
+            </tr>
+
+            for _, f := range view.Flows {
+                <tr id={ "flow-" + f.ID } class="fade-out">
+                    <th scope="row"
+                        class="py-3 clickable"
+                        hx-get={ "/flows/" + f.ID + "/edit" }
+                        hx-push-url="true"
+                        hx-target="#content-root"
+                        hx-trigger="click"
+                    >
+                        {f.Name}
+                    </th>
+                    <td class="py-3 d-none d-lg-table-cell">{ f.RuleCount }</td>
+                    <td class="py-3">{ f.LastChanged }</td>
+                    <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+                        <a hx-delete={ "/flows/" + f.ID }
+                           hx-target={ "#flow-" + f.ID }
+                           hx-swap="outerHTML swap:1s"
+                           hx-confirm={ "Delete flow '" + f.Name + "'?" }
+                           class="button button-secondary"
+                        >
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+}
