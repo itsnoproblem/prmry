@@ -1,11 +1,11 @@
 package flow
 
 import (
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
 )
 
 templ FlowsListPage(view FlowsListView) {
-    @page.Page(&view) {
+    @components.Page(&view) {
         @FlowsList(view)
     }
 }

@@ -14,7 +14,6 @@ import (
     "fmt"
 
     "github.com/itsnoproblem/prmry/internal/components"
-    "github.com/itsnoproblem/prmry/internal/components/page"
     "github.com/itsnoproblem/prmry/internal/components/chat"
 )
 
@@ -48,7 +47,7 @@ func InteractionDetailPage(view chat.ChatDetailView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		err = components.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
 		if err != nil {
 			return err
 		}
@@ -89,7 +88,7 @@ func InteractionsListPage(view chat.InteractionListView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_4), templBuffer)
+		err = components.Page(&view).Render(templ.WithChildren(ctx, var_4), templBuffer)
 		if err != nil {
 			return err
 		}

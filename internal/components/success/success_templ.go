@@ -10,7 +10,7 @@ import "io"
 import "bytes"
 
 // GoExpression
-import "github.com/itsnoproblem/prmry/internal/components/page"
+import "github.com/itsnoproblem/prmry/internal/components"
 
 func SuccessPage(sv SuccessView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
@@ -42,7 +42,7 @@ func SuccessPage(sv SuccessView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&sv).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		err = components.Page(&sv).Render(templ.WithChildren(ctx, var_2), templBuffer)
 		if err != nil {
 			return err
 		}

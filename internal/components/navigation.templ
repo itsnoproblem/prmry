@@ -1,8 +1,6 @@
-package page
+package components
 
-import "github.com/itsnoproblem/prmry/internal/components"
-
-templ TopNavigation(cmp components.Component) {
+templ TopNavigation(cmp Component) {
     <nav class="navbar navbar-expand-lg bg-body-primary mb-3 mt-1">
         <div class="container-fluid">
             if cmp.User() != nil {
@@ -13,7 +11,7 @@ templ TopNavigation(cmp components.Component) {
             </button>
             <div id="top-nav"
                  class="collapse navbar-collapse justify-content-center"
-                 hx-swap-oob={ components.TrueFalse(cmp.IsOOB()) }
+                 hx-swap-oob={ TrueFalse(cmp.IsOOB()) }
             >
                 if cmp.User() != nil {
                     @UserNavigation(cmp)
@@ -58,7 +56,7 @@ templ GuestNavigation() {
     </ul>
 }
 
-templ ProfileNavButton(cmp components.Component) {
+templ ProfileNavButton(cmp Component) {
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle"
            role="button"
@@ -109,7 +107,7 @@ templ ProfileNavButton(cmp components.Component) {
     </li>
 }
 
-templ UserNavigation(cmp components.Component) {
+templ UserNavigation(cmp Component) {
     <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end">
 
         <li class="nav-item">

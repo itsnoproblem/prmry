@@ -5,7 +5,6 @@ import (
 
 	"github.com/a-h/templ"
 
-	errorcmp "github.com/itsnoproblem/prmry/internal/components/error"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 )
 
@@ -24,11 +23,16 @@ func (rnd *renderer) RenderTemplComponent(w http.ResponseWriter, r *http.Request
 }
 
 func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err error) {
-	view := errorcmp.ErrorView{Error: err.Error()}
-	//page := ErrorPage(view)
-	frag := errorcmp.Error(view)
+	view := ErrorView{Error: err.Error()}
+	ctx := r.Context()
 
-	frag.Render(r.Context(), w)
+	if htmx.IsHXRequest(ctx) {
+		Error(view).Render(ctx, w)
+		return
+	}
+
+	ErrorPage(view).Render(ctx, w)
+
 }
 
 func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {

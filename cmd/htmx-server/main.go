@@ -51,6 +51,7 @@ type AppConfig struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	SessionSecret      string
+	AuthSecret         auth.Byte32
 }
 
 func (cfg AppConfig) validate() error {
@@ -88,6 +89,11 @@ func mustLoadAppConfig() AppConfig {
 		log.Fatalf("loading .env: %s", err)
 	}
 
+	authSecret, err := hex.DecodeString(os.Getenv(envvars.AuthSecret))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	cfg := AppConfig{
 		Env:                os.Getenv(envvars.Env),
 		AppURL:             os.Getenv(envvars.AppURL),
@@ -98,10 +104,11 @@ func mustLoadAppConfig() AppConfig {
 		DBPass:             os.Getenv(envvars.DbPass),
 		DBName:             os.Getenv(envvars.DbName),
 		GithubClientID:     os.Getenv(envvars.GithubClientID),
-		GithubClientSecret: os.Getenv(envvars.GoogleClientSecret),
+		GithubClientSecret: os.Getenv(envvars.GithubClientSecret),
 		GoogleClientID:     os.Getenv(envvars.GoogleClientID),
 		GoogleClientSecret: os.Getenv(envvars.GoogleClientSecret),
 		SessionSecret:      os.Getenv(envvars.SessionSecret),
+		AuthSecret:         authSecret,
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -123,11 +130,6 @@ func main() {
 		}
 	}(db)
 
-	authSecret, err := hex.DecodeString("1ad6bbbff4d1c1e08608f814570d562c9b5ef2fc4c9e6b5ec4c9f3234b595bcb")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
@@ -139,31 +141,13 @@ func main() {
 	r.Use(htmx.Middleware)
 
 	fixHostAndProto := appConfig.Env != "DEV"
-	r.Use(auth.Middleware(authSecret, fixHostAndProto))
+	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
 
-	googleClient := google.New(
-		appConfig.GoogleClientID,
-		appConfig.GoogleClientSecret,
-		appConfig.AppURL+"/auth/google/callback",
-		"email",
-	)
+	goth.UseProviders(oauthProviders(appConfig)...)
+	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)
 
-	githubClient := github.New(
-		appConfig.GithubClientID,
-		appConfig.GithubClientSecret,
-		appConfig.AppURL+"/auth/github/callback",
-		"user:email",
-	)
-
-	gptClient := gogpt.NewClient(appConfig.OpenAPIKey)
-
-	goth.UseProviders(
-		githubClient,
-		googleClient,
-	)
-
-	gothic.Store = sessions.NewCookieStore([]byte(appConfig.SessionSecret))
 	renderer := components.NewRenderer()
+	gptClient := gogpt.NewClient(appConfig.OpenAPIKey)
 
 	usersRepo := sql.NewUsersRepo(db)
 	ixnRepo := sql.NewInteractionsRepo(db)
@@ -174,7 +158,7 @@ func main() {
 	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo, flowsRepo)
 	flowService := flowing.NewService(flowsRepo)
 
-	authResource, err := authorizing.NewResource(renderer, authSecret, authService)
+	authResource, err := authorizing.NewResource(renderer, appConfig.AuthSecret, authService)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -201,6 +185,27 @@ func main() {
 	log.Println("Listening on " + appConfig.ListenPort)
 	if err := http.ListenAndServe(":"+appConfig.ListenPort, r); err != nil {
 		panic(err)
+	}
+}
+
+func oauthProviders(appConfig AppConfig) []goth.Provider {
+	googleClient := google.New(
+		appConfig.GoogleClientID,
+		appConfig.GoogleClientSecret,
+		appConfig.AppURL+"/auth/google/callback",
+		"email",
+	)
+
+	githubClient := github.New(
+		appConfig.GithubClientID,
+		appConfig.GithubClientSecret,
+		appConfig.AppURL+"/auth/github/callback",
+		"user:email",
+	)
+
+	return []goth.Provider{
+		githubClient,
+		googleClient,
 	}
 }
 

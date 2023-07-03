@@ -1,8 +1,6 @@
-package page
+package components
 
-import "github.com/itsnoproblem/prmry/internal/components"
-
-templ Page(cmp components.Component) {
+templ Page(cmp Component) {
     <html lang="en" data-bs-theme="dark">
         <head>
             <title>PRMRY - AI Hub</title>
@@ -19,6 +17,7 @@ templ Page(cmp components.Component) {
             <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+            <script src="https://unpkg.com/htmx.org/dist/ext/remove-me.js"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
 
 
@@ -27,7 +26,7 @@ templ Page(cmp components.Component) {
         <body>
             <div id="layout" class="container">
                 @TopNavigation(cmp)
-                <div id="notices"></div>
+                <div id="notices" class="fade-out"></div>
                 <div id="content-root">
                     <div>
                     { children... }

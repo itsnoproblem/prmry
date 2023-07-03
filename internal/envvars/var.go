@@ -14,4 +14,5 @@ const (
 	GoogleClientID     = "GOOGLE_CLIENT_ID"
 	GoogleClientSecret = "GOOGLE_CLIENT_SECRET"
 	SessionSecret      = "SESSION_SECRET"
+	AuthSecret         = "AUTH_SECRET"
 )

@@ -1,10 +1,9 @@
 package legal
 
 import "github.com/itsnoproblem/prmry/internal/components"
-import "github.com/itsnoproblem/prmry/internal/components/page"
 
 templ PrivacyPage(view components.Component) {
-    @page.Page(view) {
+    @components.Page(view) {
         @PrivacyPolicy()
     }
 }

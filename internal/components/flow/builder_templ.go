@@ -13,7 +13,7 @@ import "bytes"
 import (
     "fmt"
 
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
     "github.com/itsnoproblem/prmry/internal/flow"
 )
 
@@ -47,7 +47,7 @@ func FlowBuilderPage(view Detail) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		err = components.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
 		if err != nil {
 			return err
 		}

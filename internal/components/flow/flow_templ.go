@@ -11,7 +11,7 @@ import "bytes"
 
 // GoExpression
 import (
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
 )
 
 func FlowsListPage(view FlowsListView) templ.Component {
@@ -44,7 +44,7 @@ func FlowsListPage(view FlowsListView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		err = components.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
 		if err != nil {
 			return err
 		}

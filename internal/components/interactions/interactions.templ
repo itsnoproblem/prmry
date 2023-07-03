@@ -4,18 +4,17 @@ import (
     "fmt"
 
     "github.com/itsnoproblem/prmry/internal/components"
-    "github.com/itsnoproblem/prmry/internal/components/page"
     "github.com/itsnoproblem/prmry/internal/components/chat"
 )
 
 templ InteractionDetailPage(view chat.ChatDetailView) {
-    @page.Page(&view) {
+    @components.Page(&view) {
         @InteractionDetail(view)
     }
 }
 
 templ InteractionsListPage(view chat.InteractionListView) {
-    @page.Page(&view){
+    @components.Page(&view){
         @InteractionsList(view)
     }
 }

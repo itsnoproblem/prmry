@@ -3,12 +3,12 @@ package flow
 import (
     "fmt"
 
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
     "github.com/itsnoproblem/prmry/internal/flow"
 )
 
 templ FlowBuilderPage(view Detail) {
-    @page.Page(&view) {
+    @components.Page(&view) {
         @FlowBuilder(view)
     }
 }

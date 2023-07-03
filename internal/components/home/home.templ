@@ -2,11 +2,11 @@ package home
 
 import (
     "github.com/itsnoproblem/prmry/internal/auth"
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
 )
 
 templ HomePage(view HomeView) {
-    @page.Page(&view) {
+    @components.Page(&view) {
         <div>
             @HomeFragment(view)
         </div>

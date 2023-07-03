@@ -1,7 +1,6 @@
 package chat
 
 import "github.com/itsnoproblem/prmry/internal/components"
-import "github.com/itsnoproblem/prmry/internal/components/page"
 
 templ ChatResponse(cmp ChatResponseView) {
     <div class="container">
@@ -70,7 +69,7 @@ templ ChatResponse(cmp ChatResponseView) {
 }
 
 templ ChatPage(cmp ChatControlsView) {
-    @page.Page(&cmp) {
+    @components.Page(&cmp) {
         @ChatConsole(cmp)
     }
 }

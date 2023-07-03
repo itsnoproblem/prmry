@@ -11,7 +11,6 @@ import "bytes"
 
 // GoExpression
 import "github.com/itsnoproblem/prmry/internal/components"
-import "github.com/itsnoproblem/prmry/internal/components/page"
 
 func ChatResponse(cmp ChatResponseView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
@@ -631,7 +630,7 @@ func ChatPage(cmp ChatControlsView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&cmp).Render(templ.WithChildren(ctx, var_20), templBuffer)
+		err = components.Page(&cmp).Render(templ.WithChildren(ctx, var_20), templBuffer)
 		if err != nil {
 			return err
 		}

@@ -1,0 +1,17 @@
+package components
+
+templ ErrorPage(ev ErrorView) {
+    @Page(&ev) {
+        @Error(ev)
+    }
+}
+
+templ Error(ev ErrorView) {
+    <div id="notices" hx-swap-oob="true" hx-ext="remove-me">
+        <div class="alert alert-danger alert-dismissible fade-out" role="alert">
+            { ev.Error }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+

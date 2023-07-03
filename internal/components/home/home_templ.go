@@ -12,7 +12,7 @@ import "bytes"
 // GoExpression
 import (
     "github.com/itsnoproblem/prmry/internal/auth"
-    "github.com/itsnoproblem/prmry/internal/components/page"
+    "github.com/itsnoproblem/prmry/internal/components"
 )
 
 func HomePage(view HomeView) templ.Component {
@@ -54,7 +54,7 @@ func HomePage(view HomeView) templ.Component {
 			}
 			return err
 		})
-		err = page.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		err = components.Page(&view).Render(templ.WithChildren(ctx, var_2), templBuffer)
 		if err != nil {
 			return err
 		}
