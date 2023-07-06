@@ -1,14 +1,16 @@
 package flowing
 
 import (
+	"context"
 	"fmt"
+	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/components/success"
 
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 )
 
-func formatFlowSummaries(response interface{}) (components.Component, error) {
+func formatFlowSummaries(ctx context.Context, response interface{}) (components.Component, error) {
 	res, ok := response.(listFlowsResponse)
 	if !ok {
 		return &components.BaseComponent{}, fmt.Errorf("formatFlowSummaries: failed to cast response")
@@ -32,16 +34,18 @@ func formatFlowSummaries(response interface{}) (components.Component, error) {
 	cmp := flowcmp.FlowsListView{
 		Flows: summaries,
 	}
+	cmp.SetUser(auth.UserFromContext(ctx))
 	cmp.SetTemplates(flowcmp.FlowsListPage(cmp), flowcmp.FlowsList(cmp))
 
 	return &cmp, nil
 }
 
-func formatFlowBuilderResponse(response interface{}) (components.Component, error) {
+func formatFlowBuilderResponse(ctx context.Context, response interface{}) (components.Component, error) {
 	resp, ok := response.(flowBuilderResponse)
 	if !ok {
 		return &components.BaseComponent{}, fmt.Errorf("formatFlowBuilderResponse: failed to parse response")
 	}
+	resp.Form.SetUser(auth.UserFromContext(ctx))
 
 	fullPage := flowcmp.FlowBuilderPage(resp.Form)
 	fragment := flowcmp.FlowBuilder(resp.Form)
@@ -50,11 +54,12 @@ func formatFlowBuilderResponse(response interface{}) (components.Component, erro
 	return &resp.Form, nil
 }
 
-func formatSuccessMessageResponse(response interface{}) (components.Component, error) {
+func formatSuccessMessageResponse(ctx context.Context, response interface{}) (components.Component, error) {
 	cmp, ok := response.(success.SuccessView)
 	if !ok {
 		return &components.BaseComponent{}, fmt.Errorf("formatSuccessMessageResponse: failed to parse response")
 	}
+	cmp.SetUser(auth.UserFromContext(ctx))
 
 	fragment := success.Success(cmp)
 	fullPage := success.SuccessPage(cmp)
@@ -63,6 +68,6 @@ func formatSuccessMessageResponse(response interface{}) (components.Component, e
 	return &cmp, nil
 }
 
-func formatRedirectResponse(response interface{}) (components.Component, error) {
+func formatRedirectResponse(ctx context.Context, response interface{}) (components.Component, error) {
 	return &components.BaseComponent{}, nil
 }

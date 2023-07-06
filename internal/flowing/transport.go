@@ -71,17 +71,17 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	}
 }
 
-func decodeEmptyRequest(request *http.Request) (interface{}, error) {
+func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return nil, nil
 }
 
-func decodeDeleteFlowRequest(request *http.Request) (interface{}, error) {
+func decodeDeleteFlowRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return deleteFlowRequest{
 		FlowID: chi.URLParam(request, "flowID"),
 	}, nil
 }
 
-func decodeEditFormRequest(request *http.Request) (interface{}, error) {
+func decodeEditFormRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return editFlowRequest{
 		FlowID: chi.URLParam(request, "flowID"),
 	}, nil
@@ -102,7 +102,7 @@ type flowBuilderFormRequest struct {
 	AvailableFlows  interface{} `json:"availableFlows"`
 }
 
-func decodeFlowBuilderRequest(r *http.Request) (interface{}, error) {
+func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	if r == nil {
 		return flowcmp.Detail{}, fmt.Errorf("readForm: request was null")
 	}

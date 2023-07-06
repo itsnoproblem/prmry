@@ -18,7 +18,7 @@ type Renderer interface {
 func MakeHandler(endpoint Endpoint, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		decoded, err := endpoint.DecodeRequest(r)
+		decoded, err := endpoint.DecodeRequest(ctx, r)
 		if err != nil {
 			log.Errorf("http.MakeHandler: %s", err)
 			renderer.RenderError(w, r, err)
@@ -47,7 +47,7 @@ func MakeHandler(endpoint Endpoint, renderer Renderer) http.HandlerFunc {
 			http.Redirect(w, r, redirect.Location, redirect.Status)
 		}
 
-		cmp, err := endpoint.EncodeResponse(res)
+		cmp, err := endpoint.EncodeResponse(ctx, res)
 		if err != nil {
 			log.Errorf("http.MakeHandler: %s", err)
 			renderer.RenderError(w, r, err)
