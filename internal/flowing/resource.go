@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 
@@ -19,20 +18,6 @@ import (
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 )
-
-type Service interface {
-	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
-	UpdateFlow(ctx context.Context, flw flow.Flow) error
-	DeleteFlow(ctx context.Context, flowID string) error
-	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
-	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
-}
-
-type Renderer interface {
-	RenderError(w http.ResponseWriter, r *http.Request, err error)
-	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
-	Unauthorized(w http.ResponseWriter, r *http.Request)
-}
 
 type Resource struct {
 	renderer Renderer
@@ -53,7 +38,6 @@ func (rs Resource) Routes() chi.Router {
 	r.Put("/{flowID}", rs.SaveFlow)
 	r.Delete("/{flowID}", rs.DeleteFlow)
 
-	r.Get("/", rs.ListFlows)
 	r.Get("/{flowID}", rs.GetFlow)
 
 	r.Get("/{flowID}/edit", rs.EditFlowForm)
@@ -274,51 +258,6 @@ func (rs Resource) DeleteFlow(w http.ResponseWriter, r *http.Request) {
 
 	if err := rs.service.DeleteFlow(ctx, flowID); err != nil {
 		rs.renderer.RenderError(w, r, err)
-	}
-}
-
-// ListFlows - GET /flows
-func (rs Resource) ListFlows(w http.ResponseWriter, r *http.Request) {
-	user := auth.UserFromContext(r.Context())
-	if user == nil {
-		rs.renderer.RenderError(w, r, fmt.Errorf("user is missing"))
-	}
-
-	flows, err := rs.service.GetFlowsForUser(r.Context(), user.ID)
-	if err != nil {
-		rs.renderer.RenderError(w, r, err)
-	}
-
-	summaries := make([]flowcmp.FlowSummary, 0)
-	for _, flow := range flows {
-		label := "rule"
-		if len(flow.Rules) > 1 {
-			label = "rules"
-		}
-
-		summaries = append(summaries, flowcmp.FlowSummary{
-			ID:          flow.ID,
-			Name:        flow.Name,
-			RuleCount:   fmt.Sprintf("%d %s", len(flow.Rules), label),
-			LastChanged: flow.UpdatedAt.Format("Jan 02, 2006 15:04"),
-		})
-	}
-
-	cmp := flowcmp.FlowsListView{
-		Flows: summaries,
-	}
-
-	if err := cmp.Lock(r); err != nil {
-		rs.renderer.Unauthorized(w, r)
-		return
-	}
-
-	page := flowcmp.FlowsListPage(cmp)
-	fragment := flowcmp.FlowsList(cmp)
-
-	if err := rs.renderer.RenderTemplComponent(w, r, page, fragment); err != nil {
-		rs.renderer.RenderError(w, r, err)
-		return
 	}
 }
 

@@ -6,9 +6,9 @@ import (
 )
 
 type Endpoint interface {
-	Handle(ctx context.Context, request interface{}) (response interface{}, err error)
-	Decode(ctx context.Context, request *http.Request) (decoded interface{}, err error)
-	Format(response interface{}) (formatted interface{}, err error)
+	HandleRequest(ctx context.Context, request interface{}) (response interface{}, err error)
+	DecodeRequest(ctx context.Context, request *http.Request) (decoded interface{}, err error)
+	FormatResponse(response interface{}) (formatted interface{}, err error)
 }
 
 type endpoint struct {
@@ -17,15 +17,15 @@ type endpoint struct {
 	f FormatterFunc
 }
 
-func (e endpoint) Handle(ctx context.Context, request interface{}) (response interface{}, err error) {
+func (e endpoint) HandleRequest(ctx context.Context, request interface{}) (response interface{}, err error) {
 	return e.h(ctx, request)
 }
 
-func (e endpoint) Decode(ctx context.Context, request *http.Request) (decoded interface{}, err error) {
+func (e endpoint) DecodeRequest(ctx context.Context, request *http.Request) (decoded interface{}, err error) {
 	return e.d(ctx, request)
 }
 
-func (e endpoint) Format(response interface{}) (formatted interface{}, err error) {
+func (e endpoint) FormatResponse(response interface{}) (formatted interface{}, err error) {
 	return e.f(response)
 }
 

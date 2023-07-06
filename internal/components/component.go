@@ -11,19 +11,43 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/htmx"
 )
+
+type TemplMaker func(cmp Component) templ.Component
 
 type Component interface {
 	User() *auth.User
 	Lock(r *http.Request) error
 	IsOOB() bool
+	SetUser(u *auth.User)
+	SetTemplates(full, fragment templ.Component)
+	GetFullTemplate() templ.Component
+	GetFragmentTemplate() templ.Component
 }
 
 type BaseComponent struct {
-	IsOutOfBand  bool
-	user         *auth.User
-	requiresAuth bool
+	IsOutOfBand   bool
+	templFullPage templ.Component
+	templFragment templ.Component
+	user          *auth.User
+	requiresAuth  bool
+}
+
+func (c *BaseComponent) SetUser(u *auth.User) {
+	c.user = u
+}
+
+func (c *BaseComponent) SetTemplates(full, fragment templ.Component) {
+	c.templFullPage = full
+	c.templFragment = fragment
+}
+
+func (c *BaseComponent) GetFullTemplate() templ.Component {
+	return c.templFullPage
+}
+
+func (c *BaseComponent) GetFragmentTemplate() templ.Component {
+	return c.templFragment
 }
 
 // Lock checks that an authenticated user exists in the request context
@@ -66,12 +90,4 @@ func NewlineToBR(html string) templ.Component {
 
 func requestIsMissingAuthentication(usr *auth.User, r *http.Request) bool {
 	return usr == nil && r != nil && r.URL.Path != "/"
-}
-
-func fragmentOrPage(r *http.Request, fragment, page templ.Component) templ.Component {
-	if htmx.IsHXRequest(r.Context()) {
-		return fragment
-	} else {
-		return page
-	}
 }

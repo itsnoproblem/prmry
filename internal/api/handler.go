@@ -9,19 +9,19 @@ import (
 
 func MakeHandler(e Endpoint) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		decoded, err := e.Decode(r.Context(), r)
+		decoded, err := e.DecodeRequest(r.Context(), r)
 		if err != nil {
 			handleError(err, w, r)
 			return
 		}
 
-		res, err := e.Handle(r.Context(), decoded)
+		res, err := e.HandleRequest(r.Context(), decoded)
 		if err != nil {
 			handleError(err, w, r)
 			return
 		}
 
-		formatted, err := e.Format(res)
+		formatted, err := e.FormatResponse(res)
 		if err != nil {
 			handleError(err, w, r)
 			return

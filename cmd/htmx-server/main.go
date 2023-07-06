@@ -23,7 +23,6 @@ import (
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/authorizing"
-	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/envvars"
 	"github.com/itsnoproblem/prmry/internal/flowing"
 	"github.com/itsnoproblem/prmry/internal/htmx"
@@ -146,7 +145,7 @@ func main() {
 	goth.UseProviders(oauthProviders(appConfig)...)
 	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)
 
-	renderer := components.NewRenderer()
+	renderer := htmx.NewRenderer()
 	gptClient := gogpt.NewClient(appConfig.OpenAPIKey)
 
 	usersRepo := sql.NewUsersRepo(db)
@@ -165,14 +164,15 @@ func main() {
 
 	homeResource := profiling.NewResource(renderer)
 	ixnResource := interacting.NewResource(renderer, ixnService)
-	flowResource := flowing.NewResource(renderer, flowService)
+	//flowResource := flowing.NewResource(renderer, flowService)
+	flowingTransport := flowing.RouteHandler(flowService, renderer)
 
 	staticResource := staticrendering.NewResource(renderer)
 
 	r.Mount("/", homeResource.Routes())
 	r.Mount("/auth", authResource.Routes())
 	r.Mount("/interactions", ixnResource.Routes())
-	r.Mount("/flows", flowResource.Routes())
+	r.Route("/flows", flowingTransport)
 
 	r.Get("/terms", staticResource.Terms)
 	r.Get("/privacy", staticResource.Privacy)
