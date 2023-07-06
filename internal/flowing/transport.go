@@ -9,6 +9,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/components"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -42,9 +43,37 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 		auth.Required,
 	)
 
+	newFlowFormEndpoint := htmx.NewEndpoint(
+		makeNewFlowFormEndpoint(svc),
+		decodeEmptyRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
 	editFlowEndpoint := htmx.NewEndpoint(
-		makeEditFlowEndpoint(svc),
+		makeEditFlowFormEndpoint(svc),
 		decodeEditFormRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
+	flowBuilderAddRuleEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderAddRuleEndpoint(svc),
+		decodeFlowBuilderRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
+	flowBuilderDeleteRuleEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderRemoveRuleEndpoint(svc),
+		decodeFlowBuilderDeleteRuleRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
+	flowBuilderUpdatePromptEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderUpdatePromptEndpoint(svc),
+		decodeFlowBuilderRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
@@ -66,6 +95,10 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	return func(r chi.Router) {
 		r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
 		r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
+		r.Get("/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
+		r.Post("/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
+		r.Delete("/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
+		r.Put("/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
 		r.Get("/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
 		r.Delete("/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
 	}
@@ -84,6 +117,29 @@ func decodeDeleteFlowRequest(ctx context.Context, request *http.Request) (interf
 func decodeEditFormRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return editFlowRequest{
 		FlowID: chi.URLParam(request, "flowID"),
+	}, nil
+}
+
+func decodeFlowBuilderDeleteRuleRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	index := chi.URLParam(request, "index")
+	idx, err := strconv.Atoi(index)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderDeleteRuleRequest")
+	}
+
+	form, err := decodeFlowBuilderRequest(ctx, request)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderDeleteRuleRequest")
+	}
+
+	formRequest, ok := form.(flowcmp.Detail)
+	if !ok {
+		return nil, fmt.Errorf("decodeFlowBuilderDeleteRuleRequest: failed to parse form")
+	}
+
+	return flowBuilderRemoveRuleRequest{
+		Index: idx,
+		Form:  formRequest,
 	}, nil
 }
 
@@ -208,4 +264,47 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	}
 
 	return form, nil
+}
+
+func stringOrSlice(str interface{}) ([]string, error) {
+	var err error
+	result := make([]string, 0)
+	v := reflect.ValueOf(str)
+
+	switch v.Kind() {
+	case reflect.String:
+		result = append(result, str.(string))
+		break
+
+	case reflect.Slice:
+		result, err = stringSlice(str)
+		if err != nil {
+			return nil, errors.Wrap(err, "stringOrSlice")
+		}
+		break
+
+	default:
+		return nil, nil
+	}
+
+	return result, nil
+}
+
+func stringSlice(input interface{}) ([]string, error) {
+	interfaces, ok := input.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("stringSlice: failed to cast input to slice")
+	}
+
+	result := make([]string, len(interfaces))
+	for i, val := range interfaces {
+		strVal, ok := val.(string)
+		if !ok {
+			return nil, fmt.Errorf("stringSlice: failed to cast value to string")
+		}
+
+		result[i] = strVal
+	}
+
+	return result, nil
 }

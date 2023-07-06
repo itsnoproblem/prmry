@@ -3,6 +3,7 @@ package flowing
 import (
 	"context"
 	"fmt"
+	"github.com/a-h/templ"
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/components/success"
@@ -69,5 +70,9 @@ func formatSuccessMessageResponse(ctx context.Context, response interface{}) (co
 }
 
 func formatRedirectResponse(ctx context.Context, response interface{}) (components.Component, error) {
-	return &components.BaseComponent{}, nil
+	cmp := components.BaseComponent{}
+	cmp.SetUser(auth.UserFromContext(ctx))
+	cmp.SetTemplates(templ.NopComponent, templ.NopComponent)
+
+	return &cmp, nil
 }
