@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/flow"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	"time"
+
+	"github.com/itsnoproblem/prmry/internal/flow"
 )
 
 type repository struct {

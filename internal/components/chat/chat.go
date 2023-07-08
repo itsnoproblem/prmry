@@ -1,27 +1,14 @@
 package chat
 
 import (
-	"github.com/itsnoproblem/prmry/internal/flow"
 	"strconv"
 
 	"github.com/itsnoproblem/prmry/internal/components"
+	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/interaction"
 )
 
-const PromptMaxCharacters = 210
-
-type ChatSummaryView struct {
-	ID         string
-	Prompt     string
-	Type       string
-	Date       string
-	Model      string
-	FlowID     string
-	FlowName   string
-	TokensUsed int
-}
-
-type ChatDetailView struct {
+type DetailView struct {
 	Prompt       string
 	PromptHTML   string
 	Date         string
@@ -71,38 +58,13 @@ type ChatControlsView struct {
 }
 
 type ChatResponseView struct {
-	Interaction ChatDetailView
+	Interaction DetailView
 	Controls    ChatControlsView
 	components.BaseComponent
 }
 
-type InteractionListView struct {
-	Interactions []ChatSummaryView
-	components.BaseComponent
-}
-
-func NewInteractionListView(summaries []interaction.Summary) InteractionListView {
-	interactions := make([]ChatSummaryView, len(summaries))
-	for i, s := range summaries {
-		interactions[i] = ChatSummaryView{
-			ID:         s.ID,
-			Prompt:     components.TrimWordsToMaxCharacters(PromptMaxCharacters, s.Prompt),
-			Type:       s.Type,
-			FlowID:     s.FlowID,
-			FlowName:   s.FlowName,
-			Date:       s.CreatedAt.Format("Jan 2, 2006 3:04pm"),
-			Model:      s.Model,
-			TokensUsed: s.TokensUsed,
-		}
-	}
-
-	return InteractionListView{
-		Interactions: interactions,
-	}
-}
-
-func NewChatDetailView(ixn interaction.Interaction) ChatDetailView {
-	return ChatDetailView{
+func NewChatDetailView(ixn interaction.Interaction) DetailView {
+	return DetailView{
 		Prompt:       ixn.Request.Prompt,
 		PromptHTML:   ixn.PromptHTML(),
 		Date:         ixn.CreatedAt.Format("Monday, January 2, 2006 at 3:04pm"),

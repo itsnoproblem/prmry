@@ -4,9 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/a-h/templ"
-	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/components"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -15,24 +12,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 
+	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/components"
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 )
 
-type Service interface {
-	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
-	UpdateFlow(ctx context.Context, flw flow.Flow) error
-	DeleteFlow(ctx context.Context, flowID string) error
-	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
-	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
-}
-
 type Renderer interface {
-	RenderError(w http.ResponseWriter, r *http.Request, err error)
 	Render(w http.ResponseWriter, r *http.Request, cmp components.Component) error
-	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
-	Unauthorized(w http.ResponseWriter, r *http.Request)
+	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
 func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
@@ -93,14 +82,16 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	)
 
 	return func(r chi.Router) {
-		r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
-		r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
-		r.Get("/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
-		r.Post("/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
-		r.Delete("/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
-		r.Put("/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
-		r.Get("/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
-		r.Delete("/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
+		r.Route("/flows", func(r chi.Router) {
+			r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
+			r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
+			r.Get("/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
+			r.Post("/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
+			r.Delete("/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
+			r.Put("/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
+			r.Get("/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
+			r.Delete("/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
+		})
 	}
 }
 

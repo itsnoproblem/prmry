@@ -13,8 +13,6 @@ import (
 	"github.com/itsnoproblem/prmry/internal/auth"
 )
 
-type TemplMaker func(cmp Component) templ.Component
-
 type Component interface {
 	User() *auth.User
 	Lock(r *http.Request) error

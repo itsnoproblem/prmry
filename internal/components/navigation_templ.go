@@ -128,7 +128,7 @@ func TopNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" class=\"collapse navbar-collapse justify-content-center\"")
+		_, err = templBuffer.WriteString(" class=\"collapse navbar-collapse justify-content-left\"")
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,77 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		_, err = templBuffer.WriteString(" class=\"nav-item m-auto\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-link\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" title=\"Home\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-toggle=\"collapse\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" data-bs-target=\".navbar-collapse.show\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-get=\"/\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<img")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" src=\"/static/prmry.png\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" class=\"navbar-img\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item m-auto\"")
 		if err != nil {
 			return err
 		}
@@ -256,7 +326,7 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/terms\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/legal/terms\"")
 		if err != nil {
 			return err
 		}
@@ -284,7 +354,7 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1\"")
+		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1  m-auto\"")
 		if err != nil {
 			return err
 		}
@@ -308,7 +378,7 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		_, err = templBuffer.WriteString(" class=\"nav-item  m-auto\"")
 		if err != nil {
 			return err
 		}
@@ -338,7 +408,7 @@ func GuestNavigation() templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/privacy\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/legal/privacy\"")
 		if err != nil {
 			return err
 		}
@@ -366,7 +436,7 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1\"")
+		_, err = templBuffer.WriteString(" class=\"divider d-none d-md-block pt-1 m-auto\"")
 		if err != nil {
 			return err
 		}
@@ -390,7 +460,7 @@ func GuestNavigation() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		_, err = templBuffer.WriteString(" class=\"nav-item m-auto\"")
 		if err != nil {
 			return err
 		}
@@ -589,7 +659,7 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/profile\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/account\"")
 		if err != nil {
 			return err
 		}
@@ -787,7 +857,7 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/terms\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/legal/terms\"")
 		if err != nil {
 			return err
 		}
@@ -836,7 +906,7 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/privacy\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/legal/privacy\"")
 		if err != nil {
 			return err
 		}

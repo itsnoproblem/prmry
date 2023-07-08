@@ -57,11 +57,6 @@ h3 {
     display: inline-block;
 }
 
-img.rgb-logo {
-    width: 16em;
-    height: auto;
-}
-
 .brand-title,
 .brand-tagline {
     margin: 0;
@@ -282,11 +277,6 @@ ul.usage hr {
     margin-bottom: .3em
 }
 
-.rgb-logo {
-    margin: 0.7em 0.7em 1em;
-    display: none;
-}
-
 
 /* ---------- Menu ------------ */
 #menuToggle
@@ -355,7 +345,7 @@ ul.usage hr {
 
 .navbar-img {
     width: auto;
-    height: 72px;
+    max-height: 42px;
 }
 
 li.dropdown {

@@ -7,19 +7,19 @@ import (
     "github.com/itsnoproblem/prmry/internal/components/chat"
 )
 
-templ InteractionDetailPage(view chat.ChatDetailView) {
+templ InteractionDetailPage(view chat.DetailView) {
     @components.Page(&view) {
         @InteractionDetail(view)
     }
 }
 
-templ InteractionsListPage(view chat.InteractionListView) {
+templ InteractionsListPage(view ListView) {
     @components.Page(&view){
         @InteractionsList(view)
     }
 }
 
-templ InteractionDetail(view chat.ChatDetailView) {
+templ InteractionDetail(view chat.DetailView) {
     <div class="post-container detail interaction">
         <div class="interaction-meta">
             <div class="btn-group" role="group">
@@ -86,7 +86,7 @@ templ InteractionDetail(view chat.ChatDetailView) {
     </div>
 }
 
-templ InteractionsList(view chat.InteractionListView) {
+templ InteractionsList(view ListView) {
     <div class="posts">
         <h1 class="content-subhead">Recent Interactions</h1>
         

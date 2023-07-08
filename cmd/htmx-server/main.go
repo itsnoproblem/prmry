@@ -21,15 +21,15 @@ import (
 	"github.com/markbates/goth/providers/google"
 	gogpt "github.com/sashabaranov/go-gpt3"
 
+	"github.com/itsnoproblem/prmry/internal/accounting"
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/authorizing"
+	"github.com/itsnoproblem/prmry/internal/authenticating"
 	"github.com/itsnoproblem/prmry/internal/envvars"
 	"github.com/itsnoproblem/prmry/internal/flowing"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 	"github.com/itsnoproblem/prmry/internal/interacting"
-	"github.com/itsnoproblem/prmry/internal/profiling"
+	"github.com/itsnoproblem/prmry/internal/prmrying"
 	"github.com/itsnoproblem/prmry/internal/sql"
-	"github.com/itsnoproblem/prmry/internal/staticrendering"
 )
 
 const (
@@ -129,53 +129,53 @@ func main() {
 		}
 	}(db)
 
+	fixHostAndProto := appConfig.Env != "DEV"
+
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.Heartbeat("/ping"))
-
 	r.Use(render.SetContentType(render.ContentTypeHTML))
 	r.Use(htmx.Middleware)
-
-	fixHostAndProto := appConfig.Env != "DEV"
 	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
 
 	goth.UseProviders(oauthProviders(appConfig)...)
 	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)
+	gothic.GetProviderName = func(req *http.Request) (string, error) {
+		return chi.URLParam(req, "provider"), nil
+	}
 
 	renderer := htmx.NewRenderer()
 	gptClient := gogpt.NewClient(appConfig.OpenAPIKey)
 
 	usersRepo := sql.NewUsersRepo(db)
-	ixnRepo := sql.NewInteractionsRepo(db)
-	modRepo := sql.NewModerationsRepo(db)
+	interactionsRepo := sql.NewInteractionsRepo(db)
+	moderationsRepo := sql.NewModerationsRepo(db)
 	flowsRepo := sql.NewFlowsRepository(db)
 
-	authService := authorizing.NewService(usersRepo)
-	ixnService := interacting.NewService(gptClient, &ixnRepo, &modRepo, flowsRepo)
-	flowService := flowing.NewService(flowsRepo)
+	authService := authenticating.NewService(usersRepo)
+	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
+	flowingService := flowing.NewService(flowsRepo)
 
-	authResource, err := authorizing.NewResource(renderer, appConfig.AuthSecret, authService)
+	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
+	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	homeResource := profiling.NewResource(renderer)
-	ixnResource := interacting.NewResource(renderer, ixnService)
-	//flowResource := flowing.NewResource(renderer, flowService)
-	flowingTransport := flowing.RouteHandler(flowService, renderer)
+	interactingTransport := interacting.RouteHandler(interactingService, flowingService, renderer)
+	flowingTransport := flowing.RouteHandler(flowingService, renderer)
+	staticTransport := prmrying.RouteHandler(renderer)
+	accountingTransport := accounting.RouteHandler(renderer)
+	authenticatingTransport := authResource.RouteHandler()
 
-	staticResource := staticrendering.NewResource(renderer)
-
-	r.Mount("/", homeResource.Routes())
-	r.Mount("/auth", authResource.Routes())
-	r.Mount("/interactions", ixnResource.Routes())
-	r.Route("/flows", flowingTransport)
-
-	r.Get("/terms", staticResource.Terms)
-	r.Get("/privacy", staticResource.Privacy)
+	r.Group(authenticatingTransport)
+	r.Group(accountingTransport)
+	r.Group(interactingTransport)
+	r.Group(flowingTransport)
+	r.Group(staticTransport)
 
 	staticFS := http.FileServer(http.Dir("www/static"))
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))

@@ -1,6 +1,6 @@
-# RGB
+# PRMRY
 
-Response Generator Bot.
+A Hub for AI interactions and prompt engineering. 
 
 - Manage, organize and share AI interactions
 - engineer prompts with prompt generation rules

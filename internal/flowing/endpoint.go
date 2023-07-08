@@ -3,9 +3,6 @@ package flowing
 import (
 	"context"
 	"fmt"
-	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
-	"github.com/itsnoproblem/prmry/internal/components/redirect"
-	"github.com/itsnoproblem/prmry/internal/flow"
 	"net/http"
 	"regexp"
 	"time"
@@ -13,8 +10,21 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/htmx"
+
+	// @TODO(marty): write local types for these and eliminate these imports
+	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
+	"github.com/itsnoproblem/prmry/internal/components/redirect"
 )
+
+type Service interface {
+	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
+	UpdateFlow(ctx context.Context, flw flow.Flow) error
+	DeleteFlow(ctx context.Context, flowID string) error
+	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
+	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
+}
 
 type listFlowsResponse struct {
 	Summaries []flowSummary

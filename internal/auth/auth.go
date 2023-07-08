@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	CookieName  = "rgb_user"
+	CookieName  = "_prmry_user"
 	ContextKey  = "User"
 	Required    = true
 	NotRequired = false

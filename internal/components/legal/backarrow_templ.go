@@ -28,7 +28,7 @@ func BackArrow() templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"back-arrow\"")
+		_, err = templBuffer.WriteString(" class=\"back-arrow pb-3\"")
 		if err != nil {
 			return err
 		}

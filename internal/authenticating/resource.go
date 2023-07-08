@@ -1,4 +1,4 @@
-package authorizing
+package authenticating
 
 import (
 	"context"
@@ -10,12 +10,9 @@ import (
 	"github.com/markbates/goth/gothic"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/components/home"
 	"github.com/itsnoproblem/prmry/internal/htmx"
-)
-
-const (
-	paramNameProvider = "provider"
 )
 
 type AuthService interface {
@@ -26,20 +23,21 @@ type AuthService interface {
 	GetUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error)
 }
 
+type Renderer interface {
+	Render(w http.ResponseWriter, r *http.Request, cmp components.Component) error
+	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
+	RenderError(w http.ResponseWriter, r *http.Request, err error)
+}
+
 type Resource struct {
 	authService AuthService
 	renderer    Renderer
 	secret      auth.Byte32
 }
 
-type Renderer interface {
-	RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error
-	RenderError(w http.ResponseWriter, r *http.Request, err error)
-}
-
 func NewResource(renderer Renderer, authSecret auth.Byte32, authService AuthService) (Resource, error) {
 	gothic.GetProviderName = func(req *http.Request) (string, error) {
-		return chi.URLParam(req, paramNameProvider), nil
+		return chi.URLParam(req, "provider"), nil
 	}
 
 	return Resource{
@@ -49,13 +47,13 @@ func NewResource(renderer Renderer, authSecret auth.Byte32, authService AuthServ
 	}, nil
 }
 
-func (rs Resource) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Get(fmt.Sprintf("/{%s}", paramNameProvider), rs.AuthHandler)
-	r.Get(fmt.Sprintf("/{%s}/callback", paramNameProvider), rs.AuthSuccessHandler)
-	r.Get(fmt.Sprintf("/logout/{%s}", paramNameProvider), rs.LogoutHandler)
-	r.Get("/logout", rs.LogoutHandler)
-	return r
+func (rs Resource) RouteHandler() func(chi.Router) {
+	return func(r chi.Router) {
+		r.Get("/auth/{provider}", rs.AuthHandler)
+		r.Get("/auth/{provider}/callback", rs.AuthSuccessHandler)
+		r.Get("/auth/logout", rs.LogoutHandler)
+		r.Get("/auth/logout/{provider}", rs.LogoutHandler)
+	}
 }
 
 func (rs Resource) AuthHandler(w http.ResponseWriter, r *http.Request) {

@@ -2,8 +2,9 @@ package htmx
 
 import (
 	"fmt"
-	"github.com/google/martian/log"
 	"net/http"
+
+	"github.com/google/martian/log"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"

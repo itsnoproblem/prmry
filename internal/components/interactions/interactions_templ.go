@@ -17,7 +17,7 @@ import (
     "github.com/itsnoproblem/prmry/internal/components/chat"
 )
 
-func InteractionDetailPage(view chat.ChatDetailView) templ.Component {
+func InteractionDetailPage(view chat.DetailView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -58,7 +58,7 @@ func InteractionDetailPage(view chat.ChatDetailView) templ.Component {
 	})
 }
 
-func InteractionsListPage(view chat.InteractionListView) templ.Component {
+func InteractionsListPage(view ListView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -99,7 +99,7 @@ func InteractionsListPage(view chat.InteractionListView) templ.Component {
 	})
 }
 
-func InteractionDetail(view chat.ChatDetailView) templ.Component {
+func InteractionDetail(view chat.DetailView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -719,7 +719,7 @@ func InteractionDetail(view chat.ChatDetailView) templ.Component {
 	})
 }
 
-func InteractionsList(view chat.InteractionListView) templ.Component {
+func InteractionsList(view ListView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {

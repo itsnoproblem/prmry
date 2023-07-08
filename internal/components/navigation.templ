@@ -10,7 +10,7 @@ templ TopNavigation(cmp Component) {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div id="top-nav"
-                 class="collapse navbar-collapse justify-content-center"
+                 class="collapse navbar-collapse justify-content-left"
                  hx-swap-oob={ TrueFalse(cmp.IsOOB()) }
             >
                 if cmp.User() != nil {
@@ -28,23 +28,30 @@ templ GuestNavigation() {
         hx-push-url="true"
         class="navbar-nav guest-nav mb-2 mt-2 mb-lg-0"
     >
-        <li class="nav-item">
+        <li class="nav-item m-auto">
+            <a class="nav-link" title="Home" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+               hx-get="/"
+            >
+                <img src="/static/prmry.png" class="navbar-img"/>
+            </a>
+        </li>
+        <li class="nav-item m-auto">
             <a class="nav-link" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-               hx-get="/terms"
+               hx-get="/legal/terms"
             >
                 TOS
             </a>
         </li>
-        <li class="divider d-none d-md-block pt-1">&nbsp;|&nbsp</li>
-        <li class="nav-item">
+        <li class="divider d-none d-md-block pt-1  m-auto">&nbsp;|&nbsp</li>
+        <li class="nav-item  m-auto">
             <a class="nav-link" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-               hx-get="/privacy"
+               hx-get="/legal/privacy"
             >
                 Privacy
             </a>
         </li>
-        <li class="divider d-none d-md-block pt-1">&nbsp;|&nbsp</li>
-        <li class="nav-item">
+        <li class="divider d-none d-md-block pt-1 m-auto">&nbsp;|&nbsp</li>
+        <li class="nav-item m-auto">
             <a class="nav-link"
                title="Source Code"
                target="_blank"
@@ -72,7 +79,7 @@ templ ProfileNavButton(cmp Component) {
         >
             <li>
                 <a class="dropdown-item"
-                   hx-get="/profile"
+                   hx-get="/account"
                    data-bs-toggle="collapse"
                    data-bs-target=".navbar-collapse.show"
                 >Profile</a>
@@ -91,14 +98,14 @@ templ ProfileNavButton(cmp Component) {
             <li><hr class="dropdown-divider"/></li>
             <li>
                 <a class="dropdown-item" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-                   hx-get="/terms"
+                   hx-get="/legal/terms"
                 >
                     TOS
                 </a>
             </li>
             <li>
                 <a class="dropdown-item" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
-                   hx-get="/privacy"
+                   hx-get="/legal/privacy"
                 >
                     Privacy
                 </a>

@@ -3,7 +3,6 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/flow"
 	"log"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	gogpt "github.com/sashabaranov/go-gpt3"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/interaction"
 )
 
@@ -45,7 +45,7 @@ type FlowRepo interface {
 }
 
 func NewService(c *gogpt.Client, r InteractionRepo, m ModerationRepo, f FlowRepo) service {
-	log.Printf("RGB - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
+	log.Printf("PRMRY - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
 		GPTModel, GPTMaxTokens, GPTCharactersPerToken)
 
 	return service{

@@ -2,11 +2,12 @@ package flowing
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/pkg/errors"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/flow"
 )
 
