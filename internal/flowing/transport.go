@@ -83,12 +83,12 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 
 	return func(r chi.Router) {
 		r.Route("/flows", func(r chi.Router) {
-			r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
-			r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
 			r.Get("/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
 			r.Post("/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
 			r.Delete("/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
 			r.Put("/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
+			r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
+			r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
 			r.Get("/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
 			r.Delete("/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
 		})

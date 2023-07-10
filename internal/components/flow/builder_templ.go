@@ -1641,7 +1641,7 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// TemplElement
-			err = FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + string(j)).Render(ctx, templBuffer)
+			err = FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + fmt.Sprint(j)).Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}

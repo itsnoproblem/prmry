@@ -35,8 +35,6 @@ type InteractionRepo interface {
 
 type ModerationRepo interface {
 	Add(ctx context.Context, mod interaction.Moderation) error
-	Remove(ctx context.Context, id string) error
-	All(ctx context.Context) ([]interaction.Moderation, error)
 }
 
 type FlowRepo interface {

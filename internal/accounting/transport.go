@@ -17,7 +17,7 @@ type Renderer interface {
 }
 
 func RouteHandler(renderer Renderer) func(chi.Router) {
-	homeEndpoint := htmx.NewEndpoint(
+	accountEndpoint := htmx.NewEndpoint(
 		makeAccountEndpoint(),
 		decodeEmptyRequest,
 		formatAccountResponse,
@@ -26,11 +26,11 @@ func RouteHandler(renderer Renderer) func(chi.Router) {
 
 	return func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Get("/account", htmx.MakeHandler(homeEndpoint, renderer))
+			r.Get("/account", htmx.MakeHandler(accountEndpoint, renderer))
 		})
 	}
 }
 
-func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+func decodeEmptyRequest(_ context.Context, request *http.Request) (interface{}, error) {
 	return nil, nil
 }

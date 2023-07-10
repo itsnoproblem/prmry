@@ -35,8 +35,10 @@ func (rnd *renderer) RenderTemplComponent(w http.ResponseWriter, r *http.Request
 }
 
 func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err error) {
-	view := components.ErrorView{Error: err.Error()}
+	view := components.NewErrorView(err.Error(), http.StatusInternalServerError)
 	ctx := r.Context()
+
+	w.WriteHeader(view.Code)
 
 	if IsHXRequest(ctx) {
 		components.Error(view).Render(ctx, w)
@@ -44,7 +46,6 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 	}
 
 	components.ErrorPage(view).Render(ctx, w)
-
 }
 
 func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
