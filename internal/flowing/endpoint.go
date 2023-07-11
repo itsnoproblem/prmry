@@ -18,6 +18,10 @@ import (
 	"github.com/itsnoproblem/prmry/internal/components/redirect"
 )
 
+const (
+	ContextKeyFlow = "view"
+)
+
 type Service interface {
 	CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err error)
 	UpdateFlow(ctx context.Context, flw flow.Flow) error
@@ -81,19 +85,16 @@ func makeNewFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeNewFlowFormEndpoint")
 		}
 
-		cmp := flowcmp.Detail{
-			SupportedFields:     flow.SupportedFields(),
-			SupportedConditions: flow.SupportedConditions(),
-		}
-		if existing := ctx.Value("view"); existing != nil {
+		//cmp := flowcmp.Detail{
+		//	SupportedFields:     flow.SupportedFields(),
+		//	SupportedConditions: flow.SupportedConditions(),
+		//}
+		cmp := flowcmp.NewDetail(flow.Flow{})
+		if existing := ctx.Value(ContextKeyFlow); existing != nil {
 			cmp = existing.(flowcmp.Detail)
 		}
 
-		cmp.AvailableFlowsByID = make(map[string]string)
-		for _, flw := range flows {
-			cmp.AvailableFlowsByID[flw.ID] = flw.Name
-		}
-
+		cmp.SetAvalableFlows(flows)
 		cmp.SetUser(auth.UserFromContext(ctx))
 
 		fullPage := flowcmp.FlowBuilderPage(cmp)
@@ -123,7 +124,7 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeEditFlowFormEndpoint")
 		}
 
-		var cmp flowcmp.Detail
+		cmp := flowcmp.NewDetail(flow.Flow{})
 		if existing := ctx.Value("view"); existing != nil {
 			cmp = existing.(flowcmp.Detail)
 		} else {
@@ -140,10 +141,8 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeEditFlowFormEndpoint")
 		}
 
-		cmp.AvailableFlowsByID = make(map[string]string)
-		for _, flw := range flows {
-			cmp.AvailableFlowsByID[flw.ID] = flw.Name
-		}
+		cmp.SetAvalableFlows(flows)
+		cmp.SetUser(&user)
 
 		cmp.SupportedFields = flow.SupportedFields()
 		cmp.SupportedConditions = flow.SupportedConditions()
@@ -183,9 +182,11 @@ func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
 
 		cmp := req.Form
 
-		conditions := make([]flowcmp.RuleView, 0)
-		conditions = append(conditions, cmp.Rules[:req.Index]...)
-		cmp.Rules = append(conditions, cmp.Rules[req.Index+1:]...)
+		if len(cmp.Rules) > 0 {
+			revisedRules := make([]flowcmp.RuleView, 0)
+			revisedRules = append(revisedRules, cmp.Rules[:req.Index]...)
+			cmp.Rules = append(revisedRules, cmp.Rules[req.Index+1:]...)
+		}
 
 		return flowBuilderResponse{
 			Form: cmp,

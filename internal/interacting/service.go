@@ -15,11 +15,9 @@ import (
 )
 
 const (
-	RawPromptTrigger      = "RAW"
 	GPTModel              = gogpt.GPT3TextDavinci003
 	GPTMaxTokens          = 4000
 	GPTCharactersPerToken = 4
-	maxInputChars         = 3000 * GPTCharactersPerToken
 )
 
 type Responder interface {

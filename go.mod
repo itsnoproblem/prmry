@@ -16,6 +16,7 @@ require (
 	github.com/markbates/goth v1.76.0
 	github.com/pkg/errors v0.9.1
 	github.com/sashabaranov/go-gpt3 v0.0.0-20221216095610-1c20931ead68
+	github.com/yosssi/gohtml v0.0.0-20201013000340-ee4748c638f4
 )
 
 require (

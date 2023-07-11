@@ -82,15 +82,15 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	)
 
 	return func(r chi.Router) {
-		r.Route("/flows", func(r chi.Router) {
-			r.Get("/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
-			r.Post("/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
-			r.Delete("/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
-			r.Put("/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
-			r.Post("/", htmx.MakeHandler(saveFlowEndpoint, renderer))
-			r.Get("/", htmx.MakeHandler(listFlowsEndpoint, renderer))
-			r.Get("/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
-			r.Delete("/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
+		r.Group(func(r chi.Router) {
+			r.Get("/flows/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
+			r.Post("/flows/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
+			r.Delete("/flows/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
+			r.Put("/flows/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
+			r.Post("/flows", htmx.MakeHandler(saveFlowEndpoint, renderer))
+			r.Get("/flows", htmx.MakeHandler(listFlowsEndpoint, renderer))
+			r.Get("/flows/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
+			r.Delete("/flows/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
 		})
 	}
 }
@@ -226,8 +226,8 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		Name:                req.Name,
 		Prompt:              req.Prompt,
 		PromptArgs:          promptArgs,
-		SupportedFields:     flow.SupportedFields(),
-		SupportedConditions: flow.SupportedConditions(),
+		SupportedFields:     flowcmp.SortedMap(flow.SupportedFields()),
+		SupportedConditions: flowcmp.SortedMap(flow.SupportedConditions()),
 	}
 
 	flowIndex = 0

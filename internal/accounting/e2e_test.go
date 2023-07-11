@@ -1,6 +1,7 @@
 package accounting_test
 
 import (
+	"github.com/approvals/go-approval-tests/reporters"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,10 +19,12 @@ import (
 
 func init() {
 	approvals.UseFolder("testdata")
-	//auth.TestMode = true
 }
 
 func TestAccounting(t *testing.T) {
+	reporter := approvals.UseReporter(reporters.NewGoLandReporter())
+	defer reporter.Close()
+
 	renderer := htmx.NewRenderer()
 
 	r := chi.NewRouter()
@@ -93,7 +96,8 @@ func TestAccounting(t *testing.T) {
 				t.Errorf("io.ReadAll error: %v", err)
 			}
 
-			approvals.VerifyString(t, string(data[:]))
+			extensionOpt := approvals.Options().WithExtension("html")
+			approvals.VerifyString(t, string(data[:]), extensionOpt)
 		})
 	}
 }

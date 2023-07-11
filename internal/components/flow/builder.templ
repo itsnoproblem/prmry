@@ -58,7 +58,7 @@ templ FlowBuilder(view Detail) {
     </form>
 }
 
-templ FieldSelector(name string, options map[string]string, selected, label string) {
+templ FieldSelector(name string, options SortedMap, selected, label string) {
     <select
             name={ name }
             class="form-select form-select-md"
@@ -66,11 +66,11 @@ templ FieldSelector(name string, options map[string]string, selected, label stri
             hx-put="/flows/new/prompt"
     >
         <option></option>
-        for value, name := range options {
-            if value == selected {
-                <option value={ value } selected="true">{ name }</option>
+        for _, value := range options.Keys() {
+            if options[value] == selected {
+                <option value={ value } selected="true">{ options[value] }</option>
             } else {
-                <option value={ value }>{ name }</option>
+                <option value={ value }>{ options[value] }</option>
             }
         }
     </select>

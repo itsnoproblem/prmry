@@ -358,7 +358,7 @@ func FlowBuilder(view Detail) templ.Component {
 	})
 }
 
-func FieldSelector(name string, options map[string]string, selected, label string) templ.Component {
+func FieldSelector(name string, options SortedMap, selected, label string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -431,9 +431,9 @@ func FieldSelector(name string, options map[string]string, selected, label strin
 			return err
 		}
 		// For
-		for value, name := range options {
+		for _, value := range options.Keys() {
 			// If
-			if value == selected {
+			if options[value] == selected {
 				// Element (standard)
 				_, err = templBuffer.WriteString("<option")
 				if err != nil {
@@ -465,7 +465,7 @@ func FieldSelector(name string, options map[string]string, selected, label strin
 					return err
 				}
 				// StringExpression
-				var var_6 string = name
+				var var_6 string = options[value]
 				_, err = templBuffer.WriteString(templ.EscapeString(var_6))
 				if err != nil {
 					return err
@@ -502,7 +502,7 @@ func FieldSelector(name string, options map[string]string, selected, label strin
 					return err
 				}
 				// StringExpression
-				var var_7 string = name
+				var var_7 string = options[value]
 				_, err = templBuffer.WriteString(templ.EscapeString(var_7))
 				if err != nil {
 					return err

@@ -3,6 +3,7 @@ package flow
 import (
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
+	"sort"
 )
 
 type Detail struct {
@@ -12,10 +13,17 @@ type Detail struct {
 	RequireAll          bool
 	Prompt              string
 	PromptArgs          []PromptArg
-	SupportedFields     map[string]string
-	SupportedConditions map[string]string
-	AvailableFlowsByID  map[string]string
+	SupportedFields     SortedMap
+	SupportedConditions SortedMap
+	AvailableFlowsByID  SortedMap
 	components.BaseComponent
+}
+
+func (d *Detail) SetAvalableFlows(flows []flow.Flow) {
+	d.AvailableFlowsByID = make(SortedMap, len(flows))
+	for _, f := range flows {
+		d.AvailableFlowsByID[f.ID] = f.Name
+	}
 }
 
 type PromptArg struct {
@@ -105,7 +113,19 @@ func NewDetail(flw flow.Flow) Detail {
 		RequireAll:          flw.RequireAll,
 		Prompt:              flw.Prompt,
 		PromptArgs:          promptArgs,
-		SupportedFields:     flow.SupportedFields(),
-		SupportedConditions: flow.SupportedConditions(),
+		SupportedFields:     SortedMap(flow.SupportedFields()),
+		SupportedConditions: SortedMap(flow.SupportedConditions()),
+		AvailableFlowsByID:  nil,
 	}
+}
+
+type SortedMap map[string]string
+
+func (s SortedMap) Keys() []string {
+	keys := make([]string, 0)
+	for k, _ := range s {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

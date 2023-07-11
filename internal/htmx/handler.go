@@ -1,7 +1,6 @@
 package htmx
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/google/martian/log"
@@ -28,7 +27,7 @@ func MakeHandler(endpoint Endpoint, renderer Renderer) http.HandlerFunc {
 
 		user := auth.UserFromContext(ctx)
 		if endpoint.RequiresAuth && user == nil {
-			renderer.RenderError(w, r, fmt.Errorf("you must be logged in to do that"))
+			Redirect(w, "/")
 			return
 		}
 
