@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +15,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
@@ -79,13 +79,15 @@ func (cfg AppConfig) validate() error {
 }
 
 func mustLoadAppConfig() AppConfig {
-	if !fileExists(".env") {
-		log.Fatalf("missing .env file!")
-	}
+	if os.Getenv(envvars.Env) == "DEV" {
+		if !fileExists(".env") {
+			log.Fatalf("missing .env file!")
+		}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("loading .env: %s", err)
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatalf("loading .env: %s", err)
+		}
 	}
 
 	authSecret, err := hex.DecodeString(os.Getenv(envvars.AuthSecret))
