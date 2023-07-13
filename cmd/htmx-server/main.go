@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
-	"mime"
 	"net/http"
 	"os"
 	"strings"
@@ -182,28 +181,7 @@ func main() {
 	r.Group(flowingTransport)
 	r.Group(staticTransport)
 
-	builtinTypesLower := map[string]string{
-		".css":  "text/css; charset=utf-8",
-		".gif":  "image/gif",
-		".html": "text/html; charset=utf-8",
-		".jpeg": "image/jpeg",
-		".jpg":  "image/jpeg",
-		".js":   "text/javascript; charset=utf-8",
-		".json": "application/json",
-		".png":  "image/png",
-		".svg":  "image/svg+xml",
-		".webp": "image/webp",
-		".xml":  "text/xml; charset=utf-8",
-	}
-	for ext, typ := range builtinTypesLower {
-		err := mime.AddExtensionType(ext, typ)
-		if err != nil {
-			log.Fatalf("add .css extension: %s", err.Error())
-		}
-	}
-
 	staticFS := http.FileServer(http.Dir("www/static"))
-
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))
 	r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
 	r.Handle("/.well-known/*", http.StripPrefix("/.well-known/", wellknownFS))
