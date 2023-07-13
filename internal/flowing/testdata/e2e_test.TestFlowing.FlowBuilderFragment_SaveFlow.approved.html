@@ -1,0 +1,85 @@
+<div class="container container-fluid flows-list-wrapper">
+  <div class="row pb-3 pt-3">
+    <div class="col">
+      <h2>
+        Flows
+      </h2>
+    </div>
+    <div class="col text-end">
+      <button class="btn btn-info" hx-push-url="true" hx-target="#content-root" hx-get="/flows/new">
+        New
+      </button>
+    </div>
+  </div>
+  <hr class="text-info mb-5 mt-0">
+  <table class="table table-striped table-hover" width="100%">
+    <tr>
+      <th scope="col">
+        Name
+      </th>
+      <th scope="col" class="d-none d-lg-table-cell">
+        # rules
+      </th>
+      <th scope="col">
+        Last Changed
+      </th>
+      <th scope="col"></th>
+    </tr>
+    <tr id="flow-123" class="fade-out">
+      <th scope="row" class="py-3 clickable" hx-get="/flows/123/edit" hx-push-url="true" hx-target="#content-root" hx-trigger="click">
+        Test Flow A
+      </th>
+      <td class="py-3 d-none d-lg-table-cell">
+        1 rule
+      </td>
+      <td class="py-3 last-changed">DATE PLACEHOLDER</td>
+      <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+        <a hx-delete="/flows/123" hx-target="#flow-123" hx-swap="outerHTML swap:1s" hx-confirm="Delete flow &#39;Test Flow A&#39;?" class="button button-secondary">
+          <i class="fa fa-trash"></i>
+        </a>
+      </td>
+    </tr>
+    <tr id="flow-567" class="fade-out">
+      <th scope="row" class="py-3 clickable" hx-get="/flows/567/edit" hx-push-url="true" hx-target="#content-root" hx-trigger="click">
+        Test Flow B
+      </th>
+      <td class="py-3 d-none d-lg-table-cell">
+        1 rule
+      </td>
+      <td class="py-3 last-changed">DATE PLACEHOLDER</td>
+      <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+        <a hx-delete="/flows/567" hx-target="#flow-567" hx-swap="outerHTML swap:1s" hx-confirm="Delete flow &#39;Test Flow B&#39;?" class="button button-secondary">
+          <i class="fa fa-trash"></i>
+        </a>
+      </td>
+    </tr>
+    <tr id="flow-998" class="fade-out">
+      <th scope="row" class="py-3 clickable" hx-get="/flows/998/edit" hx-push-url="true" hx-target="#content-root" hx-trigger="click">
+        Test Flow C
+      </th>
+      <td class="py-3 d-none d-lg-table-cell">
+        0 rule
+      </td>
+      <td class="py-3 last-changed">DATE PLACEHOLDER</td>
+      <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+        <a hx-delete="/flows/998" hx-target="#flow-998" hx-swap="outerHTML swap:1s" hx-confirm="Delete flow &#39;Test Flow C&#39;?" class="button button-secondary">
+          <i class="fa fa-trash"></i>
+        </a>
+      </td>
+    </tr>
+    <tr id="flow-UUID-PLACEHOLDER" class="fade-out">
+      <th scope="row" class="py-3 clickable" hx-get="/flows/UUID-PLACEHOLDER/edit" hx-push-url="true" hx-target="#content-root" hx-trigger="click">
+        Hello Flow
+      </th>
+      <td class="py-3 d-none d-lg-table-cell">
+        1 rule
+      </td>
+      <td class="py-3 last-changed">DATE PLACEHOLDER</td>
+      <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
+        <a hx-delete="/flows/UUID-PLACEHOLDER" hx-target="#flow-UUID-PLACEHOLDER" hx-swap="outerHTML swap:1s" hx-confirm="Delete flow &#39;Hello Flow&#39;?" class="button button-secondary">
+          <i class="fa fa-trash"></i>
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>

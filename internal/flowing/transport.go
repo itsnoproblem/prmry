@@ -134,7 +134,7 @@ func decodeFlowBuilderDeleteRuleRequest(ctx context.Context, request *http.Reque
 	}, nil
 }
 
-type flowBuilderFormRequest struct {
+type FlowBuilderFormRequest struct {
 	ID              string      `json:"id"`
 	Name            string      `json:"name"`
 	RequireAll      string      `json:"requireAll"`
@@ -154,7 +154,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		return flowcmp.Detail{}, fmt.Errorf("readForm: request was null")
 	}
 
-	var req flowBuilderFormRequest
+	var req FlowBuilderFormRequest
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
@@ -204,7 +204,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	}
 
 	if len(fieldNames) != len(conditionTypes) || len(fieldNames) != len(conditionValues) {
-		return flowcmp.Detail{}, fmt.Errorf("readForm: condition fields mismatch")
+		return flowcmp.Detail{}, fmt.Errorf("decodeFlowBuilderRequest: condition fields mismatch")
 	}
 
 	promptArgs := make([]flowcmp.PromptArg, 0)

@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/approvals/go-approval-tests/reporters"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"testing"
 
 	"github.com/approvals/go-approval-tests"
+	"github.com/approvals/go-approval-tests/reporters"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
@@ -60,7 +61,7 @@ func TestFlowing(t *testing.T) {
 		RequestPayload interface{}
 	}{
 		{
-			Name:           "FlowBuilder Page",
+			Name:           "FlowBuilderPage",
 			Method:         http.MethodGet,
 			Path:           "/flows/new",
 			FullPage:       true,
@@ -68,7 +69,7 @@ func TestFlowing(t *testing.T) {
 			RequestPayload: nil,
 		},
 		{
-			Name:           "FlowBuilder Fragment",
+			Name:           "FlowBuilderFragment",
 			Method:         http.MethodGet,
 			Path:           "/flows/new",
 			FullPage:       false,
@@ -76,30 +77,131 @@ func TestFlowing(t *testing.T) {
 			RequestPayload: nil,
 		},
 		{
-			Name:           "FlowBuilder Fragment AddRule",
+			Name:           "FlowBuilderFragment Add Rule",
 			Method:         http.MethodPost,
 			Path:           "/flows/new/rules",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
-			RequestPayload: requestPayloadNewRule{
-				Id:         "",
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:         "",
 				Name:       "",
 				Prompt:     "",
 				RequireAll: "false",
 			},
 		},
 		{
-			Name:           "FlowBuilder Fragment DeleteRule",
+			Name:           "FlowBuilderFragment Delete Rule",
 			Method:         http.MethodDelete,
 			Path:           "/flows/new/rules/0",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
-			RequestPayload: requestPayloadNewRule{
-				Id:         "",
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:         "",
 				Name:       "",
 				Prompt:     "",
 				RequireAll: "false",
 			},
+		},
+		{
+			Name:           "FlowBuilderFragment Update Prompt",
+			Method:         http.MethodPut,
+			Path:           "/flows/new/prompt",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:         "",
+				Name:       "Test Flow",
+				Prompt:     "The quick brown %s jumps over the hill",
+				RequireAll: "false",
+			},
+		},
+		{
+			Name:           "FlowBuilderFragment Select Prompt Replacement",
+			Method:         http.MethodPut,
+			Path:           "/flows/new/prompt",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:         "",
+				Name:       "Hello Flow",
+				Prompt:     "respond to this text with a greeting: %s",
+				RequireAll: "false",
+				PromptArgs: "input message",
+			},
+		},
+		{
+			Name:           "FlowBuilderFragment Select Multiple Prompt Replacements",
+			Method:         http.MethodPut,
+			Path:           "/flows/new/prompt",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:              "",
+				Name:            "Hello Flow",
+				FieldNames:      "input message",
+				ConditionTypes:  "does not equal",
+				ConditionValues: "X",
+				Prompt:          "respond to this text with a greeting: %s",
+				PromptArgs: []string{
+					"interaction result from another flow",
+					"input message",
+				},
+				PromptArgFlows: "123",
+				RequireAll:     "false",
+			},
+		},
+		{
+			Name:           "FlowBuilderFragment SaveFlow",
+			Method:         http.MethodPost,
+			Path:           "/flows",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: flowing.FlowBuilderFormRequest{
+				ID:              "",
+				Name:            "Hello Flow",
+				FieldNames:      "input message",
+				ConditionTypes:  "does not equal",
+				ConditionValues: "X",
+				Prompt:          "respond to this text with a greeting: %s",
+				PromptArgs: []string{
+					"interaction result from another flow",
+					"input message",
+				},
+				PromptArgFlows: "123",
+				RequireAll:     "false",
+			},
+		},
+		{
+			Name:           "ListFlowsPage",
+			Method:         http.MethodGet,
+			Path:           "/flows",
+			FullPage:       true,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: nil,
+		},
+		{
+			Name:           "ListFlowsFragment",
+			Method:         http.MethodGet,
+			Path:           "/flows",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: nil,
+		},
+		{
+			Name:           "EditFlowPage",
+			Method:         http.MethodGet,
+			Path:           "/flows/123/edit",
+			FullPage:       true,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: nil,
+		},
+		{
+			Name:           "EditFlowFragment",
+			Method:         http.MethodGet,
+			Path:           "/flows/123/edit",
+			FullPage:       false,
+			WantStatusCode: http.StatusOK,
+			RequestPayload: nil,
 		},
 	}
 
@@ -128,9 +230,21 @@ func TestFlowing(t *testing.T) {
 				req.Header.Add(htmx.HeaderHXRequest, "true")
 			}
 
-			resp, err := client.Do(req)
-			if err != nil {
-				t.Fatalf("Get error: %v", err)
+			var resp *http.Response
+
+			for resp == nil || resp.Header.Get(htmx.HeaderHXRedirect) != "" {
+				if resp != nil {
+					req.Method = http.MethodGet
+					originalURL := req.URL
+					originalURL.Path = resp.Header.Get(htmx.HeaderHXRedirect)
+
+					t.Logf("[%s] %s", req.Method, originalURL.String())
+				}
+
+				resp, err = client.Do(req)
+				if err != nil {
+					t.Fatalf("Get error: %v", err)
+				}
 			}
 
 			if resp.StatusCode != tt.WantStatusCode {
@@ -142,8 +256,20 @@ func TestFlowing(t *testing.T) {
 				t.Errorf("io.ReadAll error: %v", err)
 			}
 
-			extensionOpt := approvals.Options().WithExtension("html")
-			approvals.VerifyString(t, string(data[:]), extensionOpt)
+			dateScrubber, err := regexp.Compile("last-changed\">[\t\n\f\r ]?(.*)[\t\n\f\r ]+?<")
+			if err != nil {
+				t.Fatalf("dateScrubber: %s", err)
+			}
+
+			uuidScrubber, err := regexp.Compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+			if err != nil {
+				t.Fatalf("uuidScrubber: %s", err)
+			}
+
+			opts := approvals.Options().WithRegexScrubber(dateScrubber, "last-changed\">DATE PLACEHOLDER<")
+			opts = opts.WithRegexScrubber(uuidScrubber, "UUID-PLACEHOLDER")
+			opts = opts.WithExtension("html")
+			approvals.VerifyString(t, string(data[:]), opts)
 		})
 	}
 
@@ -177,8 +303,7 @@ func createSomeFlows(ctx context.Context, userID string, repo flowing.FlowsRepo)
 	fakeRules := []flow.Rule{
 		flow.Rule{
 			Field: flow.Field{
-				Source: "fakeSource",
-				Value:  "fakeValue",
+				Source: flow.FieldSourceInput,
 			},
 			Condition: "equals",
 			Value:     "test",
@@ -191,18 +316,24 @@ func createSomeFlows(ctx context.Context, userID string, repo flowing.FlowsRepo)
 			UserID: userID,
 			Name:   "Test Flow A",
 			Rules:  fakeRules,
+			Prompt: "Tell me a story based on this text: %s",
+			PromptArgs: []flow.Field{
+				{
+					Source: flow.FieldSourceInput,
+				},
+			},
 		},
 		flow.Flow{
 			ID:     "567",
 			UserID: userID,
-			Name:   "Test Flow A",
+			Name:   "Test Flow B",
 			Rules:  fakeRules,
 		},
 		flow.Flow{
 			ID:     "998",
 			UserID: userID,
-			Name:   "Test Flow A",
-			Rules:  fakeRules,
+			Name:   "Test Flow C",
+			Rules:  nil,
 		},
 	}
 

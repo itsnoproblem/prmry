@@ -433,7 +433,7 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 		// For
 		for _, value := range options.Keys() {
 			// If
-			if options[value] == selected {
+			if value == selected {
 				// Element (standard)
 				_, err = templBuffer.WriteString("<option")
 				if err != nil {
@@ -1054,7 +1054,7 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
+		_, err = templBuffer.WriteString(" class=\"form-floating pb-4\"")
 		if err != nil {
 			return err
 		}
@@ -1138,7 +1138,7 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"text-body-secondary pb-1\"")
+		_, err = templBuffer.WriteString(" class=\"text-body-secondary pb-2\"")
 		if err != nil {
 			return err
 		}

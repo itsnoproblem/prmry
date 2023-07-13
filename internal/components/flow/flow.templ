@@ -51,7 +51,7 @@ templ FlowsList(view FlowsListView) {
                         {f.Name}
                     </th>
                     <td class="py-3 d-none d-lg-table-cell">{ f.RuleCount }</td>
-                    <td class="py-3">{ f.LastChanged }</td>
+                    <td class="py-3 last-changed">{ f.LastChanged }</td>
                     <td class="py-3" align="right" hx-disinherit="hx-get hx-push-url hx-trigger">
                         <a hx-delete={ "/flows/" + f.ID }
                            hx-target={ "#flow-" + f.ID }

@@ -2,13 +2,13 @@
   <input type="hidden" name="id" value="">
   <div class="row">
     <div class="col col-5">
-      <div class="form-floating mb-3">
+      <div class="form-floating pb-4">
         <input name="name" type="text" class="form-control" placeholder="Welcome Flow" value="">
         <label for="name">
           Flow Name
         </label>
       </div>
-      <div class="text-body-secondary pb-1">
+      <div class="text-body-secondary pb-2">
         Trigger this flow when
       </div>
       <div class="container pb-3">
@@ -56,68 +56,9 @@
       </div>
       <hr class="text-info mb-5 mt-0">
       <div id="rules-container" class="container pb-4">
-        <div class="row flow-rule fade-in">
-          <div class="col">
-            <div class="form-floating mb-3">
-              <select name="fieldName" class="form-select form-select-md" aria-label="Field Name" hx-put="/flows/new/prompt">
-                <option></option>
-                <option value="input message">
-                  Input Message
-                </option>
-                <option value="interaction result from another flow">
-                  Output from another Flow
-                </option>
-                <option value="moderation result">
-                  A Moderation result
-                </option>
-              </select>
-              <label>
-                Field Name
-              </label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-floating mb-3">
-              <select name="condition" class="form-select form-select-md" aria-label="Condition" hx-put="/flows/new/prompt">
-                <option></option>
-                <option value="contains">
-                  contains
-                </option>
-                <option value="does not contain">
-                  does not contain
-                </option>
-                <option value="equals">
-                  equals
-                </option>
-                <option value="does not equal">
-                  does not equal
-                </option>
-                <option value="starts with">
-                  starts with
-                </option>
-                <option value="ends with">
-                  ends with
-                </option>
-              </select>
-              <label>
-                Condition
-              </label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-floating mb-3">
-              <input type="text" name="value" id="value" class="form-control form-control-md" placeholder="Value" value="">
-              <label for="value">
-                Value
-              </label>
-            </div>
-          </div>
-          <div class="col-1 pt-3">
-            <a hx-delete="/flows/new/rules/0" hx-target="#content-root" class="button-secondary">
-              <i class="fa fa-close"></i>
-            </a>
-          </div>
-        </div>
+        <h2 class="text-body-secondary text-body-secondary">
+          No rules yet
+        </h2>
       </div>
     </div>
   </div>

@@ -67,7 +67,7 @@ templ FieldSelector(name string, options SortedMap, selected, label string) {
     >
         <option></option>
         for _, value := range options.Keys() {
-            if options[value] == selected {
+            if value == selected {
                 <option value={ value } selected="true">{ options[value] }</option>
             } else {
                 <option value={ value }>{ options[value] }</option>
@@ -147,7 +147,7 @@ templ RuleBuilder(view Detail) {
 }
 
 templ FlowOptions(view Detail) {
-    <div class="form-floating mb-3">
+    <div class="form-floating pb-4">
         <input name="name"
                type="text"
                class="form-control"
@@ -157,13 +157,13 @@ templ FlowOptions(view Detail) {
         <label for="name">Flow Name</label>
     </div>
 
-    <div class="text-body-secondary pb-1">Trigger this flow when</div>
+    <div class="text-body-secondary pb-2">Trigger this flow when</div>
     <div class="container pb-3">
         <div class="form-check">
             if view.RequireAll {
-            <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
+                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
             } else {
-            <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true"/>
+                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true"/>
             }
             <label class="form-check-label" for="require-all-true">
                 <em>ALL</em> rules match
@@ -171,9 +171,9 @@ templ FlowOptions(view Detail) {
         </div>
         <div class="form-check">
             if view.RequireAll {
-            <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false"/>
+                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false"/>
             } else {
-            <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
+                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
             }
             <label class="form-check-label" for="require-all-false">
                 <em>ANY</em> rule matches
@@ -198,7 +198,7 @@ templ FlowOptions(view Detail) {
 
     <div class="mb-3">
         if len(view.PromptArgs) > 0 {
-        <div class="mb-2 text-body-secondary">Replacements:</div>
+            <div class="mb-2 text-body-secondary">Replacements:</div>
         }
 
         for j, arg := range view.PromptArgs {
@@ -207,9 +207,9 @@ templ FlowOptions(view Detail) {
                 @FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + fmt.Sprint(j))
             </div>
             if arg.Source == flow.FieldSourceFlow {
-            <div class="form-floating col">
-                @FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
-            </div>
+                <div class="form-floating col">
+                    @FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
+                </div>
             }
         </div>
         }

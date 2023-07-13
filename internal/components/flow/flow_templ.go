@@ -440,7 +440,7 @@ func FlowsList(view FlowsListView) templ.Component {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"py-3\"")
+			_, err = templBuffer.WriteString(" class=\"py-3 last-changed\"")
 			if err != nil {
 				return err
 			}

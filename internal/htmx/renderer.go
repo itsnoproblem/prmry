@@ -1,11 +1,11 @@
 package htmx
 
 import (
-	"github.com/yosssi/gohtml"
 	"io"
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/yosssi/gohtml"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
