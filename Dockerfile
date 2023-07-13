@@ -10,7 +10,7 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 
 COPY . .
 RUN templ generate ./
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o htmx-server ./cmd/htmx-server
+RUN GOOS=linux go build -o htmx-server ./cmd/htmx-server
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
@@ -26,7 +26,6 @@ ARG GITHUB_CLIENT_SECRET
 ARG GOOGLE_CLIENT_ID
 ARG GOOGLE_CLIENT_SECRET
 ARG JAWSDB_URL
-ARG LISTEN_ADDRESS
 ARG OPEN_AI_KEY
 ARG PAPERTRAIL_API_TOKEN
 ARG SESSION_SECRET
@@ -41,32 +40,14 @@ ENV GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET
 ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 ENV GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
 ENV JAWSDB_URL=$JAWSDB_URL
-ENV LISTEN_ADDRESS=":$PORT"
+ENV LISTEN_PORT=$PORT
 ENV OPEN_AI_KEY=$OPEN_AI_KEY
 ENV PAPERTRAIL_API_TOKEN=$PAPERTRAIL_API_TOKEN
 ENV SESSION_SECRET=$SESSION_SECRET
 
-ENV APP_URL=""
-ENV DB_HOST=""
-ENV DB_NAME=""
-ENV DB_PASS=""
-ENV DB_USER=""
-ENV GITHUB_CLIENT_ID=""
-ENV GITHUB_CLIENT_SECRET=""
-ENV GOOGLE_CLIENT_ID=""
-ENV GOOGLE_CLIENT_SECRET=""
-ENV JAWSDB_URL=""
-ENV LISTEN_ADDRESS=""
-ENV OPEN_AI_KEY=""
-ENV PAPERTRAIL_API_TOKEN=""
-ENV SESSION_SECRET=""
-
 WORKDIR /root/
 
 COPY --from=builder /app/htmx-server .
+COPY --from=builder /app/www ./www
 
-# Expose port to the outside world
-EXPOSE 5000
-
-#Command to run the executable
 CMD [ "./htmx-server" ]

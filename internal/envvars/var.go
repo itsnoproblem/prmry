@@ -4,7 +4,7 @@ const (
 	Env                = "ENV"
 	AppURL             = "APP_URL"
 	OpenAIKey          = "OPEN_AI_KEY"
-	ListenPort         = "LISTEN_PORT"
+	ListenPort         = "PORT"
 	DbHost             = "DB_HOST"
 	DbUser             = "DB_USER"
 	DbPass             = "DB_PASS"

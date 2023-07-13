@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"mime"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -79,13 +81,10 @@ func (cfg AppConfig) validate() error {
 }
 
 func mustLoadAppConfig() AppConfig {
-	if os.Getenv(envvars.Env) == "DEV" {
-		if !fileExists(".env") {
-			log.Fatalf("missing .env file!")
-		}
 
-		err := godotenv.Load()
-		if err != nil {
+	if fileExists(".env") {
+		log.Println("Loading .env file...")
+		if err := godotenv.Load(); err != nil {
 			log.Fatalf("loading .env: %s", err)
 		}
 	}
@@ -111,6 +110,10 @@ func mustLoadAppConfig() AppConfig {
 		SessionSecret:      os.Getenv(envvars.SessionSecret),
 		AuthSecret:         authSecret,
 	}
+
+	//if debug, err := json.Marshal(cfg); err == nil {
+	//	log.Printf("%s", string(debug))
+	//}
 
 	if err := cfg.validate(); err != nil {
 		log.Fatalf("app config: %s", err.Error())
@@ -179,13 +182,35 @@ func main() {
 	r.Group(flowingTransport)
 	r.Group(staticTransport)
 
+	builtinTypesLower := map[string]string{
+		".css":  "text/css; charset=utf-8",
+		".gif":  "image/gif",
+		".html": "text/html; charset=utf-8",
+		".jpeg": "image/jpeg",
+		".jpg":  "image/jpeg",
+		".js":   "text/javascript; charset=utf-8",
+		".json": "application/json",
+		".png":  "image/png",
+		".svg":  "image/svg+xml",
+		".webp": "image/webp",
+		".xml":  "text/xml; charset=utf-8",
+	}
+	for ext, typ := range builtinTypesLower {
+		err := mime.AddExtensionType(ext, typ)
+		if err != nil {
+			log.Fatalf("add .css extension: %s", err.Error())
+		}
+	}
+
 	staticFS := http.FileServer(http.Dir("www/static"))
+
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))
 	r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
 	r.Handle("/.well-known/*", http.StripPrefix("/.well-known/", wellknownFS))
 
-	log.Println("Listening on " + appConfig.ListenPort)
-	if err := http.ListenAndServe(":"+appConfig.ListenPort, r); err != nil {
+	port := ":" + strings.TrimPrefix(appConfig.ListenPort, ":")
+	log.Println("Listening on " + port)
+	if err := http.ListenAndServe(port, r); err != nil {
 		panic(err)
 	}
 }
