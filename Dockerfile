@@ -15,6 +15,21 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o htmx-server ./cmd
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
+ENV APP_URL=""
+ENV DB_HOST=""
+ENV DB_NAME=""
+ENV DB_PASS=""
+ENV DB_USER=""
+ENV GITHUB_CLIENT_ID=""
+ENV GITHUB_CLIENT_SECRET=""
+ENV GOOGLE_CLIENT_ID=""
+ENV GOOGLE_CLIENT_SECRET=""
+ENV JAWSDB_URL=""
+ENV LISTEN_ADDRESS=""
+ENV OPEN_AI_KEY=""
+ENV PAPERTRAIL_API_TOKEN=""
+ENV SESSION_SECRET=""
+
 WORKDIR /root/
 
 COPY --from=builder /app/htmx-server .
