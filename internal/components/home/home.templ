@@ -1,0 +1,28 @@
+package home
+
+import (
+    "github.com/itsnoproblem/prmry/internal/auth"
+    "github.com/itsnoproblem/prmry/internal/components"
+)
+
+templ HomePage(view HomeView) {
+    @components.Page(&view) {
+        <div>
+            @HomeFragment(view)
+        </div>
+    }
+}
+
+templ HomeFragment(view HomeView) {
+    if view.User() == nil {
+        @Login(view)
+    } else {
+        @Dashboard(*view.User())
+    }
+}
+
+templ Dashboard(user auth.User) {
+    <h1>Welcome { user.Name }</h1>
+    <div></div> 
+}
+

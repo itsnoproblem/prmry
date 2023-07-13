@@ -1,1 +1,1 @@
-web: ./bin/htmx-server
+web: ./scripts/server.sh

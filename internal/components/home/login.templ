@@ -1,0 +1,20 @@
+package home
+
+templ Login(view HomeView) {
+    <div class="row pb-4">
+        <div class="col text-center">
+            <div class="pb-4">Login with </div>
+            for id, name := range view.ProvidersMap {
+
+                    <a hx-get={ "/auth/"+id }
+                        hx-target="#content-root"
+                        class="btn btn-dark oauth-provider"
+                    >
+                        <span class={ "fa fa-"+id }></span>
+                        { name }
+                    </a>
+
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,82 @@
+package chat
+
+import (
+	"strconv"
+
+	"github.com/itsnoproblem/prmry/internal/components"
+	"github.com/itsnoproblem/prmry/internal/flow"
+	"github.com/itsnoproblem/prmry/internal/interaction"
+)
+
+type DetailView struct {
+	Prompt       string
+	PromptHTML   string
+	Date         string
+	ResponseText string
+	ResponseHTML string
+	FlowID       string
+	FlowName     string
+	Model        string
+	Usage        ChatUsageView
+	components.BaseComponent
+}
+
+type ChatUsageView struct {
+	PromptTokens     string
+	CompletionTokens string
+	TotalTokens      string
+}
+
+type FlowSelector struct {
+	Flows        []Flow
+	SelectedFlow string
+}
+
+type Flow struct {
+	ID   string
+	Name string
+}
+
+func NewFlowSelector(flows []flow.Flow, selectedFlow string) FlowSelector {
+	flws := make([]Flow, 0)
+	for _, flw := range flows {
+		flws = append(flws, Flow{
+			ID:   flw.ID,
+			Name: flw.Name,
+		})
+	}
+
+	return FlowSelector{
+		Flows:        flws,
+		SelectedFlow: selectedFlow,
+	}
+}
+
+type ChatControlsView struct {
+	FlowSelector FlowSelector
+	components.BaseComponent
+}
+
+type ChatResponseView struct {
+	Interaction DetailView
+	Controls    ChatControlsView
+	components.BaseComponent
+}
+
+func NewChatDetailView(ixn interaction.Interaction) DetailView {
+	return DetailView{
+		Prompt:       ixn.Request.Prompt,
+		PromptHTML:   ixn.PromptHTML(),
+		Date:         ixn.CreatedAt.Format("Monday, January 2, 2006 at 3:04pm"),
+		ResponseText: ixn.ResponseText(),
+		ResponseHTML: ixn.ResponseHTML(),
+		FlowID:       ixn.FlowID,
+		FlowName:     ixn.FlowName,
+		Model:        ixn.Response.Model,
+		Usage: ChatUsageView{
+			PromptTokens:     strconv.Itoa(ixn.Response.Usage.PromptTokens),
+			CompletionTokens: strconv.Itoa(ixn.Response.Usage.CompletionTokens),
+			TotalTokens:      strconv.Itoa(ixn.Response.Usage.TotalTokens),
+		},
+	}
+}

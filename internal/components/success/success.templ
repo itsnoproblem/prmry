@@ -1,0 +1,19 @@
+package success
+
+import "github.com/itsnoproblem/prmry/internal/components"
+
+templ SuccessPage(sv SuccessView) {
+    @components.Page(&sv) {
+        @Success(sv)
+    }
+}
+
+templ Success(sv SuccessView) {
+    <div id="notices" hx-swap-oob="true">
+        <div class="alert alert-info alert-dismissible" role="alert">
+            { sv.Message }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+

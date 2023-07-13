@@ -1,0 +1,15 @@
+package legal
+
+templ BackArrow() {
+    <div class="back-arrow pb-3">
+        <a class="btn btn-link"
+           aria-label="go back"
+           hx-get="/"
+           hx-target="#content-root"
+           hx-push-url="true"
+        >
+            <span class="fa fa-circle-left" aria-hidden="true"></span>
+            &nbsp; go back
+        </a>
+    </div>
+}

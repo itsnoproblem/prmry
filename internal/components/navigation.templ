@@ -1,0 +1,160 @@
+package components
+
+templ TopNavigation(cmp Component) {
+    <nav class="navbar navbar-expand-lg bg-body-primary mb-3 mt-1">
+        <div class="container-fluid">
+            if cmp.User() != nil {
+                @ProfileNavButton(cmp)
+            }
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="top-nav"
+                 class="collapse navbar-collapse justify-content-left"
+                 hx-swap-oob={ TrueFalse(cmp.IsOOB()) }
+            >
+                if cmp.User() != nil {
+                    @UserNavigation(cmp)
+                } else {
+                    @GuestNavigation()
+                }
+            </div>
+        </div>
+    </nav>
+}
+
+templ GuestNavigation() {
+    <ul hx-target="#content-root"
+        hx-push-url="true"
+        class="navbar-nav guest-nav mb-2 mt-2 mb-lg-0"
+    >
+        <li class="nav-item m-auto">
+            <a class="nav-link" title="Home" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+               hx-get="/"
+            >
+                <img src="/static/prmry.png" class="navbar-img"/>
+            </a>
+        </li>
+        <li class="nav-item m-auto">
+            <a class="nav-link" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+               hx-get="/legal/terms"
+            >
+                TOS
+            </a>
+        </li>
+        <li class="divider d-none d-md-block pt-1  m-auto">&nbsp;|&nbsp</li>
+        <li class="nav-item  m-auto">
+            <a class="nav-link" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+               hx-get="/legal/privacy"
+            >
+                Privacy
+            </a>
+        </li>
+        <li class="divider d-none d-md-block pt-1 m-auto">&nbsp;|&nbsp</li>
+        <li class="nav-item m-auto">
+            <a class="nav-link"
+               title="Source Code"
+               target="_blank"
+               href="https://github.com/itsnoproblem/prmry"
+            >
+                Source Code
+            </a>
+        </li>
+    </ul>
+}
+
+templ ProfileNavButton(cmp Component) {
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle"
+           role="button"
+           data-bs-toggle="dropdown"
+           aria-expanded="false"
+        >
+            <img class="img-fluid navbar-avatar" alt={cmp.User().Name} src={ cmp.User().AvatarURL }/>
+        </a>
+
+        <ul class="dropdown-menu"
+            hx-target="#content-root"
+            hx-push-url="true"
+        >
+            <li>
+                <a class="dropdown-item"
+                   hx-get="/account"
+                   data-bs-toggle="collapse"
+                   data-bs-target=".navbar-collapse.show"
+                >Profile</a>
+            </li>
+            <li>
+                <a class="dropdown-item"
+                   href="#"
+                   data-bs-toggle="collapse"
+                   data-bs-target=".navbar-collapse.show"
+                >Settings</a>
+            </li>
+            <li><hr class="dropdown-divider"/></li>
+            <li>
+                <a class="dropdown-item" href={ templ.SafeURL("/auth/logout/"+cmp.User().Provider) }>Log out</a>
+            </li>
+            <li><hr class="dropdown-divider"/></li>
+            <li>
+                <a class="dropdown-item" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+                   hx-get="/legal/terms"
+                >
+                    TOS
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"
+                   hx-get="/legal/privacy"
+                >
+                    Privacy
+                </a>
+            </li>
+        </ul>
+    </li>
+}
+
+templ UserNavigation(cmp Component) {
+    <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end">
+
+        <li class="nav-item">
+            <a class="nav-link"
+               title="Flows"
+               hx-get="/flows"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <span class="d-lg-none">Flows</span>&nbsp;
+                <i class="fa fa-circle-nodes fa-2x"></i>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               title="Interact"
+               hx-get="/interactions/chat"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <span class="d-lg-none">Interact</span>&nbsp;
+                <i class="fa fa-message fa-2x" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li nav-class="nav-item">
+            <a class="nav-link"
+               title="Interactions"
+               hx-get="/interactions"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <span class="d-lg-none">Interactions</span>&nbsp;
+                <i class="fa fa-list fa-2x"></i>
+            </a>
+        </li>
+    </ul>
+}
