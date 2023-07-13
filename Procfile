@@ -1,1 +1,1 @@
-web: ./scripts/server.sh
+web: go run ./cmd/htmx-server
