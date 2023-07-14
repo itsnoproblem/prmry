@@ -9,11 +9,13 @@
 * [Local deployment](#local-deployment)
 * [Design](#design)
 * [Components](#components)
-* [Reference](#reference)
+* [Resources](#resources)
 * [Contributing](#contributing)
 <!-- TOC -->
 
 ## Local deployment
+
+*Requires Go 1.20*
 
 1. Create a .env file and configure the app:
    ```shell
@@ -24,27 +26,38 @@
    ```shell
    docker-compose up -d
    ```
-3. Run the app:
-   
-   *either* using the wrapper script (will restart the process if any .templ files change): 
+3. Once the DB is initialized, and you see "ready for connections" in the mysql container logs, run the DB migrations:
+   ```shell
+   ./scripts/goose.sh up
    ```
+4. Run the app:
+   
+   *either* using the wrapper scripts (**watch.sh** will restart the process if any **.templ** file changes): 
+   ```
+   ./scripts/server.sh
+   
+   # OR
+   
    ./scripts/watch.sh
    ```
+   **watch.sh** will restart the process if a **.templ** file changes.  In both cases the scripts run: 
+   ```shell
+   templ generate && go run ./cmd/htmx-server
+   ```
    
-   *or* via Heroku using the included _Procfile_: 
-     ```
-     heroku local
-     ```
-
 #  Design
-This application renders HTML markup server-side, using the [Templ templating language](https://templ.guide/) to define components which are (_very_) loosely similar to React components, but written in Go. Interactivity and SPA behavior is achieved with HTMX, an extension to HTML that extends its capability via `hx-*` attributes, which allow behavior to be defined in the HTML markup.  For example to trigger a `GET` request from a button click, a button element could be defined like so: 
+This application renders HTML markup server-side, using the [Templ templating language](https://templ.guide/) to define components which are (_very_) loosely similar to React components. 
+
+Interactivity and SPA behavior are achieved with HTMX, an extension to HTML that extends its capabilities via certain `hx-*` attributes, allowing a component's behavior to be defined directly in the HTML markup.  
+
+For example to trigger a `GET` request from a button click, a button element could be defined like: 
 ```html
 <button hx-get="/do-something" hx-trigger="click">
   Do Something
 </button>
 ```
 
-More about the hypertext-focused design in the [References](#references) below.
+More about the hypertext-focused design in the [Resources](#resources) below.
 
 ### Components
 Components live in the [components](internal/components) package, and are defined by 3 files:
@@ -79,12 +92,14 @@ templ ProfilePage(view ProfileView) {
 ```
 
 
-### Reference
+### Resources
 
 - [HTMX](https://htmx.org/docs/)
 - [Locality of Behavior (LoB)](https://htmx.org/essays/locality-of-behaviour/)
 - [Islands Architecture](https://github.com/bensmithett/tropical-utils/tree/main/packages/tropical-islands) / [discussion](https://www.patterns.dev/posts/islands-architecture)
 - [HATEOAS](https://htmx.org/essays/hateoas/)
+- [Templ Templating](https://templ.guide/)
+- [Chi HTTP Router](https://github.com/go-chi/chi)
 
 ## Contributing
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/fraction/readme-boilerplate/compare/).
