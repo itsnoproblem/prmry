@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
-	gogpt "github.com/sashabaranov/go-gpt3"
+	openai "github.com/sashabaranov/go-openai"
 
 	"github.com/itsnoproblem/prmry/internal/interaction"
 )
@@ -22,7 +21,6 @@ type summaryRow struct {
 	Prompt         string    `db:"prompt"`
 	TokensUsed     int       `db:"tokens_used"`
 	ResponseLength int       `db:"response_length"`
-	Error          string    `db:"err"`
 	FlowID         string    `db:"flow_id"`
 	FlowName       string    `db:"flow_name"`
 	CreatedAt      time.Time `db:"created_at"`
@@ -38,27 +36,31 @@ func (row summaryRow) toSummary() interaction.Summary {
 		Prompt:         row.Prompt,
 		TokensUsed:     row.TokensUsed,
 		ResponseLength: row.ResponseLength,
-		Error:          row.Error,
 		CreatedAt:      row.CreatedAt,
 		UserID:         row.UserID,
 	}
 }
 
 type interactionRow struct {
-	ID        string          `db:"id"`
-	Request   json.RawMessage `db:"request"`
-	Response  json.RawMessage `db:"response"`
-	Error     string          `db:"err"`
-	CreatedAt time.Time       `db:"created_at"`
-	UserID    string          `db:"user_id"`
-	FlowID    string          `db:"flow_id"`
-	FlowName  string          `db:"flow_name"`
+	ID               string          `db:"id"`
+	Type             string          `db:"type"`
+	Model            string          `db:"model"`
+	Prompt           string          `db:"prompt"`
+	Completion       string          `db:"completion"`
+	CompletionTokens int             `db:"completion_tokens"`
+	PromptTokens     int             `db:"prompt_tokens"`
+	Request          json.RawMessage `db:"request"`
+	Response         json.RawMessage `db:"response"`
+	CreatedAt        time.Time       `db:"created_at"`
+	UserID           string          `db:"user_id"`
+	FlowID           string          `db:"flow_id"`
+	FlowName         string          `db:"flow_name"`
 }
 
-func (row interactionRow) toInteraction() (interaction.Interaction, error) {
+func (row *interactionRow) toInteraction() (interaction.Interaction, error) {
 	var (
-		req gogpt.CompletionRequest
-		res gogpt.CompletionResponse
+		req openai.ChatCompletionRequest
+		res openai.ChatCompletionResponse
 	)
 
 	if err := json.Unmarshal(row.Request, &req); err != nil {
@@ -70,14 +72,19 @@ func (row interactionRow) toInteraction() (interaction.Interaction, error) {
 	}
 
 	return interaction.Interaction{
-		ID:        row.ID,
-		Request:   req,
-		Response:  res,
-		Error:     row.Error,
-		CreatedAt: row.CreatedAt,
-		UserID:    row.UserID,
-		FlowID:    row.FlowID,
-		FlowName:  row.FlowName,
+		ID:               row.ID,
+		Type:             row.Type,
+		Model:            row.Model,
+		Prompt:           row.Prompt,
+		Completion:       row.Completion,
+		TokensCompletion: row.CompletionTokens,
+		TokensPrompt:     row.PromptTokens,
+		Request:          req,
+		Response:         res,
+		CreatedAt:        row.CreatedAt,
+		UserID:           row.UserID,
+		FlowID:           row.FlowID,
+		FlowName:         row.FlowName,
 	}, nil
 }
 
@@ -91,17 +98,15 @@ func NewInteractionsRepo(db *sqlx.DB) interactionsRepo {
 	}
 }
 
-func (r *interactionsRepo) Add(ctx context.Context, ixn interaction.Interaction) (id string, err error) {
-	id = uuid.New().String()
-
+func (r *interactionsRepo) Insert(ctx context.Context, ixn interaction.Interaction) (err error) {
 	reqJSON, err := json.Marshal(ixn.Request)
 	if err != nil {
-		return "", fmt.Errorf("sql.interactionsRepo: %s", err)
+		fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
 	resJSON, err := json.Marshal(ixn.Response)
 	if err != nil {
-		return "", fmt.Errorf("sql.interactionsRepo: %s", err)
+		fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
 	sql := `
@@ -109,44 +114,59 @@ func (r *interactionsRepo) Add(ctx context.Context, ixn interaction.Interaction)
 			id,
 			request,
 			response,
-			err,
 			created_at,
 		    user_id, 
-		    flow_id
-		) VALUES (?, ?, ?, ?, ?, ?, ?)
+		    flow_id,
+		    type,
+		    model,
+		    prompt,
+		    completion,
+		    prompt_tokens,
+		    completion_tokens
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err = r.db.ExecContext(ctx, sql,
-		id,
+		ixn.ID,
 		reqJSON,
 		resJSON,
-		ixn.Error,
 		time.Now(),
 		ixn.UserID,
 		ixn.FlowID,
+		ixn.Type,
+		ixn.Model,
+		ixn.Prompt,
+		ixn.Completion,
+		ixn.TokensPrompt,
+		ixn.TokensCompletion,
 	)
 	if err != nil {
-		return "", fmt.Errorf("sql.interactionsRepo: %s", err)
+		return fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
-	return id, nil
-}
-
-func (r *interactionsRepo) Remove(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *interactionsRepo) Interaction(ctx context.Context, id string) (interaction.Interaction, error) {
+func (r *interactionsRepo) Delete(ctx context.Context, id string) error {
+	return fmt.Errorf("sql.interactionsRepo.Delete: not implemented")
+}
+
+func (r *interactionsRepo) GetInteraction(ctx context.Context, id string) (interaction.Interaction, error) {
 	query := `
 		SELECT 
-			i.id, 
-			i.user_id,
-			i.flow_id,
-			IF(f.name IS NULL, '', f.name) AS flow_name,
+			i.id,
 			i.request, 
 			i.response, 
-			i.err, 
-			i.created_at
+			i.created_at,
+			i.user_id,
+			i.flow_id,
+			i.type,
+			i.model,
+			i.prompt,
+			i.completion,
+			i.prompt_tokens,
+			i.completion_tokens,
+			IF(f.name IS NULL, '', f.name) AS flow_name
 		FROM interactions AS i
 		LEFT JOIN flows AS f ON f.id = i.flow_id
 		WHERE i.id = ?
@@ -155,10 +175,11 @@ func (r *interactionsRepo) Interaction(ctx context.Context, id string) (interact
 
 	var ixnRow interactionRow
 	row := r.db.QueryRowxContext(ctx, query, id)
-	err := row.StructScan(&ixnRow)
-
-	if err != nil { // && err == sql.ErrNoRows{
+	if err := row.StructScan(&ixnRow); err != nil {
 		return interaction.Interaction{}, errors.Wrap(err, "interactionsRepo.interaction")
+	}
+	if row == nil {
+		return interaction.Interaction{}, fmt.Errorf("interactionsRepo.interaction: not found for id %s", id)
 	}
 
 	ixn, err := ixnRow.toInteraction()
@@ -174,12 +195,11 @@ func (r *interactionsRepo) Summaries(ctx context.Context) ([]interaction.Summary
 		SELECT 
 		  i.id,
 		  i.user_id,
-		  IFNULL(i.response->>'$.object', '') AS type,
-		  IFNULL(i.request->>'$.model', '') AS model,
-		  IFNULL(i.request->>'$.prompt', '') AS prompt,
-		  IFNULL(i.response->>'$.usage.total_tokens', 0) AS tokens_used,
-		  IFNULL(LENGTH(i.response->>'$.choices[0].text'), 0) AS response_length,
-		  i.err,
+		  i.type,
+		  i.model,
+		  i.prompt,
+		  (i.completion_tokens + i.prompt_tokens) AS tokens_used,
+		  LENGTH(i.response) AS response_length,
 		  i.flow_id,
 		  if(f.name IS NULL, '', f.name) AS flow_name,
 		  i.created_at
@@ -207,20 +227,19 @@ func (r *interactionsRepo) Summaries(ctx context.Context) ([]interaction.Summary
 	return interactions, nil
 }
 
-func (r *interactionsRepo) SummariesForUser(ctx context.Context, userID string) ([]interaction.Summary, error) {
+func (r *interactionsRepo) GetInteractionSummaries(ctx context.Context, userID string) ([]interaction.Summary, error) {
 	query := `
 		SELECT 
 		  i.id,
 		  i.user_id,
-		  IFNULL(i.response->>'$.object', '') AS type,
-		  IFNULL(i.request->>'$.model', '') AS model,
-		  IFNULL(i.request->>'$.prompt', '') AS prompt,
-		  IFNULL(i.response->>'$.usage.total_tokens', 0) AS tokens_used,
-		  IFNULL(LENGTH(i.response->>'$.choices[0].text'), 0) AS response_length,
-		  i.err,
+		  i.type,
+		  i.model,
+		  i.prompt,
 		  i.flow_id,
-		  IF(f.name IS NULL, '', f.name) AS flow_name,
-		  i.created_at
+		  i.created_at,
+		  (i.prompt_tokens + i.completion_tokens) AS tokens_used,
+		  IFNULL(LENGTH(i.response->>'$.choices[0].text'), 0) AS response_length,
+		  IF(f.name IS NULL, '', f.name) AS flow_name
 		FROM interactions AS i
 		LEFT JOIN flows AS f ON f.id = i.flow_id 
 		WHERE i.user_id = ?
@@ -228,7 +247,7 @@ func (r *interactionsRepo) SummariesForUser(ctx context.Context, userID string) 
 	`
 	rows, err := r.db.QueryxContext(ctx, query, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, "sql.interactionsRepo.SummariesForUser")
+		return nil, errors.Wrap(err, "sql.interactionsRepo.GetInteractionSummaries")
 	}
 	defer rows.Close()
 

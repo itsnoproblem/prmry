@@ -44,7 +44,7 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 	getInteractionEndpoint := htmx.NewEndpoint(
 		makeGetInteractionEndpoint(svc),
 		decodeGetInteractionRequest,
-		formatCreateInteractionResponse,
+		formatGetInteractionResponse,
 		auth.Required,
 	)
 

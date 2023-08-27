@@ -55,7 +55,7 @@ func (r *FlowsRepo) DeleteFlow(ctx context.Context, flowID string) error {
 
 	delete(r.flows, flowID)
 
-	// Remove flow from userFlows
+	// Delete flow from userFlows
 	for i, uf := range r.userFlows[flw.UserID] {
 		if uf.ID == flowID {
 			r.userFlows[flw.UserID] = append(r.userFlows[flw.UserID][:i], r.userFlows[flw.UserID][i+1:]...)

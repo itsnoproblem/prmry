@@ -21,7 +21,7 @@ func NewModerationsRepo(db *sqlx.DB) moderationsRepo {
 	}
 }
 
-func (r *moderationsRepo) Add(ctx context.Context, mod interaction.Moderation) error {
+func (r *moderationsRepo) Insert(ctx context.Context, mod interaction.Moderation) error {
 
 	resJSON, err := json.Marshal(mod.Results)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *moderationsRepo) Add(ctx context.Context, mod interaction.Moderation) e
 }
 
 func (r *moderationsRepo) Remove(ctx context.Context, id string) error {
-	return fmt.Errorf("moderationsRepo.Remove is not implemented")
+	return fmt.Errorf("moderationsRepo.Delete is not implemented")
 }
 
 func (r *moderationsRepo) All(ctx context.Context) ([]interaction.Moderation, error) {

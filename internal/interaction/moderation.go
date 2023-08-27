@@ -3,13 +3,13 @@ package interaction
 import (
 	"time"
 
-	gogpt "github.com/sashabaranov/go-gpt3"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type Moderation struct {
 	ID            string
 	Model         string
 	InteractionID string
-	Results       []gogpt.Result
+	Results       []openai.Result
 	CreatedAt     time.Time
 }

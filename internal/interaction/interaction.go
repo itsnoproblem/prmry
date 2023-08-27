@@ -4,18 +4,23 @@ import (
 	"strings"
 	"time"
 
-	gogpt "github.com/sashabaranov/go-gpt3"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 type Interaction struct {
-	ID        string
-	FlowID    string
-	FlowName  string
-	Request   gogpt.CompletionRequest
-	Response  gogpt.CompletionResponse
-	Error     string
-	CreatedAt time.Time
-	UserID    string
+	ID               string
+	FlowID           string
+	FlowName         string
+	Request          openai.ChatCompletionRequest
+	Response         openai.ChatCompletionResponse
+	Type             string
+	Model            string
+	Prompt           string
+	Completion       string
+	TokensPrompt     int
+	TokensCompletion int
+	CreatedAt        time.Time
+	UserID           string
 }
 
 type Summary struct {
@@ -27,28 +32,38 @@ type Summary struct {
 	Prompt         string
 	TokensUsed     int
 	ResponseLength int
-	Error          string
 	CreatedAt      time.Time
 	UserID         string
 }
 
 // PromptHTML returns the prompt as HTML
 func (ixn Interaction) PromptHTML() string {
-	return textToHTML(ixn.Request.Prompt)
+	if ixn.Prompt == "" && len(ixn.Request.Messages) < 1 {
+		return ""
+	}
+
+	prompt := ixn.Prompt
+	if prompt == "" {
+		prompt = ixn.Request.Messages[0].Content
+	}
+	return textToHTML(prompt)
 }
 
 // ResponseText returns the text of the final element of the Prompt.Choices slice
 func (ixn Interaction) ResponseText() string {
-	var text string
-	for _, res := range ixn.Response.Choices {
-		text = res.Text
+	text := ixn.Completion
+	if text == "" && len(ixn.Response.Choices) > 0 {
+		for _, res := range ixn.Response.Choices {
+			text = res.Message.Content
+		}
 	}
 	return text
 }
 
 // ResponseHTML returns the final element of the Prompt.Choices slice as HTML
 func (ixn Interaction) ResponseHTML() string {
-	return textToHTML(ixn.ResponseText())
+	text := textToHTML(ixn.ResponseText())
+	return text
 }
 
 func textToHTML(text string) string {

@@ -40,7 +40,7 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 	view := components.NewErrorView(err.Error(), http.StatusInternalServerError)
 	ctx := r.Context()
 
-	w.WriteHeader(view.Code)
+	//w.WriteHeader(view.Code)
 
 	if IsHXRequest(ctx) {
 		components.Error(view).Render(ctx, newHTMLWriter(w))

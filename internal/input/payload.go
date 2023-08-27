@@ -12,6 +12,7 @@ type PayloadType string
 type Payload struct {
 	Type  PayloadType
 	Value []byte
+	Tags  map[string]string
 }
 
 func SupportedTypes() []PayloadType {

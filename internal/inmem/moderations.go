@@ -18,7 +18,7 @@ func NewModerationMemoryRepo() *ModerationMemoryRepo {
 	}
 }
 
-func (r *ModerationMemoryRepo) Add(ctx context.Context, mod interaction.Moderation) error {
+func (r *ModerationMemoryRepo) Insert(ctx context.Context, mod interaction.Moderation) error {
 	if _, ok := r.moderations[mod.ID]; ok {
 		return errors.New("moderation already exists")
 	}

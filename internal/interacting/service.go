@@ -3,11 +3,12 @@ package interacting
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"time"
 
 	"github.com/pkg/errors"
-	gogpt "github.com/sashabaranov/go-gpt3"
+	openai "github.com/sashabaranov/go-openai"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/flow"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	GPTModel              = gogpt.GPT3TextDavinci003
+	GPTModel              = openai.GPT3Dot5Turbo
 	GPTMaxTokens          = 4000
 	GPTCharactersPerToken = 4
 )
@@ -25,14 +26,14 @@ type Responder interface {
 }
 
 type InteractionRepo interface {
-	Add(ctx context.Context, in interaction.Interaction) (id string, err error)
-	Remove(ctx context.Context, id string) error
-	SummariesForUser(ctx context.Context, userID string) ([]interaction.Summary, error)
-	Interaction(ctx context.Context, id string) (interaction.Interaction, error)
+	Insert(ctx context.Context, in interaction.Interaction) (err error)
+	Delete(ctx context.Context, id string) error
+	GetInteractionSummaries(ctx context.Context, userID string) ([]interaction.Summary, error)
+	GetInteraction(ctx context.Context, id string) (interaction.Interaction, error)
 }
 
 type ModerationRepo interface {
-	Add(ctx context.Context, mod interaction.Moderation) error
+	Insert(ctx context.Context, mod interaction.Moderation) error
 }
 
 type FlowRepo interface {
@@ -40,7 +41,7 @@ type FlowRepo interface {
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 }
 
-func NewService(c *gogpt.Client, r InteractionRepo, m ModerationRepo, f FlowRepo) service {
+func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowRepo) service {
 	log.Printf("PRMRY - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
 		GPTModel, GPTMaxTokens, GPTCharactersPerToken)
 
@@ -53,7 +54,7 @@ func NewService(c *gogpt.Client, r InteractionRepo, m ModerationRepo, f FlowRepo
 }
 
 type service struct {
-	gptClient   *gogpt.Client
+	gptClient   *openai.Client
 	history     InteractionRepo
 	moderations ModerationRepo
 	flows       FlowRepo
@@ -70,12 +71,12 @@ func (s service) GenerateResponse(ctx context.Context, msg, flowID string) (stri
 		return "", errors.Wrap(err, "interacting.GenerateResponse: no choices")
 	}
 
-	return ix.Response.Choices[0].Text, nil
+	return ix.Response.Choices[0].Message.Content, nil
 }
 
 func (s service) Interactions(ctx context.Context) ([]interaction.Summary, error) {
 	usr := auth.UserFromContext(ctx)
-	history, err := s.history.SummariesForUser(ctx, usr.ID)
+	history, err := s.history.GetInteractionSummaries(ctx, usr.ID)
 	if err != nil {
 		return nil, fmt.Errorf("interacting.Interactions: %s", err)
 	}
@@ -84,9 +85,9 @@ func (s service) Interactions(ctx context.Context) ([]interaction.Summary, error
 }
 
 func (s service) Interaction(ctx context.Context, interactionID string) (interaction.Interaction, error) {
-	in, err := s.history.Interaction(ctx, interactionID)
+	in, err := s.history.GetInteraction(ctx, interactionID)
 	if err != nil {
-		return interaction.Interaction{}, fmt.Errorf("interacting.Interaction: %s", err)
+		return interaction.Interaction{}, fmt.Errorf("interacting.GetInteraction: %s", err)
 	}
 
 	return in, nil
@@ -155,18 +156,24 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string) (int
 	promptTokens := s.tokenCount(prompt)
 	maxTokens := GPTMaxTokens - promptTokens
 
-	req := gogpt.CompletionRequest{
+	req := openai.ChatCompletionRequest{
 		Model:     GPTModel,
 		MaxTokens: maxTokens,
-		Prompt:    prompt,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: prompt,
+			},
+		},
 	}
 
-	resp, gptErr := s.gptClient.CreateCompletion(ctx, req)
+	resp, gptErr := s.gptClient.CreateChatCompletion(ctx, req)
 	if gptErr != nil {
 		return interaction.Interaction{}, gptErr
 	}
 
 	newInteraction := interaction.Interaction{
+		ID:        uuid.New().String(),
 		Request:   req,
 		Response:  resp,
 		CreatedAt: time.Now(),
@@ -174,14 +181,14 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string) (int
 		FlowID:    flowID,
 	}
 
-	id, err := s.history.Add(ctx, newInteraction)
+	err := s.history.Insert(ctx, newInteraction)
 	if err != nil {
 		return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
 	}
 
-	go s.moderate(ctx, id, inputText)
+	go s.moderate(ctx, newInteraction.ID, inputText)
 
-	ixn, err := s.history.Interaction(ctx, id)
+	ixn, err := s.history.GetInteraction(ctx, newInteraction.ID)
 
 	return ixn, nil
 }
@@ -236,9 +243,9 @@ func (s service) compilePrompt(ctx context.Context, flw flow.Flow) (string, erro
 }
 
 func (s service) moderate(ctx context.Context, interactionID, msg string) {
-	modReq := gogpt.ModerationRequest{
+	modReq := openai.ModerationRequest{
 		Input: msg,
-		Model: nil,
+		Model: openai.ModerationTextStable,
 	}
 
 	modRes, err := s.gptClient.Moderations(ctx, modReq)
@@ -246,7 +253,7 @@ func (s service) moderate(ctx context.Context, interactionID, msg string) {
 		log.Printf("ERROR - interactingService.moderate: %s", err)
 	}
 
-	s.moderations.Add(ctx, interaction.Moderation{
+	s.moderations.Insert(ctx, interaction.Moderation{
 		ID:            modRes.ID,
 		InteractionID: interactionID,
 		Model:         modRes.Model,

@@ -64,8 +64,13 @@ type ChatResponseView struct {
 }
 
 func NewChatDetailView(ixn interaction.Interaction) DetailView {
+	prompt := ixn.Prompt
+	if prompt == "" && len(ixn.Request.Messages) > 0 {
+		prompt = ixn.Request.Messages[0].Content
+	}
+
 	return DetailView{
-		Prompt:       ixn.Request.Prompt,
+		Prompt:       prompt,
 		PromptHTML:   ixn.PromptHTML(),
 		Date:         ixn.CreatedAt.Format("Monday, January 2, 2006 at 3:04pm"),
 		ResponseText: ixn.ResponseText(),
