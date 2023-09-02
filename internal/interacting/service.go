@@ -172,13 +172,24 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string) (int
 		return interaction.Interaction{}, gptErr
 	}
 
+	var completion string
+	if len(resp.Choices) > 0 {
+		completion = resp.Choices[0].Message.Content
+	}
+
 	newInteraction := interaction.Interaction{
-		ID:        uuid.New().String(),
-		Request:   req,
-		Response:  resp,
-		CreatedAt: time.Now(),
-		UserID:    auth.UserFromContext(ctx).ID,
-		FlowID:    flowID,
+		ID:               uuid.New().String(),
+		Request:          req,
+		Response:         resp,
+		CreatedAt:        time.Now(),
+		UserID:           auth.UserFromContext(ctx).ID,
+		FlowID:           flowID,
+		Type:             resp.Object,
+		Model:            resp.Model,
+		Prompt:           prompt,
+		Completion:       completion,
+		TokensPrompt:     resp.Usage.PromptTokens,
+		TokensCompletion: resp.Usage.CompletionTokens,
 	}
 
 	err := s.history.Insert(ctx, newInteraction)

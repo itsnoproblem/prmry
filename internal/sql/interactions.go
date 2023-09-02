@@ -71,12 +71,22 @@ func (row *interactionRow) toInteraction() (interaction.Interaction, error) {
 		return interaction.Interaction{}, errors.Wrap(err, "toInteraction")
 	}
 
+	prompt := row.Prompt
+	if prompt == "" && len(req.Messages) > 0 {
+		prompt = req.Messages[0].Content
+	}
+
+	completion := row.Completion
+	if completion == "" && len(res.Choices) > 0 {
+		completion = res.Choices[0].Message.Content
+	}
+
 	return interaction.Interaction{
 		ID:               row.ID,
 		Type:             row.Type,
 		Model:            row.Model,
-		Prompt:           row.Prompt,
-		Completion:       row.Completion,
+		Prompt:           prompt,
+		Completion:       completion,
 		TokensCompletion: row.CompletionTokens,
 		TokensPrompt:     row.PromptTokens,
 		Request:          req,
@@ -101,12 +111,12 @@ func NewInteractionsRepo(db *sqlx.DB) interactionsRepo {
 func (r *interactionsRepo) Insert(ctx context.Context, ixn interaction.Interaction) (err error) {
 	reqJSON, err := json.Marshal(ixn.Request)
 	if err != nil {
-		fmt.Errorf("sql.interactionsRepo: %s", err)
+		return fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
 	resJSON, err := json.Marshal(ixn.Response)
 	if err != nil {
-		fmt.Errorf("sql.interactionsRepo: %s", err)
+		return fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
 	sql := `
