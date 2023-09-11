@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
@@ -138,6 +138,7 @@ func main() {
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(render.SetContentType(render.ContentTypeHTML))
+	r.Use(middleware.Compress(5))
 	r.Use(htmx.Middleware)
 	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
 

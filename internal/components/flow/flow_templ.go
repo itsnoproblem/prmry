@@ -170,7 +170,7 @@ func FlowsList(view FlowsListView) templ.Component {
 			return err
 		}
 		// Text
-		var_5 := `New`
+		var_5 := `Create`
 		_, err = templBuffer.WriteString(var_5)
 		if err != nil {
 			return err

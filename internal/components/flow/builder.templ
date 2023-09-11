@@ -14,6 +14,33 @@ templ FlowBuilderPage(view Detail) {
 }
 
 templ FlowBuilder(view Detail) {
+    <div hx-script="true">
+        <script>
+            function updateHighlight() {
+                const textArea = document.getElementById('promptEditor');
+                const promptInput = document.getElementById('promptInput');
+                const highlight = document.getElementById('highlight');
+                const text = textArea.innerHTML.replace(/^\s+/, "");
+                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+
+                promptInput.value = text;
+                highlight.innerHTML = highlightedText;
+            }
+
+            try {
+                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
+                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
+                    document.getElementById("highlight").scrollTop = this.scrollTop;
+                });
+            } catch(e) {
+                console.log(e);
+            }
+            document.addEventListener("DOMContentLoaded", function() {
+                // Initialize
+                updateHighlight();
+            });
+        </script>
+    </div>
     <form
             id="flow-builder"
             hx-post="/flows"
@@ -28,7 +55,78 @@ templ FlowBuilder(view Detail) {
                 @FlowOptions(view)
             </div>
             <div class="col col-7">
-                @RuleBuilder(view)
+                <ul class="nav nav-tabs pb-4">
+                    <li class="nav-item">
+                        <a hx-put="/flows/new/prompt?tab=rules"
+                            if view.SelectedTab == "rules" || view.SelectedTab == "" {
+                                class="nav-link active"
+                                aria-current="page"
+                            } else {
+                                class="nav-link"
+                            }
+                        >Trigger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a hx-put="/flows/new/prompt?tab=inputs"
+                            if view.SelectedTab == "inputs" {
+                                class="nav-link active"
+                                aria-current="page"
+                            } else {
+                                class="nav-link"
+                            }
+                        >Inputs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a hx-put="/flows/new/prompt?tab=preview"
+                            if view.SelectedTab == "preview" {
+                                class="nav-link active"
+                                aria-current="page"
+                            } else {
+                                class="nav-link"
+                            }
+                        >Preview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a hx-put="/flows/new/prompt?tab=logs"
+                            if view.SelectedTab == "logs" {
+                                class="nav-link active"
+                                aria-current="page"
+                            } else {
+                                class="nav-link"
+                            }
+                        >Logs</a>
+                    </li>
+                </ul>
+                <div class="row">
+                    <div
+                        if view.SelectedTab != "inputs" {
+                            class="d-none"
+                        }
+                    >
+                        <h1>Inputs</h1>
+                    </div>
+                    <div
+                        if view.SelectedTab != "preview" {
+                            class="d-none"
+                        }
+                    >
+                        <h1>preview</h1>
+                    </div>
+                    <div
+                        if view.SelectedTab != "logs" {
+                            class="d-none"
+                        }
+                    >
+                        <h1>Logs</h1>
+                    </div>
+                    <div
+                        if view.SelectedTab != "rules" && view.SelectedTab != "" {
+                            class="d-none"
+                        }
+                    >
+                        @RuleBuilder(view)
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -58,8 +156,9 @@ templ FlowBuilder(view Detail) {
     </form>
 }
 
-templ FieldSelector(name string, options SortedMap, selected, label string) {
+templ FieldSelector(id string, name string, options SortedMap, selected, label string) {
     <select
+            id={ id }
             name={ name }
             class="form-select form-select-md"
             aria-label={ label }
@@ -74,20 +173,41 @@ templ FieldSelector(name string, options SortedMap, selected, label string) {
             }
         }
     </select>
-    <label>{ label }</label>
+    <label for={ id }>{ label }</label>
 }
 
 templ RuleBuilder(view Detail) {
+
+    <label class="larger">Execute this flow when</label>
     <div class="d-flex justify-content-between">
-        <h4 class="text-info">
-            Rules
-        </h4>
+        <div class="d-flex justify-content-around">
+            <div class="form-check pe-4 pt-2">
+                if view.RequireAll {
+                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
+                } else {
+                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true"/>
+                }
+                <label class="form-check-label smaller" for="require-all-true">
+                    <em>ALL</em> rules match
+                </label>
+            </div>
+            <div class="form-check pt-2">
+                if view.RequireAll {
+                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false"/>
+                } else {
+                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
+                }
+                <label class="form-check-label smaller" for="require-all-false">
+                    <em>ANY</em> rule matches
+                </label>
+            </div>
+        </div>
         <button id="add-rule"
                 hx-post="/flows/new/rules"
                 hx-target="#content-root"
                 hx-push-url="false"
                 class="btn btn-info btn-sm mb-3">
-            New
+            Add Rule
         </button>
     </div>
 
@@ -108,29 +228,32 @@ templ RuleBuilder(view Detail) {
             <div class="row flow-rule fade-in">
                 <div class="col">
                     <div class="form-floating mb-3">
-                        @FieldSelector("fieldName", view.SupportedFields, rule.Field.Source, "Field Name")
+                        @FieldSelector(fmt.Sprintf("fieldName-%d", i), "fieldName", view.SupportedFields, rule.Field.Source, "Source")
                     </div>
-                    if rule.Field.Source == flow.FieldSourceFlow.String()   {
+                    if rule.Field.Source == flow.FieldSourceFlow.String() {
                         <div class="form-floating mb-3">
-                            @FieldSelector("selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
+                            @FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
                         </div>
+                    }
+                    if rule.Field.Source == flow.FieldSourceInputTag.String() {
+                        @FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow")
                     }
                 </div>
                 <div class="col">
                     <div class="form-floating mb-3">
-                        @FieldSelector("condition", view.SupportedConditions, rule.Condition, "Condition")
+                        @FieldSelector(fmt.Sprintf("condition-%d", i), "condition", view.SupportedConditions, rule.Condition, "Condition")
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-floating mb-3">
                         <input type="text"
                                name="value"
-                               id="value"
+                               id={ fmt.Sprintf("value-%d", i) }
                                class="form-control form-control-md"
                                placeholder="Value"
                                value={ rule.Value }
                         />
-                        <label for="value">Value</label>
+                        <label for={ fmt.Sprintf("value-%d", i) }>Value</label>
                     </div>
                 </div>
                 <div class="col-1 pt-3">
@@ -146,72 +269,73 @@ templ RuleBuilder(view Detail) {
     </div>
 }
 
+
 templ FlowOptions(view Detail) {
+
     <div class="form-floating pb-4">
-        <input name="name"
+        <input id="flow-name"
+                name="name"
                type="text"
                class="form-control"
                placeholder="Welcome Flow"
                value={ view.Name }
         />
-        <label for="name">Flow Name</label>
+        <label for="flow-name">Flow Name</label>
     </div>
 
-    <div class="text-body-secondary pb-2">Trigger this flow when</div>
-    <div class="container pb-3">
-        <div class="form-check">
-            if view.RequireAll {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
-            } else {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true"/>
-            }
-            <label class="form-check-label" for="require-all-true">
-                <em>ALL</em> rules match
-            </label>
-        </div>
-        <div class="form-check">
-            if view.RequireAll {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false"/>
-            } else {
-                <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
-            }
-            <label class="form-check-label" for="require-all-false">
-                <em>ANY</em> rule matches
-            </label>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label for="prompt" class="form-label text-body-secondary">Prompt generated by this flow<br/>
-            (indicate replacements with <code>%s</code>)</label>
-        <textarea
-                class="form-control"
-                name="prompt"
-                id="prompt"
-                rows="5"
-                hx-put="/flows/new/prompt"
-                hx-trigger="keyup changed delay:1100ms"
+    <div class="mb-3" hx-ext="morph">
+        <label for="promptEditor" class="form-label text-body-secondary">
+            Prompt generated by this flow
+            <br/>
+            <span class="smaller">(indicate replacements with <code>%s</code>)</span>
+        </label>
+        <div id="highlight-container"
+             class="border rounded"
         >
-                { view.Prompt }
-            </textarea>
+            <div id="highlight"></div>
+            <div id="promptEditor"
+                 contenteditable="true"
+                 class="form-control"
+                 hx-swap="morph:innerHTML"
+                 hx-put="/flows/new/prompt"
+                 hx-trigger="input delay:1100ms from:#promptEditor">{ view.Prompt }</div>
+        </div>
+        <input type="hidden" name="prompt" id="promptInput" value="{ view.Prompt }"/>
     </div>
 
     <div class="mb-3">
         if len(view.PromptArgs) > 0 {
-            <div class="mb-2 text-body-secondary">Replacements:</div>
+            <div class="mb-2 text-body-secondary">Prompt Arguments:</div>
         }
 
         for j, arg := range view.PromptArgs {
         <div class="row mb-3">
             <div class="form-floating col">
-                @FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + fmt.Sprint(j))
+                @FieldSelector(fmt.Sprintf("promptArgs-%d", j), "promptArgs", view.SupportedFields, arg.Source.String(), fmt.Sprintf("Argument %d", j))
             </div>
             if arg.Source == flow.FieldSourceFlow {
                 <div class="form-floating col">
-                    @FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
+                    @FieldSelector(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
+                </div>
+            }
+            if arg.Source == flow.FieldSourceInputTag {
+                <div class="form-floating col">
+                    <input type="text"
+                           name="inputTags"
+                           id={ fmt.Sprintf("promptArg-tagKey-%d", j) }
+                    hx-trigger="blur"
+                    hx-put="/flows/new/prompt"
+                    class="form-control form-control-md"
+                    placeholder="myKey"
+                    value={ arg.Value }
+                    />
+                    <label for={ fmt.Sprintf("promptArg-tagKey-%d", j) }>Key name</label>
                 </div>
             }
         </div>
         }
     </div>
+    <script>
+        updateHighlight();
+    </script>
 }

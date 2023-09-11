@@ -72,6 +72,63 @@ func FlowBuilder(view Detail) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-script=\"true\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script>")
+		if err != nil {
+			return err
+		}
+// Text
+var_4 := `
+            function updateHighlight() {
+                const textArea = document.getElementById('promptEditor');
+                const promptInput = document.getElementById('promptInput');
+                const highlight = document.getElementById('highlight');
+                const text = textArea.innerHTML.replace(/^\s+/, "");
+                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+
+                promptInput.value = text;
+                highlight.innerHTML = highlightedText;
+            }
+
+            try {
+                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
+                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
+                    document.getElementById("highlight").scrollTop = this.scrollTop;
+                });
+            } catch(e) {
+                console.log(e);
+            }
+            document.addEventListener("DOMContentLoaded", function() {
+                // Initialize
+                updateHighlight();
+            });
+        `
+_, err = templBuffer.WriteString(var_4)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
 		_, err = templBuffer.WriteString("<form")
 		if err != nil {
 			return err
@@ -186,8 +243,409 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<ul")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav nav-tabs pb-4\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=rules\"")
+		if err != nil {
+			return err
+		}
+		if view.SelectedTab == "rules" || view.SelectedTab == "" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" aria-current=\"page\"")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_5 := `Trigger`
+		_, err = templBuffer.WriteString(var_5)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=inputs\"")
+		if err != nil {
+			return err
+		}
+		if view.SelectedTab == "inputs" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" aria-current=\"page\"")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_6 := `Inputs`
+		_, err = templBuffer.WriteString(var_6)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=preview\"")
+		if err != nil {
+			return err
+		}
+		if view.SelectedTab == "preview" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" aria-current=\"page\"")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_7 := `Preview`
+		_, err = templBuffer.WriteString(var_7)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=logs\"")
+		if err != nil {
+			return err
+		}
+		if view.SelectedTab == "logs" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" aria-current=\"page\"")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_8 := `Logs`
+		_, err = templBuffer.WriteString(var_8)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</ul>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"row\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		if view.SelectedTab != "inputs" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"d-none\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_9 := `Inputs`
+		_, err = templBuffer.WriteString(var_9)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		if view.SelectedTab != "preview" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"d-none\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_10 := `preview`
+		_, err = templBuffer.WriteString(var_10)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		if view.SelectedTab != "logs" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"d-none\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_11 := `Logs`
+		_, err = templBuffer.WriteString(var_11)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		if view.SelectedTab != "rules" && view.SelectedTab != "" {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"d-none\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
 		// TemplElement
 		err = RuleBuilder(view).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
@@ -312,8 +770,8 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_4 := `Cancel`
-		_, err = templBuffer.WriteString(var_4)
+		var_12 := `Cancel`
+		_, err = templBuffer.WriteString(var_12)
 		if err != nil {
 			return err
 		}
@@ -358,7 +816,7 @@ func FlowBuilder(view Detail) templ.Component {
 	})
 }
 
-func FieldSelector(name string, options SortedMap, selected, label string) templ.Component {
+func FieldSelector(id string, name string, options SortedMap, selected, label string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -366,9 +824,9 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_5 := templ.GetChildren(ctx)
-		if var_5 == nil {
-			var_5 = templ.NopComponent
+		var_13 := templ.GetChildren(ctx)
+		if var_13 == nil {
+			var_13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -377,6 +835,22 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" id=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(id))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" name=")
 		if err != nil {
 			return err
@@ -465,8 +939,8 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 					return err
 				}
 				// StringExpression
-				var var_6 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_6))
+				var var_14 string = options[value]
+				_, err = templBuffer.WriteString(templ.EscapeString(var_14))
 				if err != nil {
 					return err
 				}
@@ -502,8 +976,8 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 					return err
 				}
 				// StringExpression
-				var var_7 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_7))
+				var var_15 string = options[value]
+				_, err = templBuffer.WriteString(templ.EscapeString(var_15))
 				if err != nil {
 					return err
 				}
@@ -518,13 +992,34 @@ func FieldSelector(name string, options SortedMap, selected, label string) templ
 			return err
 		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<label>")
+		_, err = templBuffer.WriteString("<label")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" for=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(id))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}
 		// StringExpression
-		var var_8 string = label
-		_, err = templBuffer.WriteString(templ.EscapeString(var_8))
+		var var_16 string = label
+		_, err = templBuffer.WriteString(templ.EscapeString(var_16))
 		if err != nil {
 			return err
 		}
@@ -547,11 +1042,35 @@ func RuleBuilder(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_9 := templ.GetChildren(ctx)
-		if var_9 == nil {
-			var_9 = templ.NopComponent
+		var_17 := templ.GetChildren(ctx)
+		if var_17 == nil {
+			var_17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<label")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"larger\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_18 := `Execute this flow when`
+		_, err = templBuffer.WriteString(var_18)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</label>")
+		if err != nil {
+			return err
+		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
@@ -567,12 +1086,12 @@ func RuleBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<h4")
+		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"text-info\"")
+		_, err = templBuffer.WriteString(" class=\"d-flex justify-content-around\"")
 		if err != nil {
 			return err
 		}
@@ -580,13 +1099,275 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		// Text
-		var_10 := `Rules`
-		_, err = templBuffer.WriteString(var_10)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</h4>")
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"form-check pe-4 pt-2\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// If
+		if view.RequireAll {
+			// Element (void)
+			_, err = templBuffer.WriteString("<input")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" type=\"radio\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" name=\"requireAll\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" value=\"true\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" checked")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element (void)
+			_, err = templBuffer.WriteString("<input")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" type=\"radio\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" name=\"requireAll\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" value=\"true\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<label")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"form-check-label smaller\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" for=\"require-all-true\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<em>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_19 := `ALL`
+		_, err = templBuffer.WriteString(var_19)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</em>")
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Text
+		var_20 := `rules match`
+		_, err = templBuffer.WriteString(var_20)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</label>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"form-check pt-2\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// If
+		if view.RequireAll {
+			// Element (void)
+			_, err = templBuffer.WriteString("<input")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" type=\"radio\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" name=\"requireAll\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" value=\"false\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element (void)
+			_, err = templBuffer.WriteString("<input")
+			if err != nil {
+				return err
+			}
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" type=\"radio\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" name=\"requireAll\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" value=\"false\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" checked")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(">")
+			if err != nil {
+				return err
+			}
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<label")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"form-check-label smaller\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" for=\"require-all-false\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<em>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_21 := `ANY`
+		_, err = templBuffer.WriteString(var_21)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</em>")
+		if err != nil {
+			return err
+		}
+		// Whitespace (normalised)
+		_, err = templBuffer.WriteString(` `)
+		if err != nil {
+			return err
+		}
+		// Text
+		var_22 := `rule matches`
+		_, err = templBuffer.WriteString(var_22)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</label>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
@@ -621,8 +1402,8 @@ func RuleBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_11 := `New`
-		_, err = templBuffer.WriteString(var_11)
+		var_23 := `Add Rule`
+		_, err = templBuffer.WriteString(var_23)
 		if err != nil {
 			return err
 		}
@@ -683,8 +1464,8 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_12 := `No rules yet`
-			_, err = templBuffer.WriteString(var_12)
+			var_24 := `No rules yet`
+			_, err = templBuffer.WriteString(var_24)
 			if err != nil {
 				return err
 			}
@@ -760,7 +1541,7 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// TemplElement
-			err = FieldSelector("fieldName", view.SupportedFields, rule.Field.Source, "Field Name").Render(ctx, templBuffer)
+			err = FieldSelector(fmt.Sprintf("fieldName-%d", i), "fieldName", view.SupportedFields, rule.Field.Source, "Source").Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
@@ -785,11 +1566,19 @@ func RuleBuilder(view Detail) templ.Component {
 					return err
 				}
 				// TemplElement
-				err = FieldSelector("selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow").Render(ctx, templBuffer)
+				err = FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow").Render(ctx, templBuffer)
 				if err != nil {
 					return err
 				}
 				_, err = templBuffer.WriteString("</div>")
+				if err != nil {
+					return err
+				}
+			}
+			// If
+			if rule.Field.Source == flow.FieldSourceInputTag.String() {
+				// TemplElement
+				err = FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow").Render(ctx, templBuffer)
 				if err != nil {
 					return err
 				}
@@ -827,7 +1616,7 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// TemplElement
-			err = FieldSelector("condition", view.SupportedConditions, rule.Condition, "Condition").Render(ctx, templBuffer)
+			err = FieldSelector(fmt.Sprintf("condition-%d", i), "condition", view.SupportedConditions, rule.Condition, "Condition").Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
@@ -881,7 +1670,19 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString(" id=\"value\"")
+			_, err = templBuffer.WriteString(" id=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("value-%d", i)))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
 			if err != nil {
 				return err
 			}
@@ -919,7 +1720,19 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Element Attributes
-			_, err = templBuffer.WriteString(" for=\"value\"")
+			_, err = templBuffer.WriteString(" for=")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("value-%d", i)))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"")
 			if err != nil {
 				return err
 			}
@@ -928,8 +1741,8 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_13 := `Value`
-			_, err = templBuffer.WriteString(var_13)
+			var_25 := `Value`
+			_, err = templBuffer.WriteString(var_25)
 			if err != nil {
 				return err
 			}
@@ -1043,9 +1856,9 @@ func FlowOptions(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_14 := templ.GetChildren(ctx)
-		if var_14 == nil {
-			var_14 = templ.NopComponent
+		var_26 := templ.GetChildren(ctx)
+		if var_26 == nil {
+			var_26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1068,6 +1881,10 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" id=\"flow-name\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" name=\"name\"")
 		if err != nil {
 			return err
@@ -1110,7 +1927,7 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" for=\"name\"")
+		_, err = templBuffer.WriteString(" for=\"flow-name\"")
 		if err != nil {
 			return err
 		}
@@ -1119,322 +1936,12 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_15 := `Flow Name`
-		_, err = templBuffer.WriteString(var_15)
+		var_27 := `Flow Name`
+		_, err = templBuffer.WriteString(var_27)
 		if err != nil {
 			return err
 		}
 		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"text-body-secondary pb-2\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_16 := `Trigger this flow when`
-		_, err = templBuffer.WriteString(var_16)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"container pb-3\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// If
-		if view.RequireAll {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" checked")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check-label\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" for=\"require-all-true\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<em>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_17 := `ALL`
-		_, err = templBuffer.WriteString(var_17)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em>")
-		if err != nil {
-			return err
-		}
-		// Whitespace (normalised)
-		_, err = templBuffer.WriteString(` `)
-		if err != nil {
-			return err
-		}
-		// Text
-		var_18 := `rules match`
-		_, err = templBuffer.WriteString(var_18)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// If
-		if view.RequireAll {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" checked")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check-label\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" for=\"require-all-false\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<em>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_19 := `ANY`
-		_, err = templBuffer.WriteString(var_19)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em>")
-		if err != nil {
-			return err
-		}
-		// Whitespace (normalised)
-		_, err = templBuffer.WriteString(` `)
-		if err != nil {
-			return err
-		}
-		// Text
-		var_20 := `rule matches`
-		_, err = templBuffer.WriteString(var_20)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
@@ -1452,6 +1959,10 @@ func FlowOptions(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
+		_, err = templBuffer.WriteString(" hx-ext=\"morph\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
@@ -1462,7 +1973,7 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" for=\"prompt\"")
+		_, err = templBuffer.WriteString(" for=\"promptEditor\"")
 		if err != nil {
 			return err
 		}
@@ -1475,13 +1986,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_21 := `Prompt generated by this flow`
-		_, err = templBuffer.WriteString(var_21)
-		if err != nil {
-			return err
-		}
-		// Element (void)
-		_, err = templBuffer.WriteString("<br>")
+		var_28 := `Prompt generated by this flow`
+		_, err = templBuffer.WriteString(var_28)
 		if err != nil {
 			return err
 		}
@@ -1490,9 +1996,28 @@ func FlowOptions(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<br>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<span")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"smaller\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
 		// Text
-		var_22 := `(indicate replacements with `
-		_, err = templBuffer.WriteString(var_22)
+		var_29 := `(indicate replacements with `
+		_, err = templBuffer.WriteString(var_29)
 		if err != nil {
 			return err
 		}
@@ -1502,8 +2027,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_23 := `%s`
-		_, err = templBuffer.WriteString(var_23)
+		var_30 := `%s`
+		_, err = templBuffer.WriteString(var_30)
 		if err != nil {
 			return err
 		}
@@ -1512,8 +2037,12 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_24 := `)`
-		_, err = templBuffer.WriteString(var_24)
+		var_31 := `)`
+		_, err = templBuffer.WriteString(var_31)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</span>")
 		if err != nil {
 			return err
 		}
@@ -1522,24 +2051,60 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<textarea")
+		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" id=\"highlight-container\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" class=\"border rounded\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" id=\"highlight\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" id=\"promptEditor\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" contenteditable=\"true\"")
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString(" class=\"form-control\"")
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" name=\"prompt\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" id=\"prompt\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" rows=\"5\"")
+		_, err = templBuffer.WriteString(" hx-swap=\"morph:innerHTML\"")
 		if err != nil {
 			return err
 		}
@@ -1547,7 +2112,7 @@ func FlowOptions(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-trigger=\"keyup changed delay:1100ms\"")
+		_, err = templBuffer.WriteString(" hx-trigger=\"input delay:1100ms from:#promptEditor\"")
 		if err != nil {
 			return err
 		}
@@ -1556,12 +2121,42 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_25 string = view.Prompt
-		_, err = templBuffer.WriteString(templ.EscapeString(var_25))
+		var var_32 string = view.Prompt
+		_, err = templBuffer.WriteString(templ.EscapeString(var_32))
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</textarea>")
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<input")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" type=\"hidden\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" name=\"prompt\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" id=\"promptInput\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" value=\"{ view.Prompt }\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}
@@ -1600,8 +2195,8 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_26 := `Replacements:`
-			_, err = templBuffer.WriteString(var_26)
+			var_33 := `Prompt Arguments:`
+			_, err = templBuffer.WriteString(var_33)
 			if err != nil {
 				return err
 			}
@@ -1641,7 +2236,7 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// TemplElement
-			err = FieldSelector("promptArgs", view.SupportedFields, arg.Source.String(), "Replacement " + fmt.Sprint(j)).Render(ctx, templBuffer)
+			err = FieldSelector(fmt.Sprintf("promptArgs-%d", j), "promptArgs", view.SupportedFields, arg.Source.String(), fmt.Sprintf("Argument %d", j)).Render(ctx, templBuffer)
 			if err != nil {
 				return err
 			}
@@ -1666,7 +2261,130 @@ func FlowOptions(view Detail) templ.Component {
 					return err
 				}
 				// TemplElement
-				err = FieldSelector("promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow").Render(ctx, templBuffer)
+				err = FieldSelector(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow").Render(ctx, templBuffer)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</div>")
+				if err != nil {
+					return err
+				}
+			}
+			// If
+			if arg.Source == flow.FieldSourceInputTag {
+				// Element (standard)
+				_, err = templBuffer.WriteString("<div")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" class=\"form-floating col\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// Element (void)
+				_, err = templBuffer.WriteString("<input")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" type=\"text\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" name=\"inputTags\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" id=")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("promptArg-tagKey-%d", j)))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" hx-trigger=\"blur\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" class=\"form-control form-control-md\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" placeholder=\"myKey\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(" value=")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(templ.EscapeString(arg.Value))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// Element (standard)
+				_, err = templBuffer.WriteString("<label")
+				if err != nil {
+					return err
+				}
+				// Element Attributes
+				_, err = templBuffer.WriteString(" for=")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("promptArg-tagKey-%d", j)))
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("\"")
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString(">")
+				if err != nil {
+					return err
+				}
+				// Text
+				var_34 := `Key name`
+				_, err = templBuffer.WriteString(var_34)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</label>")
 				if err != nil {
 					return err
 				}
@@ -1681,6 +2399,23 @@ func FlowOptions(view Detail) templ.Component {
 			}
 		}
 		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script>")
+		if err != nil {
+			return err
+		}
+// Text
+var_35 := `
+        updateHighlight();
+    `
+_, err = templBuffer.WriteString(var_35)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
 		if err != nil {
 			return err
 		}

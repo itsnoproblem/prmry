@@ -147,6 +147,7 @@ type FlowBuilderFormRequest struct {
 	PromptArgs      interface{} `json:"promptArgs"`
 	PromptArgFlows  interface{} `json:"promptArgFlows"`
 	AvailableFlows  interface{} `json:"availableFlows"`
+	InputTags       interface{} `json:"inputTags"`
 }
 
 func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -170,6 +171,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	conditionValues := make([]string, 0)
 	parsedPromptArgs := make([]string, 0)
 	promptArgFlows := make([]string, 0)
+	inputTags := make([]string, 0)
 
 	fieldNames, err = stringOrSlice(req.FieldNames)
 	if err != nil {
@@ -196,6 +198,11 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedPromptArgs")
 	}
 
+	inputTags, err = stringOrSlice(req.InputTags)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedPromptArgs")
+	}
+
 	if req.PromptArgFlows != nil {
 		promptArgFlows, err = stringOrSlice(req.PromptArgFlows)
 		if err != nil {
@@ -209,6 +216,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 
 	promptArgs := make([]flowcmp.PromptArg, 0)
 	flowIndex := 0
+	tagIndex := 0
 	for _, arg := range parsedPromptArgs {
 		pargs := flowcmp.PromptArg{
 			Source: flow.SourceType(arg),
@@ -216,6 +224,11 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 
 		if flow.SourceType(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
 			pargs.Value = promptArgFlows[flowIndex]
+			flowIndex++
+		}
+		if flow.SourceType(arg) == flow.FieldSourceInputTag && len(inputTags) > tagIndex {
+			pargs.Value = inputTags[tagIndex]
+			tagIndex++
 		}
 
 		promptArgs = append(promptArgs, pargs)
@@ -228,15 +241,21 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		PromptArgs:          promptArgs,
 		SupportedFields:     flowcmp.SortedMap(flow.SupportedFields()),
 		SupportedConditions: flowcmp.SortedMap(flow.SupportedConditions()),
+		SelectedTab:         getSelectedTab(r),
 	}
 
 	flowIndex = 0
+	tagIndex = 0
 	form.Rules = make([]flowcmp.RuleView, 0)
-	for i, name := range fieldNames {
+	for i, fieldSource := range fieldNames {
 		fieldValue := ""
-		if name == flow.FieldSourceFlow.String() && len(selectedFlows) > flowIndex {
+		if fieldSource == flow.FieldSourceFlow.String() && len(selectedFlows) > flowIndex {
 			fieldValue = selectedFlows[flowIndex]
 			flowIndex++
+		}
+		if fieldSource == flow.FieldSourceInputTag.String() && len(inputTags) > tagIndex {
+			fieldValue = inputTags[tagIndex]
+			tagIndex++
 		}
 
 		form.Rules = append(form.Rules, flowcmp.RuleView{
@@ -251,10 +270,15 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 
 	form.RequireAll, err = strconv.ParseBool(req.RequireAll)
 	if err != nil {
-		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsing requireAll")
+		form.RequireAll = false
+		//return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsing requireAll")
 	}
 
 	return form, nil
+}
+
+func getSelectedTab(r *http.Request) string {
+	return r.URL.Query().Get("tab")
 }
 
 func stringOrSlice(str interface{}) ([]string, error) {

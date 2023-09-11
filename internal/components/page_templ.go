@@ -66,6 +66,24 @@ func Page(cmp Component) templ.Component {
 			return err
 		}
 		// Element Attributes
+		_, err = templBuffer.WriteString(" http-equiv=\"Content-Type\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" content=\"text/html; charset=utf-8\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<meta")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
 		_, err = templBuffer.WriteString(" name=\"viewport\"")
 		if err != nil {
 			return err
@@ -208,15 +226,7 @@ func Page(cmp Component) templ.Component {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org@1.8.5\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" integrity=\"sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" crossorigin=\"anonymous\"")
+		_, err = templBuffer.WriteString(" src=\"/static/main.js\"")
 		if err != nil {
 			return err
 		}
@@ -240,7 +250,15 @@ if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/disable-element.js\"")
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org@1.8.5\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" integrity=\"sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" crossorigin=\"anonymous\"")
 		if err != nil {
 			return err
 		}
@@ -264,7 +282,7 @@ if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/json-enc.js\"")
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/debug.js\"")
 		if err != nil {
 			return err
 		}
@@ -288,7 +306,7 @@ if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/remove-me.js\"")
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/disable-element.js\"")
 		if err != nil {
 			return err
 		}
@@ -312,7 +330,7 @@ if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/debug.js\"")
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/idiomorph/dist/idiomorph-ext.min.js\"")
 		if err != nil {
 			return err
 		}
@@ -323,6 +341,78 @@ if err != nil {
 // Text
 var_7 := ``
 _, err = templBuffer.WriteString(var_7)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/json-enc.js\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+// Text
+var_8 := ``
+_, err = templBuffer.WriteString(var_8)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/htmx.org/dist/ext/remove-me.js\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+// Text
+var_9 := ``
+_, err = templBuffer.WriteString(var_9)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" src=\"https://unpkg.com/hyperscript.org@0.9.11\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+// Text
+var_10 := ``
+_, err = templBuffer.WriteString(var_10)
 if err != nil {
 	return err
 }
@@ -439,8 +529,8 @@ if err != nil {
 			return err
 		}
 // Text
-var_8 := ``
-_, err = templBuffer.WriteString(var_8)
+var_11 := ``
+_, err = templBuffer.WriteString(var_11)
 if err != nil {
 	return err
 }
@@ -471,8 +561,8 @@ if err != nil {
 			return err
 		}
 // Text
-var_9 := ``
-_, err = templBuffer.WriteString(var_9)
+var_12 := ``
+_, err = templBuffer.WriteString(var_12)
 if err != nil {
 	return err
 }

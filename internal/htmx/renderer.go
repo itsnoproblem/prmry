@@ -59,6 +59,7 @@ func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
 }
 
 func newHTMLWriter(w io.Writer) io.Writer {
+	gohtml.Condense = true
 	htmlWriter := gohtml.NewWriter(w)
 	htmlWriter.SetLastElement(">")
 	return htmlWriter

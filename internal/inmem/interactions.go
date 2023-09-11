@@ -34,7 +34,6 @@ func (r *InteractionMemoryRepo) Add(ctx context.Context, in interaction.Interact
 		Prompt:         in.PromptHTML(),
 		TokensUsed:     in.Response.Usage.TotalTokens,
 		ResponseLength: len(in.ResponseHTML()),
-		Error:          in.Error,
 		CreatedAt:      in.CreatedAt,
 		UserID:         in.UserID,
 	}

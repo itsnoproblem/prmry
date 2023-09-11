@@ -6,10 +6,39 @@ import (
 	"sort"
 )
 
+type Field struct {
+	Source string
+	Value  string
+}
+
+type RuleView struct {
+	Field
+	Condition string
+	Value     string
+}
+
+type FlowsListView struct {
+	Flows []FlowSummary
+	components.BaseComponent
+}
+
+type PromptArg struct {
+	Source flow.SourceType
+	Value  string
+}
+
+type FlowSummary struct {
+	ID          string
+	Name        string
+	RuleCount   string
+	LastChanged string
+}
+
 type Detail struct {
 	ID                  string
 	Name                string
 	Rules               []RuleView
+	SelectedTab         string
 	RequireAll          bool
 	Prompt              string
 	PromptArgs          []PromptArg
@@ -19,16 +48,21 @@ type Detail struct {
 	components.BaseComponent
 }
 
+func (d *Detail) AvailableTags() SortedMap {
+	tags := make(map[string]string, 0)
+	for _, arg := range d.PromptArgs {
+		if arg.Source == flow.FieldSourceInputTag {
+			tags[arg.Value] = arg.Value
+		}
+	}
+	return tags
+}
+
 func (d *Detail) SetAvalableFlows(flows []flow.Flow) {
 	d.AvailableFlowsByID = make(SortedMap, len(flows))
 	for _, f := range flows {
 		d.AvailableFlowsByID[f.ID] = f.Name
 	}
-}
-
-type PromptArg struct {
-	Source flow.SourceType
-	Value  string
 }
 
 func (d *Detail) ToFlow() flow.Flow {
@@ -60,29 +94,6 @@ func (d *Detail) ToFlow() flow.Flow {
 		Prompt:     d.Prompt,
 		PromptArgs: promptArgs,
 	}
-}
-
-type Field struct {
-	Source string
-	Value  string
-}
-
-type RuleView struct {
-	Field
-	Condition string
-	Value     string
-}
-
-type FlowsListView struct {
-	Flows []FlowSummary
-	components.BaseComponent
-}
-
-type FlowSummary struct {
-	ID          string
-	Name        string
-	RuleCount   string
-	LastChanged string
 }
 
 func NewDetail(flw flow.Flow) Detail {

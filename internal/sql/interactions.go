@@ -200,43 +200,6 @@ func (r *interactionsRepo) GetInteraction(ctx context.Context, id string) (inter
 	return ixn, nil
 }
 
-func (r *interactionsRepo) Summaries(ctx context.Context) ([]interaction.Summary, error) {
-	query := `
-		SELECT 
-		  i.id,
-		  i.user_id,
-		  i.type,
-		  i.model,
-		  i.prompt,
-		  (i.completion_tokens + i.prompt_tokens) AS tokens_used,
-		  LENGTH(i.response) AS response_length,
-		  i.flow_id,
-		  if(f.name IS NULL, '', f.name) AS flow_name,
-		  i.created_at
-		FROM interactions AS i
-		LEFT JOIN flows AS f ON f.id = i.flow_id 
-		ORDER BY created_at DESC
-	`
-
-	rows, err := r.db.QueryxContext(ctx, query)
-	if err != nil {
-		return nil, errors.Wrap(err, "sql.interactionsRepo.Summaries")
-	}
-	defer rows.Close()
-
-	interactions := make([]interaction.Summary, 0)
-	for rows.Next() {
-		var result summaryRow
-		if err = rows.StructScan(&result); err != nil {
-			return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
-		}
-
-		interactions = append(interactions, result.toSummary())
-	}
-
-	return interactions, nil
-}
-
 func (r *interactionsRepo) GetInteractionSummaries(ctx context.Context, userID string) ([]interaction.Summary, error) {
 	query := `
 		SELECT 

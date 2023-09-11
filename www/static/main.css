@@ -119,6 +119,36 @@ label[for=flow-selector] {
     padding-top: 12px;
 }
 
+#flow-builder label {
+    /*color: #BA55D3FF;*/
+    color: #4c82af;
+    left: 14px;
+}
+
+#flow-builder label.form-check-label {
+    color: unset;
+}
+
+#flow-builder .smaller {
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: 0.14em;
+}
+
+#flow-builder .larger {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#flow-builder .text-body-secondary {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#flow-builder .nav-tabs {
+
+}
+
 .content {
     padding: 2em 1em 0;
 }
@@ -484,3 +514,33 @@ li.dropdown {
     cursor: pointer;
 }
 
+#highlight-container {
+    position: relative;
+}
+
+#highlight, #promptEditor {
+    width: 100%;
+    min-height: 200px;
+    padding: 0.5rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+}
+
+#highlight {
+    position: absolute;
+    pointer-events: none;
+    padding: 9px;
+    z-index: 99;
+}
+
+#promptEditor {
+    position: relative;
+    background: transparent;
+    z-index: 2;
+}
+
+.highlight {
+    color: #e685b5;
+}

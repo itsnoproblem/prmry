@@ -1,10 +1,10 @@
 package input
 
 const (
-	PayloadTypeText  PayloadType = "text"
-	PayloadTypeImage PayloadType = "image"
-	PayloadTypeAudio PayloadType = "audio"
-	PayloadTypeVideo PayloadType = "video"
+	PayloadTypeText PayloadType = "text"
+	//PayloadTypeImage PayloadType = "image"
+	//PayloadTypeAudio PayloadType = "audio"
+	//PayloadTypeVideo PayloadType = "video"
 )
 
 type PayloadType string
@@ -15,18 +15,23 @@ type Payload struct {
 	Tags  map[string]string
 }
 
-func SupportedTypes() []PayloadType {
+func Types() []PayloadType {
 	return []PayloadType{
 		PayloadTypeText,
-		PayloadTypeImage,
-		PayloadTypeAudio,
-		PayloadTypeVideo,
+		//PayloadTypeImage,
+		//PayloadTypeAudio,
+		//PayloadTypeVideo,
 	}
 }
 
-func NewTextPayload(b []byte) Payload {
+func NewTextPayload(value string, tags map[string]string) Payload {
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+
 	return Payload{
 		Type:  PayloadTypeText,
-		Value: b,
+		Value: []byte(value),
+		Tags:  tags,
 	}
 }
