@@ -1,9 +1,17 @@
 package flow
 
 import (
+	"sort"
+
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
-	"sort"
+)
+
+const (
+	TabNameTrigger = "trigger"
+	TabNameInputs  = "input"
+	TabNamePreview = "preview"
+	TabNameLogs    = "logs"
 )
 
 type Field struct {
@@ -35,6 +43,7 @@ type FlowSummary struct {
 }
 
 type Detail struct {
+	components.BaseComponent
 	ID                  string
 	Name                string
 	Rules               []RuleView
@@ -45,7 +54,6 @@ type Detail struct {
 	SupportedFields     SortedMap
 	SupportedConditions SortedMap
 	AvailableFlowsByID  SortedMap
-	components.BaseComponent
 }
 
 func (d *Detail) AvailableTags() SortedMap {

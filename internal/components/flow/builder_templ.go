@@ -71,60 +71,8 @@ func FlowBuilder(view Detail) templ.Component {
 			var_3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" hx-script=\"true\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-// RawElement
-		_, err = templBuffer.WriteString("<script>")
-		if err != nil {
-			return err
-		}
-// Text
-var_4 := `
-            function updateHighlight() {
-                const textArea = document.getElementById('promptEditor');
-                const promptInput = document.getElementById('promptInput');
-                const highlight = document.getElementById('highlight');
-                const text = textArea.innerHTML.replace(/^\s+/, "");
-                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
-
-                promptInput.value = text;
-                highlight.innerHTML = highlightedText;
-            }
-
-            try {
-                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
-                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
-                    document.getElementById("highlight").scrollTop = this.scrollTop;
-                });
-            } catch(e) {
-                console.log(e);
-            }
-            document.addEventListener("DOMContentLoaded", function() {
-                // Initialize
-                updateHighlight();
-            });
-        `
-_, err = templBuffer.WriteString(var_4)
-if err != nil {
-	return err
-}
-		_, err = templBuffer.WriteString("</script>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
+		// TemplElement
+		err = FlowBuilderScripts().Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -221,7 +169,12 @@ if err != nil {
 			return err
 		}
 		// TemplElement
-		err = FlowOptions(view).Render(ctx, templBuffer)
+		err = FlowName(view).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		// TemplElement
+		err = PromptEditor(view).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -244,6 +197,20 @@ if err != nil {
 			return err
 		}
 		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"row\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
 		_, err = templBuffer.WriteString("<ul")
 		if err != nil {
 			return err
@@ -257,243 +224,31 @@ if err != nil {
 		if err != nil {
 			return err
 		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li")
+		// TemplElement
+		err = TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		// TemplElement
+		err = TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(">")
+		// TemplElement
+		err = TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=rules\"")
-		if err != nil {
-			return err
-		}
-		if view.SelectedTab == "rules" || view.SelectedTab == "" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-current=\"page\"")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_5 := `Trigger`
-		_, err = templBuffer.WriteString(var_5)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=inputs\"")
-		if err != nil {
-			return err
-		}
-		if view.SelectedTab == "inputs" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-current=\"page\"")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_6 := `Inputs`
-		_, err = templBuffer.WriteString(var_6)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=preview\"")
-		if err != nil {
-			return err
-		}
-		if view.SelectedTab == "preview" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-current=\"page\"")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_7 := `Preview`
-		_, err = templBuffer.WriteString(var_7)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<li")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<a")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt?tab=logs\"")
-		if err != nil {
-			return err
-		}
-		if view.SelectedTab == "logs" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" aria-current=\"page\"")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"nav-link\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_8 := `Logs`
-		_, err = templBuffer.WriteString(var_8)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</li>")
+		// TemplElement
+		err = TabNav(TabNameLogs, "Logs", view.SelectedTab == TabNameLogs).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
 		_, err = templBuffer.WriteString("</ul>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
@@ -511,137 +266,23 @@ if err != nil {
 		if err != nil {
 			return err
 		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		if view.SelectedTab != "inputs" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"d-none\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<h1>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_9 := `Inputs`
-		_, err = templBuffer.WriteString(var_9)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</h1>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		if view.SelectedTab != "preview" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"d-none\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<h1>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_10 := `preview`
-		_, err = templBuffer.WriteString(var_10)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</h1>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		if view.SelectedTab != "logs" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"d-none\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<h1>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_11 := `Logs`
-		_, err = templBuffer.WriteString(var_11)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</h1>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		if view.SelectedTab != "rules" && view.SelectedTab != "" {
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"d-none\"")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString(">")
+		// TemplElement
+		err = TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view)).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
 		// TemplElement
-		err = RuleBuilder(view).Render(ctx, templBuffer)
+		err = TabPanel(view.SelectedTab == TabNameInputs, Inputs(view)).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div>")
+		// TemplElement
+		err = TabPanel(view.SelectedTab == TabNamePreview, Preview(view)).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		// TemplElement
+		err = TabPanel(view.SelectedTab == TabNameLogs, Logs()).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -770,8 +411,8 @@ if err != nil {
 			return err
 		}
 		// Text
-		var_12 := `Cancel`
-		_, err = templBuffer.WriteString(var_12)
+		var_4 := `Cancel`
+		_, err = templBuffer.WriteString(var_4)
 		if err != nil {
 			return err
 		}
@@ -816,7 +457,203 @@ if err != nil {
 	})
 }
 
-func FieldSelector(id string, name string, options SortedMap, selected, label string) templ.Component {
+func Logs() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_5 := templ.GetChildren(ctx)
+		if var_5 == nil {
+			var_5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_6 := `Logs`
+		_, err = templBuffer.WriteString(var_6)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func Preview(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_7 := templ.GetChildren(ctx)
+		if var_7 == nil {
+			var_7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_8 := `Preview`
+		_, err = templBuffer.WriteString(var_8)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func Inputs(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_9 := templ.GetChildren(ctx)
+		if var_9 == nil {
+			var_9 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		// Text
+		var_10 := `Inputs`
+		_, err = templBuffer.WriteString(var_10)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func TabNav(tabID string, label string, isSelected bool) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_11 := templ.GetChildren(ctx)
+		if var_11 == nil {
+			var_11 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<li")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// Element (standard)
+		_, err = templBuffer.WriteString("<a")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-put=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString("/flows/new/prompt?tab=" + tabID))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		if isSelected {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link active\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(" aria-current=\"page\"")
+			if err != nil {
+				return err
+			}
+		} else {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"nav-link\"")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+		// StringExpression
+		var var_12 string = label
+		_, err = templBuffer.WriteString(templ.EscapeString(var_12))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</li>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func TabPanel(isActive bool, cmp templ.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -830,1012 +667,26 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
-		_, err = templBuffer.WriteString("<select")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" id=")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(id))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" name=")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(name))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" class=\"form-select form-select-md\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" aria-label=")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(label))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<option>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</option>")
-		if err != nil {
-			return err
-		}
-		// For
-		for _, value := range options.Keys() {
-			// If
-			if value == selected {
-				// Element (standard)
-				_, err = templBuffer.WriteString("<option")
-				if err != nil {
-					return err
-				}
-				// Element Attributes
-				_, err = templBuffer.WriteString(" value=")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(templ.EscapeString(value))
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(" selected=\"true\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(">")
-				if err != nil {
-					return err
-				}
-				// StringExpression
-				var var_14 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_14))
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("</option>")
-				if err != nil {
-					return err
-				}
-			} else {
-				// Element (standard)
-				_, err = templBuffer.WriteString("<option")
-				if err != nil {
-					return err
-				}
-				// Element Attributes
-				_, err = templBuffer.WriteString(" value=")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(templ.EscapeString(value))
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(">")
-				if err != nil {
-					return err
-				}
-				// StringExpression
-				var var_15 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_15))
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("</option>")
-				if err != nil {
-					return err
-				}
-			}
-		}
-		_, err = templBuffer.WriteString("</select>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" for=")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(id))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// StringExpression
-		var var_16 string = label
-		_, err = templBuffer.WriteString(templ.EscapeString(var_16))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = io.Copy(w, templBuffer)
-		}
-		return err
-	})
-}
-
-func RuleBuilder(view Detail) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_17 := templ.GetChildren(ctx)
-		if var_17 == nil {
-			var_17 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"larger\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_18 := `Execute this flow when`
-		_, err = templBuffer.WriteString(var_18)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"d-flex justify-content-between\"")
-		if err != nil {
-			return err
+		if !isActive {
+			// Element Attributes
+			_, err = templBuffer.WriteString(" class=\"d-none\"")
+			if err != nil {
+				return err
+			}
 		}
 		_, err = templBuffer.WriteString(">")
 		if err != nil {
 			return err
 		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
+		// TemplElement
+		err = cmp.Render(ctx, templBuffer)
 		if err != nil {
 			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"d-flex justify-content-around\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check pe-4 pt-2\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// If
-		if view.RequireAll {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" checked")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"true\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check-label smaller\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" for=\"require-all-true\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<em>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_19 := `ALL`
-		_, err = templBuffer.WriteString(var_19)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em>")
-		if err != nil {
-			return err
-		}
-		// Whitespace (normalised)
-		_, err = templBuffer.WriteString(` `)
-		if err != nil {
-			return err
-		}
-		// Text
-		var_20 := `rules match`
-		_, err = templBuffer.WriteString(var_20)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check pt-2\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// If
-		if view.RequireAll {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		} else {
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-check-input smaller\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" type=\"radio\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"requireAll\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=\"require-all-false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=\"false\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" checked")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"form-check-label smaller\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" for=\"require-all-false\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<em>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_21 := `ANY`
-		_, err = templBuffer.WriteString(var_21)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em>")
-		if err != nil {
-			return err
-		}
-		// Whitespace (normalised)
-		_, err = templBuffer.WriteString(` `)
-		if err != nil {
-			return err
-		}
-		// Text
-		var_22 := `rule matches`
-		_, err = templBuffer.WriteString(var_22)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<button")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" id=\"add-rule\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-post=\"/flows/new/rules\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" hx-push-url=\"false\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" class=\"btn btn-info btn-sm mb-3\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_23 := `Add Rule`
-		_, err = templBuffer.WriteString(var_23)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</button>")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		// Element (void)
-		_, err = templBuffer.WriteString("<hr")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"text-info mb-5 mt-0\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" id=\"rules-container\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(" class=\"container pb-4\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// If
-		if len(view.Rules) == 0 {
-			// Element (standard)
-			_, err = templBuffer.WriteString("<h2")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"text-body-secondary text-body-secondary\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_24 := `No rules yet`
-			_, err = templBuffer.WriteString(var_24)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</h2>")
-			if err != nil {
-				return err
-			}
-		}
-		// For
-		for i, rule := range view.Rules {
-			// If
-			if i > 0 {
-				// Element (void)
-				_, err = templBuffer.WriteString("<hr")
-				if err != nil {
-					return err
-				}
-				// Element Attributes
-				_, err = templBuffer.WriteString(" class=\"text-secondary pb-3\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(">")
-				if err != nil {
-					return err
-				}
-			}
-			// Whitespace (normalised)
-			_, err = templBuffer.WriteString(` `)
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"row flow-rule fade-in\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// TemplElement
-			err = FieldSelector(fmt.Sprintf("fieldName-%d", i), "fieldName", view.SupportedFields, rule.Field.Source, "Source").Render(ctx, templBuffer)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			// If
-			if rule.Field.Source == flow.FieldSourceFlow.String() {
-				// Element (standard)
-				_, err = templBuffer.WriteString("<div")
-				if err != nil {
-					return err
-				}
-				// Element Attributes
-				_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString(">")
-				if err != nil {
-					return err
-				}
-				// TemplElement
-				err = FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow").Render(ctx, templBuffer)
-				if err != nil {
-					return err
-				}
-				_, err = templBuffer.WriteString("</div>")
-				if err != nil {
-					return err
-				}
-			}
-			// If
-			if rule.Field.Source == flow.FieldSourceInputTag.String() {
-				// TemplElement
-				err = FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow").Render(ctx, templBuffer)
-				if err != nil {
-					return err
-				}
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// TemplElement
-			err = FieldSelector(fmt.Sprintf("condition-%d", i), "condition", view.SupportedConditions, rule.Condition, "Condition").Render(ctx, templBuffer)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"form-floating mb-3\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (void)
-			_, err = templBuffer.WriteString("<input")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" type=\"text\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" name=\"value\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" id=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("value-%d", i)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"form-control form-control-md\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" placeholder=\"Value\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" value=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(rule.Value))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<label")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" for=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("value-%d", i)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Text
-			var_25 := `Value`
-			_, err = templBuffer.WriteString(var_25)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</label>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<div")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"col-1 pt-3\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<a")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" hx-delete=")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("/flows/new/rules/%d", i)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" hx-target=\"#content-root\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(" class=\"button-secondary\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			// Element (standard)
-			_, err = templBuffer.WriteString("<i")
-			if err != nil {
-				return err
-			}
-			// Element Attributes
-			_, err = templBuffer.WriteString(" class=\"fa fa-close\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(">")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</i>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</a>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</div>")
-			if err != nil {
-				return err
-			}
 		}
 		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
@@ -1848,7 +699,7 @@ func RuleBuilder(view Detail) templ.Component {
 	})
 }
 
-func FlowOptions(view Detail) templ.Component {
+func FlowName(view Detail) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -1856,9 +707,9 @@ func FlowOptions(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_26 := templ.GetChildren(ctx)
-		if var_26 == nil {
-			var_26 = templ.NopComponent
+		var_14 := templ.GetChildren(ctx)
+		if var_14 == nil {
+			var_14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1936,8 +787,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_27 := `Flow Name`
-		_, err = templBuffer.WriteString(var_27)
+		var_15 := `Flow Name`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -1949,6 +800,26 @@ func FlowOptions(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func PromptEditor(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_16 := templ.GetChildren(ctx)
+		if var_16 == nil {
+			var_16 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
@@ -1986,13 +857,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_28 := `Prompt generated by this flow`
-		_, err = templBuffer.WriteString(var_28)
-		if err != nil {
-			return err
-		}
-		// Whitespace (normalised)
-		_, err = templBuffer.WriteString(` `)
+		var_17 := `Prompt generated by this flow`
+		_, err = templBuffer.WriteString(var_17)
 		if err != nil {
 			return err
 		}
@@ -2016,8 +882,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_29 := `(indicate replacements with `
-		_, err = templBuffer.WriteString(var_29)
+		var_18 := `(indicate replacements with `
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -2027,8 +893,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_30 := `%s`
-		_, err = templBuffer.WriteString(var_30)
+		var_19 := `%s`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -2037,8 +903,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_31 := `)`
-		_, err = templBuffer.WriteString(var_31)
+		var_20 := `)`
+		_, err = templBuffer.WriteString(var_20)
 		if err != nil {
 			return err
 		}
@@ -2121,8 +987,8 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_32 string = view.Prompt
-		_, err = templBuffer.WriteString(templ.EscapeString(var_32))
+		var var_21 string = view.Prompt
+		_, err = templBuffer.WriteString(templ.EscapeString(var_21))
 		if err != nil {
 			return err
 		}
@@ -2195,8 +1061,8 @@ func FlowOptions(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_33 := `Prompt Arguments:`
-			_, err = templBuffer.WriteString(var_33)
+			var_22 := `Prompt Arguments:`
+			_, err = templBuffer.WriteString(var_22)
 			if err != nil {
 				return err
 			}
@@ -2379,8 +1245,8 @@ func FlowOptions(view Detail) templ.Component {
 					return err
 				}
 				// Text
-				var_34 := `Key name`
-				_, err = templBuffer.WriteString(var_34)
+				var_23 := `Key name`
+				_, err = templBuffer.WriteString(var_23)
 				if err != nil {
 					return err
 				}
@@ -2408,14 +1274,91 @@ func FlowOptions(view Detail) templ.Component {
 			return err
 		}
 // Text
-var_35 := `
+var_24 := `
         updateHighlight();
     `
-_, err = templBuffer.WriteString(var_35)
+_, err = templBuffer.WriteString(var_24)
 if err != nil {
 	return err
 }
 		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = io.Copy(w, templBuffer)
+		}
+		return err
+	})
+}
+
+func FlowBuilderScripts() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_25 := templ.GetChildren(ctx)
+		if var_25 == nil {
+			var_25 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		// Element (standard)
+		_, err = templBuffer.WriteString("<div")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" hx-script=\"true\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
+// RawElement
+		_, err = templBuffer.WriteString("<script>")
+		if err != nil {
+			return err
+		}
+// Text
+var_26 := `
+            function updateHighlight() {
+                const textArea = document.getElementById('promptEditor');
+                const promptInput = document.getElementById('promptInput');
+                const highlight = document.getElementById('highlight');
+                const text = textArea.innerHTML.replace(/^\s+/, "");
+                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+
+                promptInput.value = text;
+                highlight.innerHTML = highlightedText;
+            }
+
+            try {
+                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
+                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
+                    document.getElementById("highlight").scrollTop = this.scrollTop;
+                });
+            } catch(e) {
+                console.log(e);
+            }
+            document.addEventListener("DOMContentLoaded", function() {
+                // Initialize
+                updateHighlight();
+            });
+        `
+_, err = templBuffer.WriteString(var_26)
+if err != nil {
+	return err
+}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}

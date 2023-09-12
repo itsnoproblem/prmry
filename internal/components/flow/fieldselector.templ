@@ -1,0 +1,21 @@
+package flow
+
+templ FieldSelector(id string, name string, options SortedMap, selected, label string) {
+    <select
+        id={ id }
+        name={ name }
+        class="form-select form-select-md"
+        aria-label={ label }
+        hx-put="/flows/new/prompt"
+    >
+        <option></option>
+        for _, value := range options.Keys() {
+            if value == selected {
+                <option value={ value } selected="true">{ options[value] }</option>
+            } else {
+                <option value={ value }>{ options[value] }</option>
+            }
+        }
+    </select>
+    <label for={ id }>{ label }</label>
+}
