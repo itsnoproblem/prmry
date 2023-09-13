@@ -30,16 +30,7 @@ func RuleBuilder(view Detail) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
-		_, err = templBuffer.WriteString("<label")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"larger\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
+		_, err = templBuffer.WriteString("<label>")
 		if err != nil {
 			return err
 		}

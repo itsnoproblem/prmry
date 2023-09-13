@@ -111,9 +111,11 @@ h3 {
     border-radius: 2em;
     padding: 0.3em 1em 0.3em 1em;
 }
+
 #chat-controls .form-group {
     padding: 4px;
 }
+
 label[for=flow-selector] {
     margin-left: 8px;
     padding-top: 12px;
@@ -121,7 +123,8 @@ label[for=flow-selector] {
 
 #flow-builder label {
     /*color: #BA55D3FF;*/
-    color: #4c82af;
+    /*color: #ffff8b;*/
+    color: #7bbbfd;
     left: 14px;
 }
 
@@ -145,8 +148,9 @@ label[for=flow-selector] {
     font-size: 18px;
 }
 
-#flow-builder .nav-tabs {
-
+.nav a {
+    color: #ffff8b;
+    /*color: #7bbbfd;*/
 }
 
 .content {
