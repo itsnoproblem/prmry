@@ -60,6 +60,20 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 		auth.Required,
 	)
 
+	flowBuilderAddInputEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderAddInputEndpoint(svc),
+		decodeFlowBuilderRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
+	flowBuilderDeleteInputEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderRemoveInputEndpoint(svc),
+		decodeFlowBuilderDeleteInputRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
 	flowBuilderUpdatePromptEndpoint := htmx.NewEndpoint(
 		makeFlowBuilderUpdatePromptEndpoint(svc),
 		decodeFlowBuilderRequest,
@@ -83,14 +97,19 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 
 	return func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Get("/flows/new", htmx.MakeHandler(newFlowFormEndpoint, renderer))
-			r.Post("/flows/new/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
-			r.Delete("/flows/new/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
-			r.Put("/flows/new/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
-			r.Post("/flows", htmx.MakeHandler(saveFlowEndpoint, renderer))
+
 			r.Get("/flows", htmx.MakeHandler(listFlowsEndpoint, renderer))
 			r.Get("/flows/{flowID}/edit", htmx.MakeHandler(editFlowEndpoint, renderer))
+			r.Post("/flows", htmx.MakeHandler(saveFlowEndpoint, renderer))
 			r.Delete("/flows/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
+
+			r.Get("/flow-builder", htmx.MakeHandler(newFlowFormEndpoint, renderer))
+
+			r.Put("/flow-builder/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
+			r.Post("/flow-builder/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
+			r.Delete("/flow-builder/rules/{index}", htmx.MakeHandler(flowBuilderDeleteRuleEndpoint, renderer))
+			r.Post("/flow-builder/inputs", htmx.MakeHandler(flowBuilderAddInputEndpoint, renderer))
+			r.Delete("/flow-builder/inputs/{index}", htmx.MakeHandler(flowBuilderDeleteInputEndpoint, renderer))
 		})
 	}
 }
@@ -101,13 +120,15 @@ func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}
 
 func decodeDeleteFlowRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return deleteFlowRequest{
-		FlowID: chi.URLParam(request, "flowID"),
+		FlowID:      chi.URLParam(request, "flowID"),
+		SelectedTab: getSelectedTab(request),
 	}, nil
 }
 
 func decodeEditFormRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return editFlowRequest{
-		FlowID: chi.URLParam(request, "flowID"),
+		FlowID:      chi.URLParam(request, "flowID"),
+		SelectedTab: getSelectedTab(request),
 	}, nil
 }
 
@@ -128,7 +149,30 @@ func decodeFlowBuilderDeleteRuleRequest(ctx context.Context, request *http.Reque
 		return nil, fmt.Errorf("decodeFlowBuilderDeleteRuleRequest: failed to parse form")
 	}
 
-	return flowBuilderRemoveRuleRequest{
+	return flowBuilderRemoveItemRequest{
+		Index: idx,
+		Form:  formRequest,
+	}, nil
+}
+
+func decodeFlowBuilderDeleteInputRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	index := chi.URLParam(request, "index")
+	idx, err := strconv.Atoi(index)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderDeleteInputRequest")
+	}
+
+	form, err := decodeFlowBuilderRequest(ctx, request)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderDeleteInputRequest")
+	}
+
+	formRequest, ok := form.(flowcmp.Detail)
+	if !ok {
+		return nil, fmt.Errorf("decodeFlowBuilderDeleteInputRequest: failed to parse form")
+	}
+
+	return flowBuilderRemoveItemRequest{
 		Index: idx,
 		Form:  formRequest,
 	}, nil
@@ -226,7 +270,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 			pargs.Value = promptArgFlows[flowIndex]
 			flowIndex++
 		}
-		if flow.SourceType(arg) == flow.FieldSourceInputTag && len(inputTags) > tagIndex {
+		if flow.SourceType(arg) == flow.FieldSourceInputArg && len(inputTags) > tagIndex {
 			pargs.Value = inputTags[tagIndex]
 			tagIndex++
 		}
@@ -247,13 +291,15 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	flowIndex = 0
 	tagIndex = 0
 	form.Rules = make([]flowcmp.RuleView, 0)
+
 	for i, fieldSource := range fieldNames {
 		fieldValue := ""
 		if fieldSource == flow.FieldSourceFlow.String() && len(selectedFlows) > flowIndex {
 			fieldValue = selectedFlows[flowIndex]
 			flowIndex++
 		}
-		if fieldSource == flow.FieldSourceInputTag.String() && len(inputTags) > tagIndex {
+
+		if fieldSource == flow.FieldSourceInputArg.String() && len(inputTags) > tagIndex {
 			fieldValue = inputTags[tagIndex]
 			tagIndex++
 		}

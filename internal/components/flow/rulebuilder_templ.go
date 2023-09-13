@@ -354,7 +354,7 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-post=\"/flows/new/rules\"")
+		_, err = templBuffer.WriteString(" hx-post=\"/flow-builder/rules\"")
 		if err != nil {
 			return err
 		}
@@ -437,12 +437,41 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_8 := `No rules yet`
+			var_8 := `Flow always executes`
 			_, err = templBuffer.WriteString(var_8)
 			if err != nil {
 				return err
 			}
 			_, err = templBuffer.WriteString("</h2>")
+			if err != nil {
+				return err
+			}
+			// Whitespace (normalised)
+			_, err = templBuffer.WriteString(` `)
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<div>")
+			if err != nil {
+				return err
+			}
+			// Element (standard)
+			_, err = templBuffer.WriteString("<em>")
+			if err != nil {
+				return err
+			}
+			// Text
+			var_9 := `Create a rule to add conditions.`
+			_, err = templBuffer.WriteString(var_9)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</em>")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</div>")
 			if err != nil {
 				return err
 			}
@@ -549,7 +578,7 @@ func RuleBuilder(view Detail) templ.Component {
 				}
 			}
 			// If
-			if rule.Field.Source == flow.FieldSourceInputTag.String() {
+			if rule.Field.Source == flow.FieldSourceInputArg.String() {
 				// TemplElement
 				err = FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow").Render(ctx, templBuffer)
 				if err != nil {
@@ -714,8 +743,8 @@ func RuleBuilder(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_9 := `Value`
-			_, err = templBuffer.WriteString(var_9)
+			var_10 := `Value`
+			_, err = templBuffer.WriteString(var_10)
 			if err != nil {
 				return err
 			}
@@ -759,7 +788,7 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("/flows/new/rules/%d", i)))
+			_, err = templBuffer.WriteString(templ.EscapeString(fmt.Sprintf("/flow-builder/rules/%d", i)))
 			if err != nil {
 				return err
 			}

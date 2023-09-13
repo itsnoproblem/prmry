@@ -42,6 +42,11 @@ type FlowSummary struct {
 	LastChanged string
 }
 
+type InputParam struct {
+	Type flow.ParamType
+	Key  string
+}
+
 type Detail struct {
 	components.BaseComponent
 	ID                  string
@@ -54,12 +59,13 @@ type Detail struct {
 	SupportedFields     SortedMap
 	SupportedConditions SortedMap
 	AvailableFlowsByID  SortedMap
+	InputParams         []InputParam
 }
 
 func (d *Detail) AvailableTags() SortedMap {
 	tags := make(map[string]string, 0)
 	for _, arg := range d.PromptArgs {
-		if arg.Source == flow.FieldSourceInputTag {
+		if arg.Source == flow.FieldSourceInputArg {
 			tags[arg.Value] = arg.Value
 		}
 	}

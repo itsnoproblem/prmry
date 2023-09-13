@@ -63,7 +63,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderPage",
 			Method:         http.MethodGet,
-			Path:           "/flows/new",
+			Path:           "/flow-builder",
 			FullPage:       true,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: nil,
@@ -71,7 +71,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment",
 			Method:         http.MethodGet,
-			Path:           "/flows/new",
+			Path:           "/flow-builder",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: nil,
@@ -79,7 +79,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment Add Rule",
 			Method:         http.MethodPost,
-			Path:           "/flows/new/rules",
+			Path:           "/flow-builder/rules",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: flowing.FlowBuilderFormRequest{
@@ -92,7 +92,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment Delete Rule",
 			Method:         http.MethodDelete,
-			Path:           "/flows/new/rules/0",
+			Path:           "/flow-builder/rules/0",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: flowing.FlowBuilderFormRequest{
@@ -105,7 +105,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment Update Prompt",
 			Method:         http.MethodPut,
-			Path:           "/flows/new/prompt",
+			Path:           "/flow-builder/prompt",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: flowing.FlowBuilderFormRequest{
@@ -118,7 +118,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment Select Prompt Replacement",
 			Method:         http.MethodPut,
-			Path:           "/flows/new/prompt",
+			Path:           "/flow-builder/prompt",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: flowing.FlowBuilderFormRequest{
@@ -132,7 +132,7 @@ func TestFlowing(t *testing.T) {
 		{
 			Name:           "FlowBuilderFragment Select Multiple Prompt Replacements",
 			Method:         http.MethodPut,
-			Path:           "/flows/new/prompt",
+			Path:           "/flow-builder/prompt",
 			FullPage:       false,
 			WantStatusCode: http.StatusOK,
 			RequestPayload: flowing.FlowBuilderFormRequest{

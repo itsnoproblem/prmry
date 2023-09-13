@@ -80,7 +80,7 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
+		_, err = templBuffer.WriteString(" hx-put=\"/flow-builder/prompt\"")
 		if err != nil {
 			return err
 		}

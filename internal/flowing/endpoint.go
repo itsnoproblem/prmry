@@ -108,8 +108,9 @@ func makeNewFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 }
 
 type editFlowRequest struct {
-	FlowID string
-	Form   *flowcmp.Detail
+	FlowID      string
+	Form        *flowcmp.Detail
+	SelectedTab string
 }
 
 func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
@@ -146,6 +147,22 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 
 		cmp.SupportedFields = flow.SupportedFields()
 		cmp.SupportedConditions = flow.SupportedConditions()
+		cmp.SelectedTab = req.SelectedTab
+
+		return flowBuilderResponse{
+			Form: cmp,
+		}, nil
+	}
+}
+
+func makeFlowBuilderAddInputEndpoint(svc Service) htmx.HandlerFunc {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		cmp, ok := request.(flowcmp.Detail)
+		if !ok {
+			return nil, fmt.Errorf("makeFlowBuilderAddRuleEndpoint: failed to parse request")
+		}
+
+		cmp.InputParams = append(cmp.InputParams, flowcmp.InputParam{})
 
 		return flowBuilderResponse{
 			Form: cmp,
@@ -168,14 +185,35 @@ func makeFlowBuilderAddRuleEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-type flowBuilderRemoveRuleRequest struct {
+type flowBuilderRemoveItemRequest struct {
 	Index int
 	Form  flowcmp.Detail
 }
 
+func makeFlowBuilderRemoveInputEndpoint(svc Service) htmx.HandlerFunc {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(flowBuilderRemoveItemRequest)
+		if !ok {
+			return nil, fmt.Errorf("makeFlowBuilderRemoveInputEndpoint: failed to parse request")
+		}
+
+		cmp := req.Form
+
+		if len(cmp.Rules) > 0 {
+			revisedInputs := make([]flowcmp.InputParam, 0)
+			revisedInputs = append(revisedInputs, cmp.InputParams[:req.Index]...)
+			cmp.InputParams = append(revisedInputs, cmp.InputParams[req.Index+1:]...)
+		}
+
+		return flowBuilderResponse{
+			Form: cmp,
+		}, nil
+	}
+}
+
 func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req, ok := request.(flowBuilderRemoveRuleRequest)
+		req, ok := request.(flowBuilderRemoveItemRequest)
 		if !ok {
 			return nil, fmt.Errorf("makeFlowBuilderRemoveRuleEndpoint: failed to parse request")
 		}
@@ -274,7 +312,8 @@ func makeSaveFlowEndpoint(svc Service) htmx.HandlerFunc {
 }
 
 type deleteFlowRequest struct {
-	FlowID string
+	FlowID      string
+	SelectedTab string
 }
 
 func (req deleteFlowRequest) validate() error {

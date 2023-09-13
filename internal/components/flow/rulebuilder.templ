@@ -32,7 +32,7 @@ templ RuleBuilder(view Detail) {
             </div>
         </div>
         <button id="add-rule"
-                hx-post="/flows/new/rules"
+                hx-post="/flow-builder/rules"
                 hx-target="#content-root"
                 hx-push-url="false"
                 class="btn btn-info btn-sm mb-3">
@@ -46,8 +46,11 @@ templ RuleBuilder(view Detail) {
 
         if len(view.Rules) == 0 {
             <h2 class="text-body-secondary text-body-secondary">
-            No rules yet
+            Flow always executes
             </h2>
+            <div>
+                <em>Create a rule to add conditions.</em>
+            </div>
         }
 
         for i, rule := range view.Rules {
@@ -64,7 +67,7 @@ templ RuleBuilder(view Detail) {
                     @FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
                 </div>
                 }
-                if rule.Field.Source == flow.FieldSourceInputTag.String() {
+                if rule.Field.Source == flow.FieldSourceInputArg.String() {
                     @FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow")
                 }
             </div>
@@ -85,7 +88,7 @@ templ RuleBuilder(view Detail) {
                 </div>
             </div>
             <div class="col-1 pt-3">
-                <a  hx-delete={ fmt.Sprintf("/flows/new/rules/%d", i) }
+                <a  hx-delete={ fmt.Sprintf("/flow-builder/rules/%d", i) }
                     hx-target="#content-root"
                     class="button-secondary"
                 >

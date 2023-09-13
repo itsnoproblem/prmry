@@ -197,26 +197,12 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// Element (standard)
-		_, err = templBuffer.WriteString("<div")
-		if err != nil {
-			return err
-		}
-		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"row\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(">")
-		if err != nil {
-			return err
-		}
-		// Element (standard)
 		_, err = templBuffer.WriteString("<ul")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav nav-tabs pb-4\"")
+		_, err = templBuffer.WriteString(" class=\"nav nav-tabs pb-3\"")
 		if err != nil {
 			return err
 		}
@@ -225,7 +211,7 @@ func FlowBuilder(view Detail) templ.Component {
 			return err
 		}
 		// TemplElement
-		err = TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger).Render(ctx, templBuffer)
+		err = TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -248,17 +234,13 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"row\"")
+		_, err = templBuffer.WriteString(" class=\"tab-content\"")
 		if err != nil {
 			return err
 		}
@@ -676,7 +658,7 @@ func Preview(view Detail) templ.Component {
 	})
 }
 
-func Inputs(view Detail) templ.Component {
+func TabNav(tabID string, label string, isSelected bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -690,47 +672,12 @@ func Inputs(view Detail) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
-		_, err = templBuffer.WriteString("<h1>")
-		if err != nil {
-			return err
-		}
-		// Text
-		var_18 := `Inputs`
-		_, err = templBuffer.WriteString(var_18)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</h1>")
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = io.Copy(w, templBuffer)
-		}
-		return err
-	})
-}
-
-func TabNav(tabID string, label string, isSelected bool) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_19 := templ.GetChildren(ctx)
-		if var_19 == nil {
-			var_19 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		// Element (standard)
 		_, err = templBuffer.WriteString("<li")
 		if err != nil {
 			return err
 		}
 		// Element Attributes
-		_, err = templBuffer.WriteString(" class=\"nav-item\"")
+		_, err = templBuffer.WriteString(" class=\"nav-item border-bottom\"")
 		if err != nil {
 			return err
 		}
@@ -752,7 +699,23 @@ func TabNav(tabID string, label string, isSelected bool) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(templ.EscapeString("/flows/new/prompt?tab=" + tabID))
+		_, err = templBuffer.WriteString(templ.EscapeString("/flow-builder/prompt?tab=" + tabID))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" hx-push-url=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString("?tab=" + tabID))
 		if err != nil {
 			return err
 		}
@@ -782,8 +745,8 @@ func TabNav(tabID string, label string, isSelected bool) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_20 string = label
-		_, err = templBuffer.WriteString(templ.EscapeString(var_20))
+		var var_18 string = label
+		_, err = templBuffer.WriteString(templ.EscapeString(var_18))
 		if err != nil {
 			return err
 		}
@@ -810,9 +773,9 @@ func TabPanel(isActive bool, cmp templ.Component) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_21 := templ.GetChildren(ctx)
-		if var_21 == nil {
-			var_21 = templ.NopComponent
+		var_19 := templ.GetChildren(ctx)
+		if var_19 == nil {
+			var_19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -856,9 +819,9 @@ func FlowName(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_22 := templ.GetChildren(ctx)
-		if var_22 == nil {
-			var_22 = templ.NopComponent
+		var_20 := templ.GetChildren(ctx)
+		if var_20 == nil {
+			var_20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -936,8 +899,8 @@ func FlowName(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_23 := `Flow Name`
-		_, err = templBuffer.WriteString(var_23)
+		var_21 := `Flow Name`
+		_, err = templBuffer.WriteString(var_21)
 		if err != nil {
 			return err
 		}
@@ -964,9 +927,9 @@ func PromptEditor(view Detail) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_24 := templ.GetChildren(ctx)
-		if var_24 == nil {
-			var_24 = templ.NopComponent
+		var_22 := templ.GetChildren(ctx)
+		if var_22 == nil {
+			var_22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1006,8 +969,8 @@ func PromptEditor(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_25 := `Prompt generated by this flow`
-		_, err = templBuffer.WriteString(var_25)
+		var_23 := `Prompt generated by this flow`
+		_, err = templBuffer.WriteString(var_23)
 		if err != nil {
 			return err
 		}
@@ -1073,7 +1036,7 @@ func PromptEditor(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
+		_, err = templBuffer.WriteString(" hx-put=\"/flow-builder/prompt\"")
 		if err != nil {
 			return err
 		}
@@ -1086,8 +1049,8 @@ func PromptEditor(view Detail) templ.Component {
 			return err
 		}
 		// StringExpression
-		var var_26 string = view.Prompt
-		_, err = templBuffer.WriteString(templ.EscapeString(var_26))
+		var var_24 string = view.Prompt
+		_, err = templBuffer.WriteString(templ.EscapeString(var_24))
 		if err != nil {
 			return err
 		}
@@ -1114,8 +1077,8 @@ func PromptEditor(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_27 := `indicate prompt arguments with `
-		_, err = templBuffer.WriteString(var_27)
+		var_25 := `indicate prompt arguments with `
+		_, err = templBuffer.WriteString(var_25)
 		if err != nil {
 			return err
 		}
@@ -1125,8 +1088,8 @@ func PromptEditor(view Detail) templ.Component {
 			return err
 		}
 		// Text
-		var_28 := `%s`
-		_, err = templBuffer.WriteString(var_28)
+		var_26 := `%s`
+		_, err = templBuffer.WriteString(var_26)
 		if err != nil {
 			return err
 		}
@@ -1209,8 +1172,8 @@ func PromptEditor(view Detail) templ.Component {
 				return err
 			}
 			// Text
-			var_29 := `Prompt Arguments:`
-			_, err = templBuffer.WriteString(var_29)
+			var_27 := `Prompt Arguments:`
+			_, err = templBuffer.WriteString(var_27)
 			if err != nil {
 				return err
 			}
@@ -1289,7 +1252,7 @@ func PromptEditor(view Detail) templ.Component {
 				}
 			}
 			// If
-			if arg.Source == flow.FieldSourceInputTag {
+			if arg.Source == flow.FieldSourceInputArg {
 				// Element (standard)
 				_, err = templBuffer.WriteString("<div")
 				if err != nil {
@@ -1338,7 +1301,7 @@ func PromptEditor(view Detail) templ.Component {
 				if err != nil {
 					return err
 				}
-				_, err = templBuffer.WriteString(" hx-put=\"/flows/new/prompt\"")
+				_, err = templBuffer.WriteString(" hx-put=\"/flow-builder/prompt\"")
 				if err != nil {
 					return err
 				}
@@ -1397,8 +1360,8 @@ func PromptEditor(view Detail) templ.Component {
 					return err
 				}
 				// Text
-				var_30 := `Key name`
-				_, err = templBuffer.WriteString(var_30)
+				var_28 := `Key name`
+				_, err = templBuffer.WriteString(var_28)
 				if err != nil {
 					return err
 				}
@@ -1426,10 +1389,10 @@ func PromptEditor(view Detail) templ.Component {
 			return err
 		}
 // Text
-var_31 := `
+var_29 := `
         updateHighlight();
     `
-_, err = templBuffer.WriteString(var_31)
+_, err = templBuffer.WriteString(var_29)
 if err != nil {
 	return err
 }
@@ -1452,9 +1415,9 @@ func FlowBuilderScripts() templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_32 := templ.GetChildren(ctx)
-		if var_32 == nil {
-			var_32 = templ.NopComponent
+		var_30 := templ.GetChildren(ctx)
+		if var_30 == nil {
+			var_30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		// Element (standard)
@@ -1477,7 +1440,7 @@ func FlowBuilderScripts() templ.Component {
 			return err
 		}
 // Text
-var_33 := `
+var_31 := `
             function updateHighlight() {
                 const textArea = document.getElementById('promptEditor');
                 const promptInput = document.getElementById('promptInput');
@@ -1497,12 +1460,13 @@ var_33 := `
             } catch(e) {
                 console.log(e);
             }
+
             document.addEventListener("DOMContentLoaded", function() {
                 // Initialize
                 updateHighlight();
             });
         `
-_, err = templBuffer.WriteString(var_33)
+_, err = templBuffer.WriteString(var_31)
 if err != nil {
 	return err
 }

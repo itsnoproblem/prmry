@@ -30,15 +30,14 @@ templ FlowBuilder(view Detail) {
                 @PromptEditor(view)
             </div>
             <div class="col col-7">
-                <div class="row">
-                    <ul class="nav nav-tabs pb-4">
-                        @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger)
-                        @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
-                        @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
-                        @TabNav(TabNameLogs, "Logs", view.SelectedTab == TabNameLogs)
-                    </ul>
-                </div>
-                <div class="row">
+
+                <ul class="nav nav-tabs pb-3">
+                    @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "")
+                    @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
+                    @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
+                    @TabNav(TabNameLogs, "Logs", view.SelectedTab == TabNameLogs)
+                </ul>
+                <div class="tab-content">
                     @TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view))
                     @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
                     @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
@@ -101,13 +100,12 @@ templ Preview(view Detail) {
     </div>
 }
 
-templ Inputs(view Detail) {
-    <h1>Inputs</h1>
-}
+
 
 templ TabNav(tabID string, label string, isSelected bool) {
-    <li class="nav-item">
-        <a hx-put={ "/flows/new/prompt?tab=" + tabID }
+    <li class="nav-item border-bottom">
+        <a hx-put={ "/flow-builder/prompt?tab=" + tabID }
+           hx-push-url={ "?tab=" + tabID }
             if isSelected {
                 class="nav-link active"
                 aria-current="page"
@@ -153,7 +151,7 @@ templ PromptEditor(view Detail) {
                  contenteditable="true"
                  class="form-control"
                  hx-swap="morph:innerHTML"
-                 hx-put="/flows/new/prompt"
+                 hx-put="/flow-builder/prompt"
                  hx-trigger="input delay:1100ms from:#promptEditor">{ view.Prompt }</div>
         </div>
         <span class="smaller">
@@ -179,13 +177,13 @@ templ PromptEditor(view Detail) {
                     @FieldSelector(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
                 </div>
                 }
-                if arg.Source == flow.FieldSourceInputTag {
+                if arg.Source == flow.FieldSourceInputArg {
                 <div class="form-floating col">
                     <input type="text"
                            name="inputTags"
                            id={ fmt.Sprintf("promptArg-tagKey-%d", j) }
                     hx-trigger="blur"
-                    hx-put="/flows/new/prompt"
+                    hx-put="/flow-builder/prompt"
                     class="form-control form-control-md"
                     placeholder="myKey"
                     value={ arg.Value }

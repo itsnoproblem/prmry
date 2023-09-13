@@ -52,7 +52,7 @@
         </label>
         <div id="highlight-container" class="border rounded">
           <div id="highlight"></div>
-          <div id="promptEditor" contenteditable="true" class="form-control" hx-put="/flows/new/prompt" hx-trigger="keyup changed delay:1500ms">The quick brown %s jumps over the hill</div>
+          <div id="promptEditor" contenteditable="true" class="form-control" hx-put="/flow-builder/prompt" hx-trigger="keyup changed delay:1500ms">The quick brown %s jumps over the hill</div>
         </div>
         <input type="hidden" name="prompt" id="promptInput" value="{ view.Prompt }">
       </div>
@@ -60,7 +60,7 @@
         <div class="mb-2 text-body-secondary">Replacements:</div>
         <div class="row mb-3">
           <div class="form-floating col">
-            <select name="promptArgs" class="form-select form-select-md" aria-label="Replacement 0" hx-put="/flows/new/prompt">
+            <select name="promptArgs" class="form-select form-select-md" aria-label="Replacement 0" hx-put="/flow-builder/prompt">
               <option></option>
               <option value="input message">The Input Message</option>
               <option value="input tag">An Input Tag</option>
@@ -76,7 +76,7 @@
     <div class="col col-7">
       <div class="d-flex justify-content-between">
         <h4 class="text-info">Rules</h4>
-        <button id="add-rule" hx-post="/flows/new/rules" hx-target="#content-root" hx-push-url="false" class="btn btn-info btn-sm mb-3">New</button>
+        <button id="add-rule" hx-post="/flow-builder/rules" hx-target="#content-root" hx-push-url="false" class="btn btn-info btn-sm mb-3">New</button>
       </div>
       <hr class="text-info mb-5 mt-0">
       <div id="rules-container" class="container pb-4">

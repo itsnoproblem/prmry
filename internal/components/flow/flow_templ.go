@@ -161,7 +161,7 @@ func FlowsList(view FlowsListView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(" hx-get=\"/flows/new\"")
+		_, err = templBuffer.WriteString(" hx-get=\"/flow-builder\"")
 		if err != nil {
 			return err
 		}
