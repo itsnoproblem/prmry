@@ -121,14 +121,14 @@ func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}
 func decodeDeleteFlowRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return deleteFlowRequest{
 		FlowID:      chi.URLParam(request, "flowID"),
-		SelectedTab: getSelectedTab(request),
+		SelectedTab: selectedTabFromURL(request),
 	}, nil
 }
 
 func decodeEditFormRequest(ctx context.Context, request *http.Request) (interface{}, error) {
 	return editFlowRequest{
 		FlowID:      chi.URLParam(request, "flowID"),
-		SelectedTab: getSelectedTab(request),
+		SelectedTab: selectedTabFromURL(request),
 	}, nil
 }
 
@@ -191,7 +191,8 @@ type FlowBuilderFormRequest struct {
 	PromptArgs      interface{} `json:"promptArgs"`
 	PromptArgFlows  interface{} `json:"promptArgFlows"`
 	AvailableFlows  interface{} `json:"availableFlows"`
-	InputTags       interface{} `json:"inputTags"`
+	InputParams     interface{} `json:"inputParams"`
+	SelectedTab     string      `json:"selectedTab"`
 }
 
 func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -209,13 +210,53 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
 	}
 
-	fieldNames := make([]string, 0)
-	selectedFlows := make([]string, 0)
+	promptArgs, err := makePromptArgs(req)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "makeInputParams")
+	}
+
+	inputParams, err := makeInputParams(req)
+	if err != nil {
+		return flowcmp.Detail{}, errors.Wrap(err, "makeInputParams")
+	}
+
+	selectedTab := selectedTabFromURL(r)
+	if selectedTab == "" {
+		selectedTab = req.SelectedTab
+	}
+
+	form := flowcmp.Detail{
+		ID:                  req.ID,
+		Name:                req.Name,
+		Prompt:              req.Prompt,
+		PromptArgs:          promptArgs,
+		SupportedFields:     flowcmp.SortedMap(flow.SupportedFields()),
+		SupportedConditions: flowcmp.SortedMap(flow.SupportedConditions()),
+		InputParams:         inputParams,
+		SelectedTab:         selectedTab,
+	}
+
+	if form.Rules, err = makeRules(req, inputParams); err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
+	}
+
+	form.RequireAll, err = strconv.ParseBool(req.RequireAll)
+	if err != nil {
+		form.RequireAll = false
+		//return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsing requireAll")
+	}
+
+	return form, nil
+}
+
+func makeRules(req FlowBuilderFormRequest, inputParams []flowcmp.InputParam) ([]flowcmp.RuleView, error) {
+	var err error
+	flowIndex := 0
+	paramIndex := 0
 	conditionTypes := make([]string, 0)
 	conditionValues := make([]string, 0)
-	parsedPromptArgs := make([]string, 0)
-	promptArgFlows := make([]string, 0)
-	inputTags := make([]string, 0)
+	fieldNames := make([]string, 0)
+	selectedFlows := make([]string, 0)
 
 	fieldNames, err = stringOrSlice(req.FieldNames)
 	if err != nil {
@@ -237,61 +278,11 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: conditionValues")
 	}
 
-	parsedPromptArgs, err = stringOrSlice(req.PromptArgs)
-	if err != nil {
-		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedPromptArgs")
-	}
-
-	inputTags, err = stringOrSlice(req.InputTags)
-	if err != nil {
-		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedPromptArgs")
-	}
-
-	if req.PromptArgFlows != nil {
-		promptArgFlows, err = stringOrSlice(req.PromptArgFlows)
-		if err != nil {
-			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgFlows")
-		}
-	}
-
 	if len(fieldNames) != len(conditionTypes) || len(fieldNames) != len(conditionValues) {
-		return flowcmp.Detail{}, fmt.Errorf("decodeFlowBuilderRequest: condition fields mismatch")
+		return nil, fmt.Errorf("decodeFlowBuilderRequest: condition fields mismatch")
 	}
 
-	promptArgs := make([]flowcmp.PromptArg, 0)
-	flowIndex := 0
-	tagIndex := 0
-	for _, arg := range parsedPromptArgs {
-		pargs := flowcmp.PromptArg{
-			Source: flow.SourceType(arg),
-		}
-
-		if flow.SourceType(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
-			pargs.Value = promptArgFlows[flowIndex]
-			flowIndex++
-		}
-		if flow.SourceType(arg) == flow.FieldSourceInputArg && len(inputTags) > tagIndex {
-			pargs.Value = inputTags[tagIndex]
-			tagIndex++
-		}
-
-		promptArgs = append(promptArgs, pargs)
-	}
-
-	form := flowcmp.Detail{
-		ID:                  req.ID,
-		Name:                req.Name,
-		Prompt:              req.Prompt,
-		PromptArgs:          promptArgs,
-		SupportedFields:     flowcmp.SortedMap(flow.SupportedFields()),
-		SupportedConditions: flowcmp.SortedMap(flow.SupportedConditions()),
-		SelectedTab:         getSelectedTab(r),
-	}
-
-	flowIndex = 0
-	tagIndex = 0
-	form.Rules = make([]flowcmp.RuleView, 0)
-
+	rules := make([]flowcmp.RuleView, 0)
 	for i, fieldSource := range fieldNames {
 		fieldValue := ""
 		if fieldSource == flow.FieldSourceFlow.String() && len(selectedFlows) > flowIndex {
@@ -299,12 +290,12 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 			flowIndex++
 		}
 
-		if fieldSource == flow.FieldSourceInputArg.String() && len(inputTags) > tagIndex {
-			fieldValue = inputTags[tagIndex]
-			tagIndex++
+		if fieldSource == flow.FieldSourceInputArg.String() && len(inputParams) > paramIndex {
+			fieldValue = inputParams[paramIndex].Key
+			paramIndex++
 		}
 
-		form.Rules = append(form.Rules, flowcmp.RuleView{
+		rules = append(rules, flowcmp.RuleView{
 			Field: flowcmp.Field{
 				Source: fieldNames[i],
 				Value:  fieldValue,
@@ -314,16 +305,62 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		})
 	}
 
-	form.RequireAll, err = strconv.ParseBool(req.RequireAll)
-	if err != nil {
-		form.RequireAll = false
-		//return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsing requireAll")
-	}
-
-	return form, nil
+	return rules, nil
 }
 
-func getSelectedTab(r *http.Request) string {
+func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
+	parsedInputParams, err := stringOrSlice(req.InputParams)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedInputParams")
+	}
+
+	inputParams := make([]flowcmp.InputParam, 0)
+
+	for _, param := range parsedInputParams {
+		inputParam := flowcmp.InputParam{
+			Type: flow.ParamTypeString, // TODO(marty): un-hardcode this
+			Key:  param,
+		}
+		inputParams = append(inputParams, inputParam)
+	}
+
+	return inputParams, nil
+}
+
+func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
+	parsedPromptArgs, err := stringOrSlice(req.PromptArgs)
+	if err != nil {
+		return nil, errors.Wrap(err, "makePromptArgs: parsedPromptArgs")
+	}
+
+	promptArgs := make([]flowcmp.PromptArg, 0)
+	promptArgFlows := make([]string, 0)
+	flowIndex := 0
+
+	if req.PromptArgFlows != nil {
+		promptArgFlows, err = stringOrSlice(req.PromptArgFlows)
+		if err != nil {
+			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgFlows")
+		}
+	}
+
+	for _, arg := range parsedPromptArgs {
+		pargs := flowcmp.PromptArg{
+			Source: flow.SourceType(arg),
+		}
+
+		if flow.SourceType(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
+			pargs.Value = promptArgFlows[flowIndex]
+			flowIndex++
+		}
+
+		promptArgs = append(promptArgs, pargs)
+	}
+
+	return promptArgs, nil
+}
+
+func selectedTabFromURL(r *http.Request) string {
 	return r.URL.Query().Get("tab")
 }
 

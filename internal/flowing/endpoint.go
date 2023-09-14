@@ -162,8 +162,10 @@ func makeFlowBuilderAddInputEndpoint(svc Service) htmx.HandlerFunc {
 			return nil, fmt.Errorf("makeFlowBuilderAddRuleEndpoint: failed to parse request")
 		}
 
+		if cmp.InputParams == nil {
+			cmp.InputParams = make([]flowcmp.InputParam, 0)
+		}
 		cmp.InputParams = append(cmp.InputParams, flowcmp.InputParam{})
-
 		return flowBuilderResponse{
 			Form: cmp,
 		}, nil

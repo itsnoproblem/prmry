@@ -140,6 +140,40 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
+		// Element (void)
+		_, err = templBuffer.WriteString("<input")
+		if err != nil {
+			return err
+		}
+		// Element Attributes
+		_, err = templBuffer.WriteString(" type=\"hidden\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" name=\"selectedTab\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(" value=")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(view.SelectedTab))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(">")
+		if err != nil {
+			return err
+		}
 		// Element (standard)
 		_, err = templBuffer.WriteString("<div")
 		if err != nil {

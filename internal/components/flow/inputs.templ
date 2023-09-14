@@ -1,5 +1,9 @@
 package flow
 
+import (
+    "fmt"
+)
+
 templ Inputs(view Detail) {
     <h3>
        flows can receive input parameters, along with the input message.
@@ -7,7 +11,23 @@ templ Inputs(view Detail) {
     <div class="row p-1">
         <div class="col-10"></div>
         <div class="col-2">
-            <button class="btn btn-info">New</button>
+            <button class="btn btn-info" hx-post="/flow-builder/inputs">New</button>
+        </div>
+    </div>
+    <div class="row p-1">
+        <div class="col-12">
+            for i, param := range view.InputParams {
+                <div class="form-floating pb-4">
+                    <input id={ fmt.Sprintf("input-param-%d", i) }
+                           name="inputParams"
+                           type="text"
+                           class="form-control"
+                           placeholder="foo"
+                           value={ param.Key }
+                    />
+                    <label for={ fmt.Sprintf("input-param-%d", i) }>Input Parameter { string(i) }</label>
+                </div>
+            }
         </div>
     </div>
 }
