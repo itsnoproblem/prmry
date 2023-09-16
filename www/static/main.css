@@ -121,6 +121,10 @@ label[for=flow-selector] {
     padding-top: 12px;
 }
 
+#flow-builder h3 {
+    font-size: 1.5em;
+}
+
 #flow-builder label {
     /*color: #BA55D3FF;*/
     /*color: #ffff8b;*/

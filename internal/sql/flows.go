@@ -32,6 +32,7 @@ func (r *repository) GetFlowsForUser(ctx context.Context, userID string) ([]flow
 		    require_all,
 		    prompt,
 		    prompt_args,
+		    inputs,
 		    created_at,
 		    updated_at
 		FROM flows
@@ -73,6 +74,7 @@ func (r *repository) GetFlow(ctx context.Context, flowID string) (flow.Flow, err
 		    require_all,
 		    prompt,
 		    prompt_args,
+		    inputs,
 		    created_at,
 		    updated_at
 		FROM flows
@@ -112,6 +114,11 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 		return errors.Wrap(err, "sql.flows.InsertFlow")
 	}
 
+	inputs, err := json.Marshal(flw.InputParams)
+	if err != nil {
+		return errors.Wrap(err, "sql.flows.InsertFlow")
+	}
+
 	sql := `
 		INSERT INTO flows (
 			id,
@@ -121,10 +128,11 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 		    require_all,
 		    prompt,
 		    prompt_args,
+		    inputs,
 		    created_at,
 		    updated_at
 	  	) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)	
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)	
 	`
 
 	args := []interface{}{
@@ -135,6 +143,7 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 		requireAll,
 		flw.Prompt,
 		promptArgs,
+		inputs,
 		flw.CreatedAt,
 		flw.UpdatedAt,
 	}
@@ -163,6 +172,11 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 		return errors.Wrap(err, "sql.flows.InsertFlow")
 	}
 
+	inputs, err := json.Marshal(flw.InputParams)
+	if err != nil {
+		return errors.Wrap(err, "sql.flows.InsertFlow")
+	}
+
 	sql := `
 		UPDATE flows SET 
 		    name = ?,
@@ -170,6 +184,7 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 		    require_all = ?,
 		    prompt = ?,
 		    prompt_args = ?,
+		    inputs = ?,
 		    updated_at = ?
 	  	WHERE id = ?	
 	`
@@ -180,6 +195,7 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 		requireAll,
 		flw.Prompt,
 		promptArgs,
+		inputs,
 		flw.UpdatedAt,
 		flw.ID,
 	}
@@ -206,37 +222,50 @@ func (r repository) DeleteFlow(ctx context.Context, flowID string) error {
 // private
 
 type flowsRow struct {
-	ID         string          `db:"id"`
-	UserID     string          `db:"user_id"`
-	Name       string          `db:"name"`
-	Rules      json.RawMessage `db:"rules"`
-	RequireAll bool            `db:"require_all"`
-	Prompt     string          `db:"prompt"`
-	PromptArgs json.RawMessage `db:"prompt_args"`
-	CreatedAt  time.Time       `db:"created_at"`
-	UpdatedAt  time.Time       `db:"updated_at"`
+	ID         string           `db:"id"`
+	UserID     string           `db:"user_id"`
+	Name       string           `db:"name"`
+	Rules      *json.RawMessage `db:"rules"`
+	RequireAll bool             `db:"require_all"`
+	Prompt     string           `db:"prompt"`
+	PromptArgs *json.RawMessage `db:"prompt_args"`
+	Inputs     *json.RawMessage `db:"inputs"`
+	CreatedAt  time.Time        `db:"created_at"`
+	UpdatedAt  time.Time        `db:"updated_at"`
 }
 
 func (r flowsRow) toFlow() (flow.Flow, error) {
-	var rules []flow.Rule
-	if err := json.Unmarshal(r.Rules, &rules); err != nil {
-		return flow.Flow{}, errors.Wrap(err, "toFlow")
+	rules := make([]flow.Rule, 0)
+	if r.Rules != nil {
+		if err := json.Unmarshal(*r.Rules, &rules); err != nil {
+			return flow.Flow{}, errors.Wrap(err, "toFlow: rules")
+		}
 	}
 
-	var promptArgs []flow.Field
-	if err := json.Unmarshal(r.PromptArgs, &promptArgs); err != nil {
-		return flow.Flow{}, errors.Wrap(err, "toFlow")
+	promptArgs := make([]flow.Field, 0)
+	if r.PromptArgs != nil {
+		if err := json.Unmarshal(*r.PromptArgs, &promptArgs); err != nil {
+			return flow.Flow{}, errors.Wrap(err, "toFlow: promptArgs")
+		}
+	}
+
+	inputs := make([]flow.InputParam, 0)
+	if r.Inputs != nil {
+		if err := json.Unmarshal(*r.Inputs, &inputs); err != nil {
+			return flow.Flow{}, errors.Wrap(err, "toFlow: inputs")
+		}
 	}
 
 	return flow.Flow{
-		ID:         r.ID,
-		UserID:     r.UserID,
-		Name:       r.Name,
-		Rules:      rules,
-		RequireAll: r.RequireAll,
-		Prompt:     r.Prompt,
-		PromptArgs: promptArgs,
-		CreatedAt:  r.CreatedAt,
-		UpdatedAt:  r.UpdatedAt,
+		ID:          r.ID,
+		UserID:      r.UserID,
+		Name:        r.Name,
+		Rules:       rules,
+		RequireAll:  r.RequireAll,
+		Prompt:      r.Prompt,
+		PromptArgs:  promptArgs,
+		InputParams: inputs,
+		CreatedAt:   r.CreatedAt,
+		UpdatedAt:   r.UpdatedAt,
 	}, nil
 }

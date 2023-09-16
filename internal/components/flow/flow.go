@@ -100,13 +100,22 @@ func (d *Detail) ToFlow() flow.Flow {
 		})
 	}
 
+	inputParams := make([]flow.InputParam, 0)
+	for _, param := range d.InputParams {
+		inputParams = append(inputParams, flow.InputParam{
+			Type: param.Type,
+			Key:  param.Key,
+		})
+	}
+
 	return flow.Flow{
-		ID:         d.ID,
-		Name:       d.Name,
-		Rules:      rules,
-		RequireAll: d.RequireAll,
-		Prompt:     d.Prompt,
-		PromptArgs: promptArgs,
+		ID:          d.ID,
+		Name:        d.Name,
+		Rules:       rules,
+		RequireAll:  d.RequireAll,
+		Prompt:      d.Prompt,
+		PromptArgs:  promptArgs,
+		InputParams: inputParams,
 	}
 }
 
@@ -131,6 +140,14 @@ func NewDetail(flw flow.Flow) Detail {
 		})
 	}
 
+	inputParams := make([]InputParam, 0)
+	for _, param := range flw.InputParams {
+		inputParams = append(inputParams, InputParam{
+			Type: param.Type,
+			Key:  param.Key,
+		})
+	}
+
 	return Detail{
 		ID:                  flw.ID,
 		Name:                flw.Name,
@@ -140,6 +157,7 @@ func NewDetail(flw flow.Flow) Detail {
 		PromptArgs:          promptArgs,
 		SupportedFields:     SortedMap(flow.SupportedFields()),
 		SupportedConditions: SortedMap(flow.SupportedConditions()),
+		InputParams:         inputParams,
 		AvailableFlowsByID:  nil,
 	}
 }
