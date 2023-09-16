@@ -28,7 +28,7 @@ func RuleBuilder(view Detail) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<label>")
+		_, err = templBuffer.WriteString("<label class=\"pb-1\">")
 		if err != nil {
 			return err
 		}
@@ -37,7 +37,7 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label><div class=\"d-flex justify-content-between\"><div class=\"d-flex justify-content-around\"><div class=\"form-check pe-4 pt-2\">")
+		_, err = templBuffer.WriteString("</label><div class=\"row justify-content-between\"><div class=\"col-9 justify-content-around\"><div class=\"d-flex\"><span class=\"form-check pe-4 pt-2\">")
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label></div><div class=\"form-check pt-2\">")
+		_, err = templBuffer.WriteString("</label></span><span class=\"form-check pt-2\">")
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label></div></div><button id=\"add-rule\" hx-post=\"/flow-builder/rules\" hx-target=\"#content-root\" hx-push-url=\"false\" class=\"btn btn-info btn-sm mb-3\">")
+		_, err = templBuffer.WriteString("</label></span></div></div><div class=\"col-3\"><button id=\"add-rule\" hx-post=\"/flow-builder/rules\" hx-target=\"#content-root\" hx-push-url=\"false\" class=\"btn btn-info btn-sm mb-3\">")
 		if err != nil {
 			return err
 		}
@@ -112,12 +112,12 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</button></div><hr class=\"text-info mb-5 mt-0\"><div id=\"rules-container\" class=\"container pb-4\">")
+		_, err = templBuffer.WriteString("</button></div></div><div id=\"rules-container\" class=\"container pt-4 pb-4\">")
 		if err != nil {
 			return err
 		}
 		if len(view.Rules) == 0 {
-			_, err = templBuffer.WriteString("<h2 class=\"text-body-secondary text-body-secondary\">")
+			_, err = templBuffer.WriteString("<h2 class=\"pb-2 text-body-secondary\">")
 			if err != nil {
 				return err
 			}

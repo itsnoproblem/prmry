@@ -36,20 +36,18 @@ templ FlowBuilder(view Detail) {
                     @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "")
                     @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
                     @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
-                    @TabNav(TabNameLogs, "Logs", view.SelectedTab == TabNameLogs)
                 </ul>
-                <div class="tab-content">
+                <div class="tab-content pt-2">
                     @TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view))
                     @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
                     @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
-                    @TabPanel(view.SelectedTab == TabNameLogs, Logs())
                 </div>
             </div>
         </div>
 
         <hr class="text-info mb-4 mt-4"/>
 
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col col-1">
                 <input
                         class="btn btn-primary"
@@ -68,13 +66,8 @@ templ FlowBuilder(view Detail) {
                     Cancel
                 </button>
             </div>
-            <div class="col col-10"></div>
         </div>
     </form>
-}
-
-templ Logs() {
-    <h1>Logs</h1>
 }
 
 templ Preview(view Detail) {
@@ -174,23 +167,23 @@ templ PromptEditor(view Detail) {
                     @FieldSelector(fmt.Sprintf("promptArgs-%d", j), "promptArgs", view.SupportedFields, arg.Source.String(), fmt.Sprintf("Argument %d", j))
                 </div>
                 if arg.Source == flow.FieldSourceFlow {
-                <div class="form-floating col">
-                    @FieldSelector(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
-                </div>
+                    <div class="form-floating col">
+                        @FieldSelector(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow")
+                    </div>
                 }
                 if arg.Source == flow.FieldSourceInputArg {
-                <div class="form-floating col">
-                    <input type="text"
-                           name="inputTags"
-                           id={ fmt.Sprintf("promptArg-tagKey-%d", j) }
-                    hx-trigger="blur"
-                    hx-put="/flow-builder/prompt"
-                    class="form-control form-control-md"
-                    placeholder="myKey"
-                    value={ arg.Value }
-                    />
-                    <label for={ fmt.Sprintf("promptArg-tagKey-%d", j) }>Key name</label>
-                </div>
+                    <div class="form-floating col">
+                        <input type="text"
+                            name="inputTags"
+                            id={ fmt.Sprintf("promptArg-tagKey-%d", j) }
+                            hx-trigger="blur"
+                            hx-put="/flow-builder/prompt"
+                            class="form-control form-control-md"
+                            placeholder="myKey"
+                            value={ arg.Value }
+                        />
+                        <label for={ fmt.Sprintf("promptArg-tagKey-%d", j) }>Key name</label>
+                    </div>
                 }
             </div>
         }

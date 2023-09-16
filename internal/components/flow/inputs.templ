@@ -14,14 +14,14 @@ templ Inputs(view Detail) {
             <h3>flows can receive input parameters, along with the input message.</h3>
         </div>
         <div class="col-2">
-            <button class="btn btn-info" hx-post="/flow-builder/inputs">New</button>
+            <button class="btn btn-info" hx-post="/flow-builder/inputs">Add Input</button>
         </div>
         <div class="col-3"></div>
     </div>
     <div class="row p-1 justify-content-start">
         
     for i, param := range view.InputParams {
-        <div class="col-7 form-floating pb-4">
+        <div class="col-9 form-floating pb-4">
             <input id={ "input-param-" + iToS(i) }
                 name="inputParams"
                 type="text"
@@ -38,7 +38,7 @@ templ Inputs(view Detail) {
                 &mdash;
             </button>
         </div>
-        <div class="col-3"></div>
+        <div class="col-1"></div>
     }
 
     </div>

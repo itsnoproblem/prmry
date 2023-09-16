@@ -7,47 +7,47 @@ import (
 )
 
 templ RuleBuilder(view Detail) {
-    <label>Execute this flow when</label>
-    <div class="d-flex justify-content-between">
-        <div class="d-flex justify-content-around">
-            <div class="form-check pe-4 pt-2">
-                if view.RequireAll {
-                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
-                } else {
-                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true"/>
-                }
-                <label class="form-check-label smaller" for="require-all-true">
-                    <em>ALL</em> rules match
-                </label>
-            </div>
-            <div class="form-check pt-2">
-                if view.RequireAll {
-                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false"/>
-                } else {
-                <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
-                }
-                <label class="form-check-label smaller" for="require-all-false">
-                    <em>ANY</em> rule matches
-                </label>
+    <label class="pb-1">Execute this flow when</label>
+    <div class="row justify-content-between">
+        <div class="col-9 justify-content-around">
+            <div class="d-flex">
+                <span class="form-check pe-4 pt-2">
+                    if view.RequireAll {
+                        <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true" checked/>
+                    } else {
+                        <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-true" value="true"/>
+                    }
+                    <label class="form-check-label smaller" for="require-all-true">
+                        <em>ALL</em> rules match
+                    </label>
+                </span>
+                <span class="form-check pt-2">
+                    if view.RequireAll {
+                        <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false"/>
+                    } else {
+                        <input class="form-check-input smaller" type="radio" name="requireAll" id="require-all-false" value="false" checked/>
+                    }
+                    <label class="form-check-label smaller" for="require-all-false">
+                        <em>ANY</em> rule matches
+                    </label>
+                </span>
             </div>
         </div>
-        <button id="add-rule"
-                hx-post="/flow-builder/rules"
-                hx-target="#content-root"
-                hx-push-url="false"
-                class="btn btn-info btn-sm mb-3">
-            Add Rule
-        </button>
+        <div class="col-3">
+            <button id="add-rule"
+                    hx-post="/flow-builder/rules"
+                    hx-target="#content-root"
+                    hx-push-url="false"
+                    class="btn btn-info btn-sm mb-3">
+                Add Rule
+            </button>
+        </div>
     </div>
 
-    <hr class="text-info mb-5 mt-0"/>
-
-    <div id="rules-container" class="container pb-4">
+    <div id="rules-container" class="container pt-4 pb-4">
 
         if len(view.Rules) == 0 {
-            <h2 class="text-body-secondary text-body-secondary">
-            Flow always executes
-            </h2>
+            <h2 class="pb-2 text-body-secondary">Flow always executes</h2>
             <div>
                 <em>Create a rule to add conditions.</em>
             </div>

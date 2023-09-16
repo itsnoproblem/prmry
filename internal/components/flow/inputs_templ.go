@@ -43,7 +43,7 @@ func Inputs(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_3 := `New`
+		var_3 := `Add Input`
 		_, err = templBuffer.WriteString(var_3)
 		if err != nil {
 			return err
@@ -53,7 +53,7 @@ func Inputs(view Detail) templ.Component {
 			return err
 		}
 		for i, param := range view.InputParams {
-			_, err = templBuffer.WriteString("<div class=\"col-7 form-floating pb-4\"><input id=\"")
+			_, err = templBuffer.WriteString("<div class=\"col-9 form-floating pb-4\"><input id=\"")
 			if err != nil {
 				return err
 			}
@@ -108,7 +108,7 @@ func Inputs(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</button></div> <div class=\"col-3\"></div>")
+			_, err = templBuffer.WriteString("</button></div> <div class=\"col-1\"></div>")
 			if err != nil {
 				return err
 			}
