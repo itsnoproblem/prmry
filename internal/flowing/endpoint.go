@@ -73,29 +73,25 @@ type flowBuilderResponse struct {
 	Form flowcmp.Detail
 }
 
-func makeNewFlowFormEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderEndpoint(svc Service) htmx.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, "makeNewFlowFormEndpoint")
+			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
 		}
 
 		flows, err := svc.GetFlowsForUser(ctx, user.ID)
 		if err != nil {
-			return nil, errors.Wrap(err, "makeNewFlowFormEndpoint")
+			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
 		}
 
-		//cmp := flowcmp.Detail{
-		//	SupportedFields:     flow.SupportedFields(),
-		//	SupportedConditions: flow.SupportedConditions(),
-		//}
 		cmp := flowcmp.NewDetail(flow.Flow{})
 		if existing := ctx.Value(ContextKeyFlow); existing != nil {
 			cmp = existing.(flowcmp.Detail)
 		}
 
 		cmp.SetAvalableFlows(flows)
-		cmp.SetUser(auth.UserFromContext(ctx))
+		cmp.SetUser(&user)
 
 		fullPage := flowcmp.FlowBuilderPage(cmp)
 		fragment := flowcmp.FlowBuilder(cmp)

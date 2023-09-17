@@ -28,7 +28,7 @@ func RuleBuilder(view Detail) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<label class=\"pb-1\">")
+		_, err = templBuffer.WriteString("<div class=\"p-4 ps-2\"><div class=\"row\"><div class=\"col text-left\"><label for=\"require-all\" class=\"pt-1 pe-2 larger\">")
 		if err != nil {
 			return err
 		}
@@ -37,73 +37,58 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label><div class=\"row justify-content-between\"><div class=\"col-9 justify-content-around\"><div class=\"d-flex\"><span class=\"form-check pe-4 pt-2\">")
+		_, err = templBuffer.WriteString("</label><select name=\"requireAll\" id=\"require-all\" class=\"rounded p-1\" placeholder=\"Choose...\">")
 		if err != nil {
 			return err
 		}
 		if view.RequireAll {
-			_, err = templBuffer.WriteString("<input class=\"form-check-input smaller\" type=\"radio\" name=\"requireAll\" id=\"require-all-true\" value=\"true\" checked>")
+			_, err = templBuffer.WriteString("<option value=\"true\" selected>")
+			if err != nil {
+				return err
+			}
+			var_3 := `All rules match`
+			_, err = templBuffer.WriteString(var_3)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option> <option value=\"false\">")
+			if err != nil {
+				return err
+			}
+			var_4 := `Any rule matches`
+			_, err = templBuffer.WriteString(var_4)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option>")
 			if err != nil {
 				return err
 			}
 		} else {
-			_, err = templBuffer.WriteString("<input class=\"form-check-input smaller\" type=\"radio\" name=\"requireAll\" id=\"require-all-true\" value=\"true\">")
+			_, err = templBuffer.WriteString("<option value=\"true\">")
+			if err != nil {
+				return err
+			}
+			var_5 := `All rules match`
+			_, err = templBuffer.WriteString(var_5)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option> <option value=\"false\" selected>")
+			if err != nil {
+				return err
+			}
+			var_6 := `Any rule matches`
+			_, err = templBuffer.WriteString(var_6)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option>")
 			if err != nil {
 				return err
 			}
 		}
-		_, err = templBuffer.WriteString("<label class=\"form-check-label smaller\" for=\"require-all-true\"><em>")
-		if err != nil {
-			return err
-		}
-		var_3 := `ALL`
-		_, err = templBuffer.WriteString(var_3)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em> ")
-		if err != nil {
-			return err
-		}
-		var_4 := `rules match`
-		_, err = templBuffer.WriteString(var_4)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label></span><span class=\"form-check pt-2\">")
-		if err != nil {
-			return err
-		}
-		if view.RequireAll {
-			_, err = templBuffer.WriteString("<input class=\"form-check-input smaller\" type=\"radio\" name=\"requireAll\" id=\"require-all-false\" value=\"false\">")
-			if err != nil {
-				return err
-			}
-		} else {
-			_, err = templBuffer.WriteString("<input class=\"form-check-input smaller\" type=\"radio\" name=\"requireAll\" id=\"require-all-false\" value=\"false\" checked>")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString("<label class=\"form-check-label smaller\" for=\"require-all-false\"><em>")
-		if err != nil {
-			return err
-		}
-		var_5 := `ANY`
-		_, err = templBuffer.WriteString(var_5)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</em> ")
-		if err != nil {
-			return err
-		}
-		var_6 := `rule matches`
-		_, err = templBuffer.WriteString(var_6)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label></span></div></div><div class=\"col-3\"><button id=\"add-rule\" hx-post=\"/flow-builder/rules\" hx-target=\"#content-root\" hx-push-url=\"false\" class=\"btn btn-info btn-sm mb-3\">")
+		_, err = templBuffer.WriteString("</select><button id=\"add-rule\" hx-post=\"/flow-builder/rules\" hx-target=\"#content-root\" hx-push-url=\"false\" class=\"btn btn-info btn-sm ms-3\">")
 		if err != nil {
 			return err
 		}
@@ -112,12 +97,12 @@ func RuleBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</button></div></div><div id=\"rules-container\" class=\"container pt-4 pb-4\">")
+		_, err = templBuffer.WriteString("</button></div></div></div><div id=\"rules-container\" class=\"container p-4 ps-2\">")
 		if err != nil {
 			return err
 		}
 		if len(view.Rules) == 0 {
-			_, err = templBuffer.WriteString("<h2 class=\"pb-2 text-body-secondary\">")
+			_, err = templBuffer.WriteString("<div class=\"text-left\"><h2 class=\"pb-2 text-body-secondary\">")
 			if err != nil {
 				return err
 			}
@@ -126,7 +111,7 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</h2> <div><em>")
+			_, err = templBuffer.WriteString("</h2><div><em>")
 			if err != nil {
 				return err
 			}
@@ -135,7 +120,7 @@ func RuleBuilder(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</em></div>")
+			_, err = templBuffer.WriteString("</em></div></div>")
 			if err != nil {
 				return err
 			}
@@ -174,7 +159,15 @@ func RuleBuilder(view Detail) templ.Component {
 				}
 			}
 			if rule.Field.Source == flow.FieldSourceInputArg.String() {
-				err = FieldSelector(fmt.Sprintf("tagKey-%d", i), "inputTags", view.AvailableTags(), rule.Field.Value, "Flow").Render(ctx, templBuffer)
+				_, err = templBuffer.WriteString("<div class=\"form-floating mb-3\">")
+				if err != nil {
+					return err
+				}
+				err = FieldSelector(fmt.Sprintf("ruleInputParams-%d", i), "ruleInputParams", view.InputParams.Map(), rule.Field.Value, "Param name").Render(ctx, templBuffer)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</div>")
 				if err != nil {
 					return err
 				}

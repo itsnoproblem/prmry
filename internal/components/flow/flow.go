@@ -43,8 +43,20 @@ type FlowSummary struct {
 }
 
 type InputParam struct {
-	Type flow.ParamType
-	Key  string
+	Type     flow.ParamType
+	Key      string
+	Required bool
+}
+
+type InputParams []InputParam
+
+func (p InputParams) Map() SortedMap {
+	m := make(map[string]string)
+	for _, param := range p {
+		m[param.Key] = param.Key
+	}
+
+	return SortedMap(m)
 }
 
 type Detail struct {
@@ -59,7 +71,7 @@ type Detail struct {
 	SupportedFields     SortedMap
 	SupportedConditions SortedMap
 	AvailableFlowsByID  SortedMap
-	InputParams         []InputParam
+	InputParams         InputParams
 }
 
 func (d *Detail) AvailableTags() SortedMap {
@@ -103,8 +115,9 @@ func (d *Detail) ToFlow() flow.Flow {
 	inputParams := make([]flow.InputParam, 0)
 	for _, param := range d.InputParams {
 		inputParams = append(inputParams, flow.InputParam{
-			Type: param.Type,
-			Key:  param.Key,
+			Type:       param.Type,
+			Key:        param.Key,
+			IsRequired: param.Required,
 		})
 	}
 
@@ -143,8 +156,9 @@ func NewDetail(flw flow.Flow) Detail {
 	inputParams := make([]InputParam, 0)
 	for _, param := range flw.InputParams {
 		inputParams = append(inputParams, InputParam{
-			Type: param.Type,
-			Key:  param.Key,
+			Type:     param.Type,
+			Key:      param.Key,
+			Required: param.IsRequired,
 		})
 	}
 

@@ -32,8 +32,15 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 		auth.Required,
 	)
 
-	newFlowFormEndpoint := htmx.NewEndpoint(
-		makeNewFlowFormEndpoint(svc),
+	getFlowBuilderEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderEndpoint(svc),
+		decodeEmptyRequest,
+		formatFlowBuilderResponse,
+		auth.Required,
+	)
+
+	updateFlowBuilderEndpoint := htmx.NewEndpoint(
+		makeFlowBuilderEndpoint(svc),
 		decodeEmptyRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
@@ -103,7 +110,8 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 			r.Post("/flows", htmx.MakeHandler(saveFlowEndpoint, renderer))
 			r.Delete("/flows/{flowID}", htmx.MakeHandler(deleteFlowEndpoint, renderer))
 
-			r.Get("/flow-builder", htmx.MakeHandler(newFlowFormEndpoint, renderer))
+			r.Get("/flow-builder", htmx.MakeHandler(getFlowBuilderEndpoint, renderer))
+			r.Put("/flow-builder", htmx.MakeHandler(updateFlowBuilderEndpoint, renderer))
 
 			r.Put("/flow-builder/prompt", htmx.MakeHandler(flowBuilderUpdatePromptEndpoint, renderer))
 			r.Post("/flow-builder/rules", htmx.MakeHandler(flowBuilderAddRuleEndpoint, renderer))
@@ -179,20 +187,22 @@ func decodeFlowBuilderDeleteInputRequest(ctx context.Context, request *http.Requ
 }
 
 type FlowBuilderFormRequest struct {
-	ID              string      `json:"id"`
-	Name            string      `json:"name"`
-	RequireAll      string      `json:"requireAll"`
-	FieldNames      interface{} `json:"fieldName"`
-	SelectedFlows   interface{} `json:"selectedFlows"`
-	ConditionTypes  interface{} `json:"condition"`
-	ConditionValues interface{} `json:"value"`
-	RuleFlows       interface{} `json:"ruleConditionFlows"`
-	Prompt          string      `json:"prompt"`
-	PromptArgs      interface{} `json:"promptArgs"`
-	PromptArgFlows  interface{} `json:"promptArgFlows"`
-	AvailableFlows  interface{} `json:"availableFlows"`
-	InputParams     interface{} `json:"inputParams"`
-	SelectedTab     string      `json:"selectedTab"`
+	ID                  string      `json:"id"`
+	Name                string      `json:"name"`
+	RequireAll          string      `json:"requireAll"`
+	FieldNames          interface{} `json:"fieldName"`
+	SelectedFlows       interface{} `json:"selectedFlows"`
+	ConditionTypes      interface{} `json:"condition"`
+	ConditionValues     interface{} `json:"value"`
+	RuleFlows           interface{} `json:"ruleConditionFlows"`
+	Prompt              string      `json:"prompt"`
+	PromptArgs          interface{} `json:"promptArgs"`
+	PromptArgFlows      interface{} `json:"promptArgFlows"`
+	PromptArgInputs     interface{} `json:"promptArgInputs"`
+	AvailableFlows      interface{} `json:"availableFlows"`
+	InputParams         interface{} `json:"inputParams"`
+	InputParamsRequired interface{} `json:"inputParamsRequired"`
+	SelectedTab         string      `json:"selectedTab"`
 }
 
 func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -314,13 +324,24 @@ func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedInputParams")
 	}
 
-	inputParams := make([]flowcmp.InputParam, 0)
+	parsedInputParamsRequired, err := stringOrSlice(req.InputParamsRequired)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedInputParamsRequired")
+	}
 
-	for _, param := range parsedInputParams {
-		inputParam := flowcmp.InputParam{
-			Type: flow.ParamTypeString, // TODO(marty): un-hardcode this
-			Key:  param,
+	inputParams := make([]flowcmp.InputParam, 0)
+	for i, param := range parsedInputParams {
+		isRequired, err := strconv.ParseBool(parsedInputParamsRequired[i])
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse inputParamsRequired "+string(i))
 		}
+
+		inputParam := flowcmp.InputParam{
+			Type:     flow.ParamTypeString, // TODO(marty): un-hardcode this
+			Key:      param,
+			Required: isRequired,
+		}
+
 		inputParams = append(inputParams, inputParam)
 	}
 
@@ -335,12 +356,21 @@ func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
 
 	promptArgs := make([]flowcmp.PromptArg, 0)
 	promptArgFlows := make([]string, 0)
+	promptArgInputs := make([]string, 0)
 	flowIndex := 0
+	inputIndex := 0
 
 	if req.PromptArgFlows != nil {
 		promptArgFlows, err = stringOrSlice(req.PromptArgFlows)
 		if err != nil {
 			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgFlows")
+		}
+	}
+
+	if req.PromptArgInputs != nil {
+		promptArgInputs, err = stringOrSlice(req.PromptArgInputs)
+		if err != nil {
+			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgInputs")
 		}
 	}
 
@@ -352,6 +382,11 @@ func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
 		if flow.SourceType(arg) == flow.FieldSourceFlow && len(promptArgFlows) > flowIndex {
 			pargs.Value = promptArgFlows[flowIndex]
 			flowIndex++
+		}
+
+		if flow.SourceType(arg) == flow.FieldSourceInputArg && len(promptArgInputs) > inputIndex {
+			pargs.Value = promptArgInputs[inputIndex]
+			inputIndex++
 		}
 
 		promptArgs = append(promptArgs, pargs)

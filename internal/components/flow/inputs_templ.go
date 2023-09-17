@@ -30,16 +30,16 @@ func Inputs(view Detail) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"row p-1\"><div class=\"col-7\"><h3>")
+		_, err = templBuffer.WriteString("<div class=\"row p-1 pe pb-4\"><div class=\"col-7\"><label class=\"larger\">")
 		if err != nil {
 			return err
 		}
-		var_2 := `flows can receive input parameters, along with the input message.`
+		var_2 := `Input Parameters`
 		_, err = templBuffer.WriteString(var_2)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</h3></div><div class=\"col-2\"><button class=\"btn btn-info\" hx-post=\"/flow-builder/inputs\">")
+		_, err = templBuffer.WriteString("</label></div><div class=\"col-2\"><button class=\"btn btn-info\" hx-post=\"/flow-builder/inputs\">")
 		if err != nil {
 			return err
 		}
@@ -48,12 +48,12 @@ func Inputs(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</button></div><div class=\"col-3\"></div></div><div class=\"row p-1 justify-content-start\">")
+		_, err = templBuffer.WriteString("</button></div><div class=\"col-3\"></div></div><div class=\"row p-1\">")
 		if err != nil {
 			return err
 		}
 		for i, param := range view.InputParams {
-			_, err = templBuffer.WriteString("<div class=\"col-9 form-floating pb-4\"><input id=\"")
+			_, err = templBuffer.WriteString("<div class=\"col-5 form-floating pb-4\"><input id=\"")
 			if err != nil {
 				return err
 			}
@@ -81,17 +81,76 @@ func Inputs(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			var_4 := `Input Parameter `
+			var_4 := `Parameter Name `
 			_, err = templBuffer.WriteString(var_4)
 			if err != nil {
 				return err
 			}
-			var var_5 string = iToS(i)
+			var var_5 string = iToS(i + 1)
 			_, err = templBuffer.WriteString(templ.EscapeString(var_5))
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</label></div> <div class=\"col-2 pb-4\"><button class=\"btn btn-lg btn-secondary\" hx-delete=\"")
+			_, err = templBuffer.WriteString("</label></div> <div class=\"col-4 pb-4\"><select id=\"")
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString(templ.EscapeString("input-param-required-" + iToS(i)))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\" class=\"form-select form-select-lg form-control\" name=\"inputParamsRequired\">")
+			if err != nil {
+				return err
+			}
+			if param.Required {
+				_, err = templBuffer.WriteString("<option value=\"false\">")
+				if err != nil {
+					return err
+				}
+				var_6 := `Optional`
+				_, err = templBuffer.WriteString(var_6)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option> <option value=\"true\" selected>")
+				if err != nil {
+					return err
+				}
+				var_7 := `Required`
+				_, err = templBuffer.WriteString(var_7)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option>")
+				if err != nil {
+					return err
+				}
+			} else {
+				_, err = templBuffer.WriteString("<option value=\"false\" selected>")
+				if err != nil {
+					return err
+				}
+				var_8 := `Optional`
+				_, err = templBuffer.WriteString(var_8)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option> <option value=\"true\">")
+				if err != nil {
+					return err
+				}
+				var_9 := `Required`
+				_, err = templBuffer.WriteString(var_9)
+				if err != nil {
+					return err
+				}
+				_, err = templBuffer.WriteString("</option>")
+				if err != nil {
+					return err
+				}
+			}
+			_, err = templBuffer.WriteString("</select></div> <div class=\"col form-floating pb-4\"><button class=\"btn btn-lg fa fa-close btn-secondary\" hx-delete=\"")
 			if err != nil {
 				return err
 			}
@@ -99,16 +158,7 @@ func Inputs(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("\">")
-			if err != nil {
-				return err
-			}
-			var_6 := `&mdash;`
-			_, err = templBuffer.WriteString(var_6)
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</button></div> <div class=\"col-1\"></div>")
+			_, err = templBuffer.WriteString("\"></button></div>")
 			if err != nil {
 				return err
 			}

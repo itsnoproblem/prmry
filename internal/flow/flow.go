@@ -24,6 +24,7 @@ type Flow struct {
 
 type ParamType string
 type InputParam struct {
-	Type ParamType
-	Key  string
+	Type       ParamType
+	Key        string
+	IsRequired bool
 }

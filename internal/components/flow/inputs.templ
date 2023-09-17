@@ -9,19 +9,19 @@ func iToS(i int) string {
 }
 
 templ Inputs(view Detail) {
-    <div class="row p-1">
+    <div class="row p-1 pe pb-4">
         <div class="col-7">
-            <h3>flows can receive input parameters, along with the input message.</h3>
+            <label class="larger">Input Parameters</label>
         </div>
         <div class="col-2">
             <button class="btn btn-info" hx-post="/flow-builder/inputs">Add Input</button>
         </div>
         <div class="col-3"></div>
     </div>
-    <div class="row p-1 justify-content-start">
-        
+
+    <div class="row p-1">    
     for i, param := range view.InputParams {
-        <div class="col-9 form-floating pb-4">
+        <div class="col-5 form-floating pb-4">
             <input id={ "input-param-" + iToS(i) }
                 name="inputParams"
                 type="text"
@@ -29,17 +29,29 @@ templ Inputs(view Detail) {
                 placeholder="inputKey"
                 value={ param.Key }
             />
-            <label for={ "input-param-" + iToS(i) }>Input Parameter { iToS(i) }</label>
+            <label for={ "input-param-" + iToS(i) }>Parameter Name { iToS(i + 1) }</label>
         </div>
-        <div class="col-2 pb-4">
-            <button class="btn btn-lg btn-secondary"
-                hx-delete={ "/flow-builder/inputs/" + iToS(i) }
+        <div class="col-4 pb-4">
+            <select id={ "input-param-required-" + iToS(i) } 
+                class="form-select form-select-lg form-control"
+                name="inputParamsRequired"
             >
-                &mdash;
+
+            if param.Required {
+                <option value="false">Optional</option>
+                <option value="true" selected>Required</option>
+            } else {
+                <option value="false" selected>Optional</option>
+                <option value="true">Required</option>
+            }
+                
+            </select>
+        </div>
+        <div class="col form-floating pb-4">
+            <button class="btn btn-lg fa fa-close btn-secondary"
+                hx-delete={ "/flow-builder/inputs/" + iToS(i) }>
             </button>
         </div>
-        <div class="col-1"></div>
     }
-
     </div>
 }

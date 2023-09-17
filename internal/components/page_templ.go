@@ -111,7 +111,7 @@ func Page(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("<div id=\"notices\" class=\"fade-out\"></div><div id=\"content-root\"><div>")
+		_, err = templBuffer.WriteString("<div id=\"notices\" class=\"fade-out\"></div><div id=\"content-root\" class=\"p-3\"><div>")
 		if err != nil {
 			return err
 		}
