@@ -1,6 +1,8 @@
 package flow
 
-templ FieldSelector(id string, name string, options SortedMap, selected, label string) {
+import "github.com/itsnoproblem/prmry/internal/components"
+
+templ FieldSelector(id string, name string, options components.SortedMap, selected, label string) {
     <select
         id={ id }
         name={ name }
@@ -8,7 +10,13 @@ templ FieldSelector(id string, name string, options SortedMap, selected, label s
         aria-label={ label }
         hx-put="/flow-builder/prompt"
     >
-        <option></option>
+        if selected == "" {
+            <option value="" selected>Choose...</option>
+        } else {
+            <option value="">Choose...</option>
+        }
+        
+        
         for _, value := range options.Keys() {
             if value == selected {
                 <option value={ value } selected="true">{ options[value] }</option>

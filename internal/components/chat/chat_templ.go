@@ -11,7 +11,7 @@ import "bytes"
 
 import "github.com/itsnoproblem/prmry/internal/components"
 
-func ChatResponse(cmp ChatResponseView) templ.Component {
+func ChatPage(cmp ChatControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -24,12 +24,83 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		var_2 := templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+			templBuffer, templIsBuffer := w.(*bytes.Buffer)
+			if !templIsBuffer {
+				templBuffer = templ.GetBuffer()
+				defer templ.ReleaseBuffer(templBuffer)
+			}
+			err = ChatConsole(cmp).Render(ctx, templBuffer)
+			if err != nil {
+				return err
+			}
+			if !templIsBuffer {
+				_, err = io.Copy(w, templBuffer)
+			}
+			return err
+		})
+		err = components.Page(&cmp).Render(templ.WithChildren(ctx, var_2), templBuffer)
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func ChatConsole(cmp ChatControlsView) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_3 := templ.GetChildren(ctx)
+		if var_3 == nil {
+			var_3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"container\" id=\"chat-content\">")
+		if err != nil {
+			return err
+		}
+		err = ChatControls(cmp).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("<span id=\"chat-loader\" class=\"htmx-indicator loader\"></span><div id=\"chat-content-root\"></div></div>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func ChatResponse(cmp ChatResponseView) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_4 := templ.GetChildren(ctx)
+		if var_4 == nil {
+			var_4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		_, err = templBuffer.WriteString("<div class=\"container\"><div class=\"interaction-meta\"><div class=\"btn-group\" role=\"group\"><a class=\"btn btn-link\" aria-label=\"go back\" hx-get=\"/interactions\" hx-target=\"#content-root\" hx-push-url=\"true\"><span class=\"fa fa-circle-left\" aria-hidden=\"true\"></span></a><div style=\"float: left\"><div class=\"interaction-date\">")
 		if err != nil {
 			return err
 		}
-		var var_2 string = cmp.Interaction.Date
-		_, err = templBuffer.WriteString(templ.EscapeString(var_2))
+		var var_5 string = cmp.Interaction.Date
+		_, err = templBuffer.WriteString(templ.EscapeString(var_5))
 		if err != nil {
 			return err
 		}
@@ -37,13 +108,13 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_3 := `Model: `
-		_, err = templBuffer.WriteString(var_3)
+		var_6 := `Model: `
+		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err
 		}
-		var var_4 string = cmp.Interaction.Model
-		_, err = templBuffer.WriteString(templ.EscapeString(var_4))
+		var var_7 string = cmp.Interaction.Model
+		_, err = templBuffer.WriteString(templ.EscapeString(var_7))
 		if err != nil {
 			return err
 		}
@@ -51,8 +122,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_5 := `|`
-		_, err = templBuffer.WriteString(var_5)
+		var_8 := `|`
+		_, err = templBuffer.WriteString(var_8)
 		if err != nil {
 			return err
 		}
@@ -60,8 +131,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_6 string = cmp.Interaction.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_6))
+		var var_9 string = cmp.Interaction.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_9))
 		if err != nil {
 			return err
 		}
@@ -69,8 +140,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_7 := `tokens`
-		_, err = templBuffer.WriteString(var_7)
+		var_10 := `tokens`
+		_, err = templBuffer.WriteString(var_10)
 		if err != nil {
 			return err
 		}
@@ -94,8 +165,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_8 := `prompt`
-		_, err = templBuffer.WriteString(var_8)
+		var_11 := `prompt`
+		_, err = templBuffer.WriteString(var_11)
 		if err != nil {
 			return err
 		}
@@ -103,8 +174,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_9 string = cmp.Interaction.Usage.PromptTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_9))
+		var var_12 string = cmp.Interaction.Usage.PromptTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_12))
 		if err != nil {
 			return err
 		}
@@ -112,8 +183,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_10 := `tokens`
-		_, err = templBuffer.WriteString(var_10)
+		var_13 := `tokens`
+		_, err = templBuffer.WriteString(var_13)
 		if err != nil {
 			return err
 		}
@@ -121,8 +192,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_11 := `+`
-		_, err = templBuffer.WriteString(var_11)
+		var_14 := `+`
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
@@ -130,8 +201,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_12 := `completion`
-		_, err = templBuffer.WriteString(var_12)
+		var_15 := `completion`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -139,8 +210,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_13 string = cmp.Interaction.Usage.CompletionTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_13))
+		var var_16 string = cmp.Interaction.Usage.CompletionTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_16))
 		if err != nil {
 			return err
 		}
@@ -148,8 +219,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_14 := `tokens`
-		_, err = templBuffer.WriteString(var_14)
+		var_17 := `tokens`
+		_, err = templBuffer.WriteString(var_17)
 		if err != nil {
 			return err
 		}
@@ -157,8 +228,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_15 := `=`
-		_, err = templBuffer.WriteString(var_15)
+		var_18 := `=`
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -166,8 +237,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_16 := `total`
-		_, err = templBuffer.WriteString(var_16)
+		var_19 := `total`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -175,8 +246,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_17 string = cmp.Interaction.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_17))
+		var var_20 string = cmp.Interaction.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_20))
 		if err != nil {
 			return err
 		}
@@ -184,8 +255,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_18 := `tokens`
-		_, err = templBuffer.WriteString(var_18)
+		var_21 := `tokens`
+		_, err = templBuffer.WriteString(var_21)
 		if err != nil {
 			return err
 		}
@@ -194,210 +265,6 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 			return err
 		}
 		err = ChatControlsOOB(cmp.Controls).Render(ctx, templBuffer)
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = templBuffer.WriteTo(w)
-		}
-		return err
-	})
-}
-
-func ChatPage(cmp ChatControlsView) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_19 := templ.GetChildren(ctx)
-		if var_19 == nil {
-			var_19 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		var_20 := templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-			templBuffer, templIsBuffer := w.(*bytes.Buffer)
-			if !templIsBuffer {
-				templBuffer = templ.GetBuffer()
-				defer templ.ReleaseBuffer(templBuffer)
-			}
-			err = ChatConsole(cmp).Render(ctx, templBuffer)
-			if err != nil {
-				return err
-			}
-			if !templIsBuffer {
-				_, err = io.Copy(w, templBuffer)
-			}
-			return err
-		})
-		err = components.Page(&cmp).Render(templ.WithChildren(ctx, var_20), templBuffer)
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = templBuffer.WriteTo(w)
-		}
-		return err
-	})
-}
-
-func ChatConsole(cmp ChatControlsView) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_21 := templ.GetChildren(ctx)
-		if var_21 == nil {
-			var_21 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"container\" id=\"chat-content\">")
-		if err != nil {
-			return err
-		}
-		err = ChatControls(cmp).Render(ctx, templBuffer)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("<span id=\"chat-loader\" class=\"htmx-indicator loader\"></span><div id=\"chat-content-root\"></div></div>")
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = templBuffer.WriteTo(w)
-		}
-		return err
-	})
-}
-
-func ChatControlsOOB(cmp ChatControlsView) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_22 := templ.GetChildren(ctx)
-		if var_22 == nil {
-			var_22 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"container navbar-fixed-bottom\" id=\"chat-controls\" hx-swap-oob=\"true\">")
-		if err != nil {
-			return err
-		}
-		err = ChatControlsForm(cmp).Render(ctx, templBuffer)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = templBuffer.WriteTo(w)
-		}
-		return err
-	})
-}
-
-func ChatControls(cmp ChatControlsView) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_23 := templ.GetChildren(ctx)
-		if var_23 == nil {
-			var_23 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"container navbar-fixed-bottom\" id=\"chat-controls\">")
-		if err != nil {
-			return err
-		}
-		err = ChatControlsForm(cmp).Render(ctx, templBuffer)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</div>")
-		if err != nil {
-			return err
-		}
-		if !templIsBuffer {
-			_, err = templBuffer.WriteTo(w)
-		}
-		return err
-	})
-}
-
-func ChatControlsForm(cmp ChatControlsView) templ.Component {
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
-		templBuffer, templIsBuffer := w.(*bytes.Buffer)
-		if !templIsBuffer {
-			templBuffer = templ.GetBuffer()
-			defer templ.ReleaseBuffer(templBuffer)
-		}
-		ctx = templ.InitializeContext(ctx)
-		var_24 := templ.GetChildren(ctx)
-		if var_24 == nil {
-			var_24 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<form id=\"chat-controls-form\" class=\"row\"><div class=\"form-floating col-lg-3\"><select id=\"flow-selector\" name=\"flowSelector\" class=\"form-select form-select-md\" aria-label=\"Flow Selector\"><option value=\"\">")
-		if err != nil {
-			return err
-		}
-		var_25 := `Send input as-is`
-		_, err = templBuffer.WriteString(var_25)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</option>")
-		if err != nil {
-			return err
-		}
-		for _, flw := range cmp.FlowSelector.Flows {
-			_, err = templBuffer.WriteString("<option value=\"")
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString(templ.EscapeString(flw.ID))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\">")
-			if err != nil {
-				return err
-			}
-			var var_26 string = flw.Name
-			_, err = templBuffer.WriteString(templ.EscapeString(var_26))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</option>")
-			if err != nil {
-				return err
-			}
-		}
-		_, err = templBuffer.WriteString("</select><label for=\"flow-selector\">")
-		if err != nil {
-			return err
-		}
-		var_27 := `Flow`
-		_, err = templBuffer.WriteString(var_27)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</label></div><div class=\"form-group col-lg-9\"><textarea type=\"text\" class=\"form-control text-light input-dark\" aria-label=\"chat prompt\" name=\"prompt\" hx-post=\"/interactions\" hx-target=\"#chat-content-root\" hx-indicator=\"#chat-loader\" hx-trigger=\"keydown[key==&#39;Enter&#39;]\" hx-swap=\"afterend\" autofocus=\"true\" hx-ext=\"disable-element\" hx-disable-element=\"self\" placeholder=\"type something...\"></textarea></div></form>")
 		if err != nil {
 			return err
 		}

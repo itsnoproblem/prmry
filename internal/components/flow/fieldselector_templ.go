@@ -9,7 +9,9 @@ import "context"
 import "io"
 import "bytes"
 
-func FieldSelector(id string, name string, options SortedMap, selected, label string) templ.Component {
+import "github.com/itsnoproblem/prmry/internal/components"
+
+func FieldSelector(id string, name string, options components.SortedMap, selected, label string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -46,9 +48,38 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("\" hx-put=\"/flow-builder/prompt\"><option></option>")
+		_, err = templBuffer.WriteString("\" hx-put=\"/flow-builder/prompt\">")
 		if err != nil {
 			return err
+		}
+		if selected == "" {
+			_, err = templBuffer.WriteString("<option value=\"\" selected>")
+			if err != nil {
+				return err
+			}
+			var_2 := `Choose...`
+			_, err = templBuffer.WriteString(var_2)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option>")
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = templBuffer.WriteString("<option value=\"\">")
+			if err != nil {
+				return err
+			}
+			var_3 := `Choose...`
+			_, err = templBuffer.WriteString(var_3)
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</option>")
+			if err != nil {
+				return err
+			}
 		}
 		for _, value := range options.Keys() {
 			if value == selected {
@@ -64,8 +95,8 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 				if err != nil {
 					return err
 				}
-				var var_2 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_2))
+				var var_4 string = options[value]
+				_, err = templBuffer.WriteString(templ.EscapeString(var_4))
 				if err != nil {
 					return err
 				}
@@ -86,8 +117,8 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 				if err != nil {
 					return err
 				}
-				var var_3 string = options[value]
-				_, err = templBuffer.WriteString(templ.EscapeString(var_3))
+				var var_5 string = options[value]
+				_, err = templBuffer.WriteString(templ.EscapeString(var_5))
 				if err != nil {
 					return err
 				}
@@ -109,8 +140,8 @@ func FieldSelector(id string, name string, options SortedMap, selected, label st
 		if err != nil {
 			return err
 		}
-		var var_4 string = label
-		_, err = templBuffer.WriteString(templ.EscapeString(var_4))
+		var var_6 string = label
+		_, err = templBuffer.WriteString(templ.EscapeString(var_6))
 		if err != nil {
 			return err
 		}

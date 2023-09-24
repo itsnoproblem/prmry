@@ -2,6 +2,7 @@ package interacting
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -34,6 +35,13 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 		auth.Required,
 	)
 
+	updateChatConsoleEndpoint := htmx.NewEndpoint(
+		makeChatPromptEndpoint(flowSvc),
+		decodeChatPromptRequest,
+		formatChatPromptResponse,
+		auth.Required,
+	)
+
 	listInteractionsEndpoint := htmx.NewEndpoint(
 		makeListInteractionsEndpoint(svc),
 		decodeEmptyRequest,
@@ -51,6 +59,7 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 	return func(r chi.Router) {
 		r.Route("/interactions", func(r chi.Router) {
 			r.Post("/", htmx.MakeHandler(createInteractionEndpoint, renderer))
+			r.Put("/", htmx.MakeHandler(updateChatConsoleEndpoint, renderer))
 			r.Get("/", htmx.MakeHandler(listInteractionsEndpoint, renderer))
 			r.Get("/chat", htmx.MakeHandler(chatPromptEndpoint, renderer))
 			r.Get("/{id}", htmx.MakeHandler(getInteractionEndpoint, renderer))
@@ -63,8 +72,13 @@ func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}
 }
 
 func decodeChatPromptRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	flowParams := request.PostFormValue("flowParams")
+	selectedFlow := request.PostFormValue("flowSelector")
+	log.Println("flowParams", flowParams)
+
 	return chatPromptRequest{
-		SelectedFlow: request.URL.Query().Get("selectedFlow"),
+		SelectedFlow: selectedFlow,
+		//FlowParams:
 	}, nil
 }
 

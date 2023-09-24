@@ -26,11 +26,13 @@ type flowService interface {
 
 type chatPromptRequest struct {
 	SelectedFlow string
+	FlowParams   map[string]string
 }
 
 type chatPromptResponse struct {
-	Flows        []flow.Flow
-	SelectedFlow string
+	Flows          []flow.Flow
+	SelectedFlow   string
+	RequiredParams map[string]bool
 }
 
 func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
@@ -40,14 +42,35 @@ func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeChatPromptEndpoint")
 		}
 
+		req, ok := request.(chatPromptRequest)
+		if !ok {
+			return nil, fmt.Errorf("makeChatPromptEndpoint: failed to parse request")
+		}
+
 		flows, err := svc.GetFlowsForUser(ctx, user.ID)
 		if err != nil {
 			return nil, errors.Wrap(err, "makeChatPromptEndpoint")
 		}
 
-		return chatPromptResponse{
-			Flows: flows,
-		}, nil
+		res := chatPromptResponse{
+			Flows:          flows,
+			SelectedFlow:   req.SelectedFlow,
+			RequiredParams: make(map[string]bool),
+		}
+
+		if req.SelectedFlow != "" {
+			for _, flw := range flows {
+				if flw.ID == req.SelectedFlow {
+					for _, param := range flw.InputParams {
+						res.RequiredParams[param.Key] = param.IsRequired
+					}
+
+					break
+				}
+			}
+		}
+
+		return res, nil
 	}
 }
 

@@ -1,8 +1,6 @@
 package flow
 
 import (
-	"sort"
-
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
 )
@@ -50,13 +48,13 @@ type InputParam struct {
 
 type InputParams []InputParam
 
-func (p InputParams) Map() SortedMap {
+func (p InputParams) Map() components.SortedMap {
 	m := make(map[string]string)
 	for _, param := range p {
 		m[param.Key] = param.Key
 	}
 
-	return SortedMap(m)
+	return components.SortedMap(m)
 }
 
 type Detail struct {
@@ -68,13 +66,13 @@ type Detail struct {
 	RequireAll          bool
 	Prompt              string
 	PromptArgs          []PromptArg
-	SupportedFields     SortedMap
-	SupportedConditions SortedMap
-	AvailableFlowsByID  SortedMap
+	SupportedFields     components.SortedMap
+	SupportedConditions components.SortedMap
+	AvailableFlowsByID  components.SortedMap
 	InputParams         InputParams
 }
 
-func (d *Detail) AvailableTags() SortedMap {
+func (d *Detail) AvailableTags() components.SortedMap {
 	tags := make(map[string]string, 0)
 	for _, arg := range d.PromptArgs {
 		if arg.Source == flow.FieldSourceInputArg {
@@ -85,7 +83,7 @@ func (d *Detail) AvailableTags() SortedMap {
 }
 
 func (d *Detail) SetAvalableFlows(flows []flow.Flow) {
-	d.AvailableFlowsByID = make(SortedMap, len(flows))
+	d.AvailableFlowsByID = make(components.SortedMap, len(flows))
 	for _, f := range flows {
 		d.AvailableFlowsByID[f.ID] = f.Name
 	}
@@ -169,20 +167,9 @@ func NewDetail(flw flow.Flow) Detail {
 		RequireAll:          flw.RequireAll,
 		Prompt:              flw.Prompt,
 		PromptArgs:          promptArgs,
-		SupportedFields:     SortedMap(flow.SupportedFields()),
-		SupportedConditions: SortedMap(flow.SupportedConditions()),
+		SupportedFields:     components.SortedMap(flow.SupportedFields()),
+		SupportedConditions: components.SortedMap(flow.SupportedConditions()),
 		InputParams:         inputParams,
 		AvailableFlowsByID:  nil,
 	}
-}
-
-type SortedMap map[string]string
-
-func (s SortedMap) Keys() []string {
-	keys := make([]string, 0)
-	for k, _ := range s {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }

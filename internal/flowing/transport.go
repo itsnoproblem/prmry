@@ -240,8 +240,8 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		Name:                req.Name,
 		Prompt:              req.Prompt,
 		PromptArgs:          promptArgs,
-		SupportedFields:     flowcmp.SortedMap(flow.SupportedFields()),
-		SupportedConditions: flowcmp.SortedMap(flow.SupportedConditions()),
+		SupportedFields:     components.SortedMap(flow.SupportedFields()),
+		SupportedConditions: components.SortedMap(flow.SupportedConditions()),
 		InputParams:         inputParams,
 		SelectedTab:         selectedTab,
 	}

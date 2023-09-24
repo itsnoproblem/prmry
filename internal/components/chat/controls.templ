@@ -1,0 +1,79 @@
+package chat
+
+templ ChatControlsOOB(cmp ChatControlsView) {
+    <div class="container navbar-fixed-bottom" id="chat-controls" hx-swap-oob="true">
+        @ChatControlsForm(cmp)  
+    </div>
+}
+
+templ ChatControls(cmp ChatControlsView) {
+    <div class="container navbar-fixed-bottom" id="chat-controls">
+        @ChatControlsForm(cmp)  
+    </div>
+}
+
+templ ChatControlsForm(cmp ChatControlsView) {
+    <form id="chat-controls-form" class="row">
+        <div class="form-floating col-lg-3">
+            <select
+                    id="flow-selector"
+                    name="flowSelector"
+                    class="form-select form-select-md"
+                    aria-label="Flow Selector"
+                    hx-put="/interactions"
+                    hx-target="#chat-controls"
+            >
+                <option value="">Send input as-is</option>
+                for _, flw := range cmp.FlowSelector.Flows {
+                    if flw.ID == cmp.FlowSelector.SelectedFlow {
+                        <option value={ flw.ID } selected>{ flw.Name }</option>
+                    } else {
+                        <option value={ flw.ID }>{ flw.Name }</option>
+                    }
+                }
+            </select>
+            <label for="flow-selector">Flow</label>
+
+
+            for key, isRequired := range cmp.FlowSelector.Params {
+                
+                if isRequired == "true" {    
+                    <div class="form-floating required">
+                        <input class="form-control" type="text" name="flowParams" id={ "flow-params-" + key } required="true"/>
+                        <label class="control-label" for={ "flow-params-" + key }>{ key }</label>
+                    </div>
+                } else {
+                    <div class="form-floating">
+                        <input class="form-control" type="text" name="flowParams" id={ "flow-params-" + key } required="true"/>
+                        <label class="control-label" for={ "flow-params-" + key }>{ key }</label>
+                    </div>
+                }
+            
+            }
+            if len(cmp.FlowSelector.Params) > 0 {
+                <div class="required legend">
+                    <label class="control-label">required</label>
+                </div>
+            }
+
+        </div>
+        <div class="form-group col-lg-9">
+            <textarea
+                type="text"
+                class="form-control text-light input-dark"
+                rows="5"
+                aria-label="chat prompt"
+                name="prompt"
+                hx-post="/interactions"
+                hx-target="#chat-content-root"
+                hx-indicator="#chat-loader"
+                hx-trigger="keydown[key=='Enter']"
+                hx-swap="afterend"
+                autofocus="true"
+                hx-ext="disable-element"
+                hx-disable-element="self"
+                placeholder="type something..."
+            ></textarea>
+        </div>
+    </form>
+}

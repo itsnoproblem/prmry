@@ -1,8 +1,20 @@
 package components
 
 import (
+	"sort"
 	"strings"
 )
+
+type SortedMap map[string]string
+
+func (s SortedMap) Keys() []string {
+	keys := make([]string, 0)
+	for k, _ := range s {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
 
 func TrimWordsToMaxCharacters(maxChars int, text string) string {
 	var (

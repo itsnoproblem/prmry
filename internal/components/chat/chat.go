@@ -30,6 +30,7 @@ type ChatUsageView struct {
 type FlowSelector struct {
 	Flows        []Flow
 	SelectedFlow string
+	Params       components.SortedMap
 }
 
 type Flow struct {
@@ -39,16 +40,24 @@ type Flow struct {
 
 func NewFlowSelector(flows []flow.Flow, selectedFlow string) FlowSelector {
 	flws := make([]Flow, 0)
+	params := make(map[string]string)
 	for _, flw := range flows {
 		flws = append(flws, Flow{
 			ID:   flw.ID,
 			Name: flw.Name,
 		})
+
+		if flw.ID == selectedFlow {
+			for _, param := range flw.InputParams {
+				params[param.Key] = strconv.FormatBool(param.IsRequired)
+			}
+		}
 	}
 
 	return FlowSelector{
 		Flows:        flws,
 		SelectedFlow: selectedFlow,
+		Params:       components.SortedMap(params),
 	}
 }
 
