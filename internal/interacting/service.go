@@ -3,16 +3,17 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	openai "github.com/sashabaranov/go-openai"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/interaction"
+	"github.com/itsnoproblem/prmry/internal/moderation"
 )
 
 const (
@@ -33,7 +34,7 @@ type InteractionRepo interface {
 }
 
 type ModerationRepo interface {
-	Insert(ctx context.Context, mod interaction.Moderation) error
+	Insert(ctx context.Context, mod moderation.Moderation) error
 }
 
 type FlowRepo interface {
@@ -61,8 +62,8 @@ type service struct {
 	input       string
 }
 
-func (s service) GenerateResponse(ctx context.Context, msg, flowID string) (string, error) {
-	ix, err := s.NewInteraction(ctx, msg, flowID)
+func (s service) GenerateResponse(ctx context.Context, msg, flowID string, params map[string]string) (string, error) {
+	ix, err := s.NewInteraction(ctx, msg, flowID, params)
 	if err != nil {
 		return "", errors.Wrap(err, "inetracting.GenerateResponse")
 	}
@@ -93,12 +94,12 @@ func (s service) Interaction(ctx context.Context, interactionID string) (interac
 	return in, nil
 }
 
-func (s service) Moderation(ctx context.Context, interactionID string) (interaction.Moderation, error) {
-	return interaction.Moderation{}, fmt.Errorf("Not implemented")
+func (s service) Moderation(ctx context.Context, interactionID string) (moderation.Moderation, error) {
+	return moderation.Moderation{}, fmt.Errorf("Not implemented")
 }
 
-func (s service) ModerationByID(ctx context.Context, moderationID string) (interaction.Moderation, error) {
-	return interaction.Moderation{}, fmt.Errorf("Not implemented")
+func (s service) ModerationByID(ctx context.Context, moderationID string) (moderation.Moderation, error) {
+	return moderation.Moderation{}, fmt.Errorf("Not implemented")
 }
 
 func (s service) GetFlows(ctx context.Context) ([]flow.Flow, error) {
@@ -115,12 +116,12 @@ func (s service) GetFlows(ctx context.Context) ([]flow.Flow, error) {
 	return flows, nil
 }
 
-func (s service) NewInteraction(ctx context.Context, msg, flowID string) (interaction.Interaction, error) {
+func (s service) NewInteraction(ctx context.Context, msg, flowID string, params map[string]string) (interaction.Interaction, error) {
 	if auth.UserFromContext(ctx) == nil {
 		return interaction.Interaction{}, errors.New("Unauthorized")
 	}
 
-	ixn, err := s.executeFlow(ctx, msg, flowID)
+	ixn, err := s.executeFlow(ctx, msg, flowID, params)
 	if err != nil {
 		return interaction.Interaction{}, errors.Wrap(err, "interacting.NewInteraction")
 	}
@@ -130,7 +131,7 @@ func (s service) NewInteraction(ctx context.Context, msg, flowID string) (intera
 
 // ---- private -----
 
-func (s service) executeFlow(ctx context.Context, inputText, flowID string) (interaction.Interaction, error) {
+func (s service) executeFlow(ctx context.Context, inputText, flowID string, params map[string]string) (interaction.Interaction, error) {
 	if inputText == "" {
 		return interaction.Interaction{}, fmt.Errorf("executeFlow: input text cannot be empty")
 	}
@@ -143,7 +144,9 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string) (int
 			return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
 		}
 
-		prompt, err = s.getPromptFromFlow(ctx, inputText, flw)
+		// TODO: validate params here?
+
+		prompt, err = s.getPromptFromFlow(ctx, inputText, flw, params)
 		if err != nil {
 			return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
 		}
@@ -204,11 +207,11 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string) (int
 	return ixn, nil
 }
 
-func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw flow.Flow) (string, error) {
+func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw flow.Flow, params map[string]string) (string, error) {
 	for _, cond := range flw.Rules {
 		comparator := inputText
 		if cond.Field.Source == flow.FieldSourceFlow {
-			ixn, err := s.executeFlow(ctx, inputText, cond.Field.Value)
+			ixn, err := s.executeFlow(ctx, inputText, cond.Field.Value, params)
 			if err != nil {
 				return "", errors.Wrap(err, "getPromptFromFlow")
 			}
@@ -222,7 +225,7 @@ func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw fl
 		}
 
 		if conditionMatches {
-			prompt, err := s.compilePrompt(ctx, flw)
+			prompt, err := s.compilePrompt(ctx, flw, params)
 			if err != nil {
 				return "", errors.Wrap(err, "getPromptFromFlow")
 			}
@@ -234,14 +237,19 @@ func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw fl
 	return "", nil
 }
 
-func (s service) compilePrompt(ctx context.Context, flw flow.Flow) (string, error) {
+func (s service) compilePrompt(ctx context.Context, flw flow.Flow, params map[string]string) (string, error) {
 	args := make([]interface{}, 0)
+
 	for _, arg := range flw.PromptArgs {
 		switch arg.Source {
 		case flow.FieldSourceInput:
 			args = append(args, s.input)
+
+		case flow.FieldSourceInputArg:
+			args = append(args, params[arg.Value])
+
 		case flow.FieldSourceFlow:
-			ixn, err := s.executeFlow(ctx, s.input, arg.Value)
+			ixn, err := s.executeFlow(ctx, s.input, arg.Value, params)
 			if err == nil {
 				return "", errors.Wrap(err, "compilePrompt")
 			}
@@ -264,7 +272,7 @@ func (s service) moderate(ctx context.Context, interactionID, msg string) {
 		log.Printf("ERROR - interactingService.moderate: %s", err)
 	}
 
-	s.moderations.Insert(ctx, interaction.Moderation{
+	s.moderations.Insert(ctx, moderation.Moderation{
 		ID:            modRes.ID,
 		InteractionID: interactionID,
 		Model:         modRes.Model,

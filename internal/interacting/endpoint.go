@@ -10,14 +10,15 @@ import (
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 	"github.com/itsnoproblem/prmry/internal/interaction"
+	"github.com/itsnoproblem/prmry/internal/moderation"
 )
 
 type interactingService interface {
 	Interactions(ctx context.Context) ([]interaction.Summary, error)
 	Interaction(ctx context.Context, interactionID string) (interaction.Interaction, error)
-	Moderation(ctx context.Context, interactionID string) (interaction.Moderation, error)
-	ModerationByID(ctx context.Context, moderationID string) (interaction.Moderation, error)
-	NewInteraction(ctx context.Context, msg, flowID string) (interaction.Interaction, error)
+	Moderation(ctx context.Context, interactionID string) (moderation.Moderation, error)
+	ModerationByID(ctx context.Context, moderationID string) (moderation.Moderation, error)
+	NewInteraction(ctx context.Context, msg, flowID string, params map[string]string) (interaction.Interaction, error)
 }
 
 type flowService interface {
@@ -77,6 +78,7 @@ func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
 type createInteractionRequest struct {
 	FlowID string
 	Input  string
+	Params map[string]string
 }
 
 func (req createInteractionRequest) validate() error {
@@ -97,7 +99,7 @@ func makeCreateInteractionEndpoint(svc interactingService) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeCreateInteractionEndpoint")
 		}
 
-		ixn, err := svc.NewInteraction(ctx, req.Input, req.FlowID)
+		ixn, err := svc.NewInteraction(ctx, req.Input, req.FlowID, req.Params)
 		if err != nil {
 			return nil, errors.Wrap(err, "makeCreateInteractionEndpoint")
 		}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -187,22 +186,29 @@ func decodeFlowBuilderDeleteInputRequest(ctx context.Context, request *http.Requ
 }
 
 type FlowBuilderFormRequest struct {
-	ID                  string      `json:"id"`
-	Name                string      `json:"name"`
-	RequireAll          string      `json:"requireAll"`
-	FieldNames          interface{} `json:"fieldName"`
-	SelectedFlows       interface{} `json:"selectedFlows"`
-	ConditionTypes      interface{} `json:"condition"`
-	ConditionValues     interface{} `json:"value"`
-	RuleFlows           interface{} `json:"ruleConditionFlows"`
-	Prompt              string      `json:"prompt"`
-	PromptArgs          interface{} `json:"promptArgs"`
-	PromptArgFlows      interface{} `json:"promptArgFlows"`
-	PromptArgInputs     interface{} `json:"promptArgInputs"`
-	AvailableFlows      interface{} `json:"availableFlows"`
+	ID             string      `json:"id"`
+	Name           string      `json:"name"`
+	SelectedTab    string      `json:"selectedTab"`
+	AvailableFlows interface{} `json:"availableFlows"`
+
+	// Triggers
+	RequireAll      string      `json:"requireAll"`
+	FieldNames      interface{} `json:"fieldName"`
+	SelectedFlows   interface{} `json:"selectedFlows"`
+	ConditionTypes  interface{} `json:"condition"`
+	ConditionValues interface{} `json:"value"`
+	RuleFlows       interface{} `json:"ruleConditionFlows"`
+	RuleInputParams interface{} `json:"ruleInputParams"`
+
+	// Prompt
+	Prompt          string      `json:"prompt"`
+	PromptArgs      interface{} `json:"promptArgs"`
+	PromptArgFlows  interface{} `json:"promptArgFlows"`
+	PromptArgInputs interface{} `json:"promptArgInputs"`
+
+	// Inputs
 	InputParams         interface{} `json:"inputParams"`
 	InputParamsRequired interface{} `json:"inputParamsRequired"`
-	SelectedTab         string      `json:"selectedTab"`
 }
 
 func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -268,22 +274,27 @@ func makeRules(req FlowBuilderFormRequest, inputParams []flowcmp.InputParam) ([]
 	fieldNames := make([]string, 0)
 	selectedFlows := make([]string, 0)
 
-	fieldNames, err = stringOrSlice(req.FieldNames)
+	fieldNames, err = htmx.StringOrSlice(req.FieldNames)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: fieldNames")
 	}
 
-	selectedFlows, err = stringOrSlice(req.SelectedFlows)
+	selectedFlows, err = htmx.StringOrSlice(req.SelectedFlows)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: selectedFlows")
 	}
 
-	conditionTypes, err = stringOrSlice(req.ConditionTypes)
+	ruleInputParams, err := htmx.StringOrSlice(req.RuleInputParams)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: ruleInputParams")
+	}
+
+	conditionTypes, err = htmx.StringOrSlice(req.ConditionTypes)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: conditionTypes")
 	}
 
-	conditionValues, err = stringOrSlice(req.ConditionValues)
+	conditionValues, err = htmx.StringOrSlice(req.ConditionValues)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: conditionValues")
 	}
@@ -300,8 +311,8 @@ func makeRules(req FlowBuilderFormRequest, inputParams []flowcmp.InputParam) ([]
 			flowIndex++
 		}
 
-		if fieldSource == flow.FieldSourceInputArg.String() && len(inputParams) > paramIndex {
-			fieldValue = inputParams[paramIndex].Key
+		if fieldSource == flow.FieldSourceInputArg.String() && len(ruleInputParams) > paramIndex {
+			fieldValue = ruleInputParams[paramIndex]
 			paramIndex++
 		}
 
@@ -319,12 +330,12 @@ func makeRules(req FlowBuilderFormRequest, inputParams []flowcmp.InputParam) ([]
 }
 
 func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
-	parsedInputParams, err := stringOrSlice(req.InputParams)
+	parsedInputParams, err := htmx.StringOrSlice(req.InputParams)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedInputParams")
 	}
 
-	parsedInputParamsRequired, err := stringOrSlice(req.InputParamsRequired)
+	parsedInputParamsRequired, err := htmx.StringOrSlice(req.InputParamsRequired)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsedInputParamsRequired")
 	}
@@ -333,7 +344,7 @@ func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
 	for i, param := range parsedInputParams {
 		isRequired, err := strconv.ParseBool(parsedInputParamsRequired[i])
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse inputParamsRequired "+string(i))
+			return nil, errors.Wrapf(err, "failed to parse inputParams %d", i)
 		}
 
 		inputParam := flowcmp.InputParam{
@@ -349,7 +360,7 @@ func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
 }
 
 func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
-	parsedPromptArgs, err := stringOrSlice(req.PromptArgs)
+	parsedPromptArgs, err := htmx.StringOrSlice(req.PromptArgs)
 	if err != nil {
 		return nil, errors.Wrap(err, "makePromptArgs: parsedPromptArgs")
 	}
@@ -361,14 +372,14 @@ func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
 	inputIndex := 0
 
 	if req.PromptArgFlows != nil {
-		promptArgFlows, err = stringOrSlice(req.PromptArgFlows)
+		promptArgFlows, err = htmx.StringOrSlice(req.PromptArgFlows)
 		if err != nil {
 			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgFlows")
 		}
 	}
 
 	if req.PromptArgInputs != nil {
-		promptArgInputs, err = stringOrSlice(req.PromptArgInputs)
+		promptArgInputs, err = htmx.StringOrSlice(req.PromptArgInputs)
 		if err != nil {
 			return nil, errors.Wrap(err, "decodeFlowBuilderRequest: promptArgInputs")
 		}
@@ -397,30 +408,6 @@ func makePromptArgs(req FlowBuilderFormRequest) ([]flowcmp.PromptArg, error) {
 
 func selectedTabFromURL(r *http.Request) string {
 	return r.URL.Query().Get("tab")
-}
-
-func stringOrSlice(str interface{}) ([]string, error) {
-	var err error
-	result := make([]string, 0)
-	v := reflect.ValueOf(str)
-
-	switch v.Kind() {
-	case reflect.String:
-		result = append(result, str.(string))
-		break
-
-	case reflect.Slice:
-		result, err = stringSlice(str)
-		if err != nil {
-			return nil, errors.Wrap(err, "stringOrSlice")
-		}
-		break
-
-	default:
-		return nil, nil
-	}
-
-	return result, nil
 }
 
 func stringSlice(input interface{}) ([]string, error) {

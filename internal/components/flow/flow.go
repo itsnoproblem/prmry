@@ -44,6 +44,7 @@ type InputParam struct {
 	Type     flow.ParamType
 	Key      string
 	Required bool
+	Value    string
 }
 
 type InputParams []InputParam

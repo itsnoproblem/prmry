@@ -1,4 +1,4 @@
-package interaction
+package moderation
 
 import (
 	"time"

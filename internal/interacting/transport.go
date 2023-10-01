@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
+	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
@@ -83,9 +84,32 @@ func decodeChatPromptRequest(ctx context.Context, request *http.Request) (interf
 }
 
 func decodeCreateInteractionRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	inputParams := make(map[string]string)
+
+	paramNamesField := request.PostFormValue("flowParamNames")
+	inputParamNames, err := htmx.StringOrSlice(paramNamesField)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	flowParamsField := request.PostFormValue("flowParams")
+	flowParams, err := htmx.StringOrSlice(flowParamsField)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	if len(flowParams) != len(inputParamNames) {
+		return nil, errors.New("decodeCreateInteractionRequest: invalid number of params")
+	}
+
+	for i, param := range inputParamNames {
+		inputParams[param] = flowParams[i]
+	}
+
 	return createInteractionRequest{
 		FlowID: request.PostFormValue("flowSelector"),
 		Input:  request.PostFormValue("prompt"),
+		Params: inputParams,
 	}, nil
 }
 

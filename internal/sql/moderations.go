@@ -8,7 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/itsnoproblem/prmry/internal/interaction"
+	"github.com/itsnoproblem/prmry/internal/moderation"
 )
 
 type moderationsRepo struct {
@@ -21,7 +21,7 @@ func NewModerationsRepo(db *sqlx.DB) moderationsRepo {
 	}
 }
 
-func (r *moderationsRepo) Insert(ctx context.Context, mod interaction.Moderation) error {
+func (r *moderationsRepo) Insert(ctx context.Context, mod moderation.Moderation) error {
 
 	resJSON, err := json.Marshal(mod.Results)
 	if err != nil {
@@ -56,7 +56,7 @@ func (r *moderationsRepo) Remove(ctx context.Context, id string) error {
 	return fmt.Errorf("moderationsRepo.Delete is not implemented")
 }
 
-func (r *moderationsRepo) All(ctx context.Context) ([]interaction.Moderation, error) {
+func (r *moderationsRepo) All(ctx context.Context) ([]moderation.Moderation, error) {
 	query := `
 		SELECT 
 		    id,
@@ -73,10 +73,10 @@ func (r *moderationsRepo) All(ctx context.Context) ([]interaction.Moderation, er
 		return nil, fmt.Errorf("sql.interactionsRepo: %s", err)
 	}
 
-	moderations := make([]interaction.Moderation, 0)
+	moderations := make([]moderation.Moderation, 0)
 
 	for rows.Next() {
-		var mod interaction.Moderation
+		var mod moderation.Moderation
 		if err := rows.Scan(&mod.ID, &mod.InteractionID, &mod.Model, &mod.Results, &mod.CreatedAt); err != nil {
 			return nil, fmt.Errorf("sql.moderationsRepo: %s", err)
 		}
