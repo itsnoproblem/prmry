@@ -30,6 +30,7 @@ func (c Rule) Matches(field string) (bool, error) {
 	matches := false
 	fld := strings.ToLower(field)
 	val := strings.ToLower(c.Value)
+
 	for strings.HasPrefix(val, "\n") {
 		val = strings.TrimPrefix(val, "\n")
 	}

@@ -2,7 +2,8 @@ package interacting
 
 import (
 	"context"
-	"log"
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -36,13 +37,6 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 		auth.Required,
 	)
 
-	updateChatConsoleEndpoint := htmx.NewEndpoint(
-		makeChatPromptEndpoint(flowSvc),
-		decodeChatPromptRequest,
-		formatChatPromptResponse,
-		auth.Required,
-	)
-
 	listInteractionsEndpoint := htmx.NewEndpoint(
 		makeListInteractionsEndpoint(svc),
 		decodeEmptyRequest,
@@ -60,9 +54,9 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 	return func(r chi.Router) {
 		r.Route("/interactions", func(r chi.Router) {
 			r.Post("/", htmx.MakeHandler(createInteractionEndpoint, renderer))
-			r.Put("/", htmx.MakeHandler(updateChatConsoleEndpoint, renderer))
 			r.Get("/", htmx.MakeHandler(listInteractionsEndpoint, renderer))
 			r.Get("/chat", htmx.MakeHandler(chatPromptEndpoint, renderer))
+			r.Put("/chat", htmx.MakeHandler(chatPromptEndpoint, renderer))
 			r.Get("/{id}", htmx.MakeHandler(getInteractionEndpoint, renderer))
 		})
 	}
@@ -72,44 +66,117 @@ func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}
 	return nil, nil
 }
 
-func decodeChatPromptRequest(ctx context.Context, request *http.Request) (interface{}, error) {
-	flowParams := request.PostFormValue("flowParams")
-	selectedFlow := request.PostFormValue("flowSelector")
-	log.Println("flowParams", flowParams)
-
-	return chatPromptRequest{
-		SelectedFlow: selectedFlow,
-		//FlowParams:
-	}, nil
+type chatPromptRequest struct {
+	SelectedFlow string      `json:"flowSelector"`
+	FlowParams   interface{} `json:"flowParams"`
 }
 
-func decodeCreateInteractionRequest(ctx context.Context, request *http.Request) (interface{}, error) {
-	inputParams := make(map[string]string)
+func decodeChatPromptRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	var req chatPromptRequest
 
-	paramNamesField := request.PostFormValue("flowParamNames")
-	inputParamNames, err := htmx.StringOrSlice(paramNamesField)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
 	}
 
-	flowParamsField := request.PostFormValue("flowParams")
-	flowParams, err := htmx.StringOrSlice(flowParamsField)
+	if len(body) > 0 {
+		if err = json.Unmarshal(body, &req); err != nil {
+			return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
+		}
+	}
+
+	inputParams := make(map[string]string)
+
+	inputParamNames, err := htmx.StringOrSlice(req.FlowParams)
 	if err != nil {
-		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+		return nil, errors.Wrap(err, "decodeChatPromptRequest")
+	}
+
+	flowParams, err := htmx.StringOrSlice(req.FlowParams)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeChatPromptRequest")
 	}
 
 	if len(flowParams) != len(inputParamNames) {
-		return nil, errors.New("decodeCreateInteractionRequest: invalid number of params")
+		return nil, errors.New("decodeChatPromptRequest: invalid number of params")
 	}
 
 	for i, param := range inputParamNames {
 		inputParams[param] = flowParams[i]
 	}
 
-	return createInteractionRequest{
-		FlowID: request.PostFormValue("flowSelector"),
-		Input:  request.PostFormValue("prompt"),
-		Params: inputParams,
+	return chatPrompt{
+		SelectedFlow: req.SelectedFlow,
+		InputParams:  inputParams,
+	}, nil
+}
+
+type createInteractionRequest struct {
+	FlowID         string      `json:"flowSelector"`
+	Input          string      `json:"prompt"`
+	FlowParamNames interface{} `json:"flowParamNames"`
+	FlowParams     interface{} `json:"flowParams"`
+}
+
+func (c createInteractionRequest) Params() map[string]string {
+	params := make(map[string]string)
+
+	paramNames, err := htmx.StringOrSlice(c.FlowParamNames)
+	if err != nil {
+		return params
+	}
+
+	paramValues, err := htmx.StringOrSlice(c.FlowParams)
+	if err != nil {
+		return params
+	}
+
+	if len(paramValues) != len(paramNames) {
+		return params
+	}
+
+	for i, key := range paramNames {
+		params[key] = paramValues[i]
+	}
+
+	return params
+}
+
+func decodeCreateInteractionRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+	inputParams := make(map[string]string)
+
+	var req createInteractionRequest
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	if err := json.Unmarshal(body, &req); err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	paramNames, err := htmx.StringOrSlice(req.FlowParamNames)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	paramValues, err := htmx.StringOrSlice(req.FlowParams)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
+	}
+
+	if len(paramValues) != len(paramNames) {
+		return nil, errors.New("decodeCreateInteractionRequest: invalid number of params")
+	}
+
+	for i, key := range paramNames {
+		inputParams[key] = paramValues[i]
+	}
+
+	return Input{
+		FlowID:       req.FlowID,
+		InputMessage: req.Input,
+		Params:       inputParams,
 	}, nil
 }
 

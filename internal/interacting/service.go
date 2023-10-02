@@ -209,8 +209,21 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string, para
 
 func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw flow.Flow, params map[string]string) (string, error) {
 	for _, cond := range flw.Rules {
-		comparator := inputText
-		if cond.Field.Source == flow.FieldSourceFlow {
+		// comparator is the value we're comparing against
+		var comparator string
+
+		switch cond.Field.Source {
+		case flow.FieldSourceInputArg:
+			var ok bool
+			comparator, ok = params[cond.Field.Value]
+			if !ok {
+				return "", fmt.Errorf("getPromptFromFlow: missing input arg '%s'", cond.Field.Value)
+			}
+		case flow.FieldSourceModeration:
+			return "", fmt.Errorf("getPromptFromFlow: moderation not implemented")
+		case flow.FieldSourceInput:
+			comparator = inputText
+		case flow.FieldSourceFlow:
 			ixn, err := s.executeFlow(ctx, inputText, cond.Field.Value, params)
 			if err != nil {
 				return "", errors.Wrap(err, "getPromptFromFlow")

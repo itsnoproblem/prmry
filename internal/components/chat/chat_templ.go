@@ -63,7 +63,7 @@ func ChatConsole(cmp ChatControlsView) templ.Component {
 			var_3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"container\" id=\"chat-content\">")
+		_, err = templBuffer.WriteString("<div class=\"container\" id=\"chat-content\"><div id=\"chat-content-root\"></div><span id=\"chat-loader\" class=\"htmx-indicator loader\"></span>")
 		if err != nil {
 			return err
 		}
@@ -71,7 +71,7 @@ func ChatConsole(cmp ChatControlsView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("<span id=\"chat-loader\" class=\"htmx-indicator loader\"></span><div id=\"chat-content-root\"></div></div>")
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
@@ -95,6 +95,10 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 			var_4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		err = ChatControlsOOB(cmp.Controls).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
 		_, err = templBuffer.WriteString("<div class=\"container\"><div class=\"interaction-meta\"><div class=\"btn-group\" role=\"group\"><a class=\"btn btn-link\" aria-label=\"go back\" hx-get=\"/interactions\" hx-target=\"#content-root\" hx-push-url=\"true\"><span class=\"fa fa-circle-left\" aria-hidden=\"true\"></span></a><div style=\"float: left\"><div class=\"interaction-date\">")
 		if err != nil {
 			return err
@@ -145,7 +149,7 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</span></div></div></div></div></div><div class=\"content-wrapper\"><div class=\"prompt-display text-lg-left\">")
+		_, err = templBuffer.WriteString("</span></div></div></div></div></div><div class=\"content-wrapper\"><div id=\"prompt-display\" class=\"prompt-display collapsed text-lg-left\">")
 		if err != nil {
 			return err
 		}
@@ -153,7 +157,7 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div><div class=\"post-description\"><div class=\"response-display\">")
+		_, err = templBuffer.WriteString("</div><div class=\"post-description collapsed\"><div id=\"response-display\" class=\"response-display\" id=\"response-display\">")
 		if err != nil {
 			return err
 		}
@@ -261,10 +265,6 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("</li></ul></div></div>")
-		if err != nil {
-			return err
-		}
-		err = ChatControlsOOB(cmp.Controls).Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}

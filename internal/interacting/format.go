@@ -53,6 +53,7 @@ func formatCreateInteractionResponse(ctx context.Context, response interface{}) 
 
 	cmp := chat.ChatResponseView{
 		Interaction: chat.NewChatDetailView(ixn),
+		Controls:    chat.ChatControlsView{},
 	}
 	cmp.SetUser(auth.UserFromContext(ctx))
 

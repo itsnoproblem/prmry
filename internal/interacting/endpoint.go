@@ -3,7 +3,7 @@ package interacting
 import (
 	"context"
 	"fmt"
-
+	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
@@ -25,9 +25,9 @@ type flowService interface {
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 }
 
-type chatPromptRequest struct {
+type chatPrompt struct {
 	SelectedFlow string
-	FlowParams   map[string]string
+	InputParams  components.SortedMap
 }
 
 type chatPromptResponse struct {
@@ -43,7 +43,7 @@ func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "makeChatPromptEndpoint")
 		}
 
-		req, ok := request.(chatPromptRequest)
+		req, ok := request.(chatPrompt)
 		if !ok {
 			return nil, fmt.Errorf("makeChatPromptEndpoint: failed to parse request")
 		}
@@ -75,31 +75,21 @@ func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
 	}
 }
 
-type createInteractionRequest struct {
-	FlowID string
-	Input  string
-	Params map[string]string
-}
-
 func (req createInteractionRequest) validate() error {
 	if req.Input == "" {
-		return fmt.Errorf("input was empty")
+		return fmt.Errorf("validate: input was empty")
 	}
 	return nil
 }
 
 func makeCreateInteractionEndpoint(svc interactingService) htmx.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req, ok := request.(createInteractionRequest)
+		req, ok := request.(Input)
 		if !ok {
 			return nil, fmt.Errorf("makeCreateInteractionEndpoint: failed to parse request")
 		}
 
-		if err = req.validate(); err != nil {
-			return nil, errors.Wrap(err, "makeCreateInteractionEndpoint")
-		}
-
-		ixn, err := svc.NewInteraction(ctx, req.Input, req.FlowID, req.Params)
+		ixn, err := svc.NewInteraction(ctx, req.InputMessage, req.FlowID, req.Params)
 		if err != nil {
 			return nil, errors.Wrap(err, "makeCreateInteractionEndpoint")
 		}

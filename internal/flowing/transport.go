@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -217,7 +217,7 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	}
 
 	var req FlowBuilderFormRequest
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
 	}

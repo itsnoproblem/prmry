@@ -86,12 +86,76 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			var_3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<form hx-ext=\"json-enc\" id=\"chat-controls-form\" class=\"row\"><div class=\"form-floating col-lg-3\"><select id=\"flow-selector\" name=\"flowSelector\" class=\"form-select form-select-md\" aria-label=\"Flow Selector\" hx-put=\"/interactions\" hx-target=\"#chat-controls\"><option value=\"\">")
+		_, err = templBuffer.WriteString("<form hx-ext=\"json-enc\" id=\"chat-controls-form\" class=\"row\"><div class=\"row\"><div class=\"col-4\">")
 		if err != nil {
 			return err
 		}
-		var_4 := `Send input as-is`
-		_, err = templBuffer.WriteString(var_4)
+		err = FlowSelectorControl(cmp).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div><div class=\"col\">")
+		if err != nil {
+			return err
+		}
+		err = InputMessage(cmp).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div></div></form>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func InputMessage(cmp ChatControlsView) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_4 := templ.GetChildren(ctx)
+		if var_4 == nil {
+			var_4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"form-group col\"><textarea type=\"text\" class=\"form-control text-light input-dark\" rows=\"10\" aria-label=\"chat prompt\" name=\"prompt\" hx-post=\"/interactions\" hx-target=\"#content-root\" hx-indicator=\"#chat-loader\" hx-trigger=\"keydown[key==&#39;Enter&#39;]\" hx-swap=\"afterend\" autofocus=\"true\" hx-ext=\"disable-element\" hx-disable-element=\"self\" placeholder=\"type something...\"></textarea></div>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func FlowSelectorControl(cmp ChatControlsView) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_5 := templ.GetChildren(ctx)
+		if var_5 == nil {
+			var_5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"form-floating\"><select id=\"flow-selector\" name=\"flowSelector\" class=\"form-select form-select-md\" aria-label=\"Flow Selector\" hx-put=\"/interactions/chat\" hx-target=\"#chat-controls\"><option value=\"\">")
+		if err != nil {
+			return err
+		}
+		var_6 := `Send input as-is`
+		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err
 		}
@@ -113,8 +177,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 				if err != nil {
 					return err
 				}
-				var var_5 string = flw.Name
-				_, err = templBuffer.WriteString(templ.EscapeString(var_5))
+				var var_7 string = flw.Name
+				_, err = templBuffer.WriteString(templ.EscapeString(var_7))
 				if err != nil {
 					return err
 				}
@@ -135,8 +199,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 				if err != nil {
 					return err
 				}
-				var var_6 string = flw.Name
-				_, err = templBuffer.WriteString(templ.EscapeString(var_6))
+				var var_8 string = flw.Name
+				_, err = templBuffer.WriteString(templ.EscapeString(var_8))
 				if err != nil {
 					return err
 				}
@@ -150,8 +214,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_7 := `Flow`
-		_, err = templBuffer.WriteString(var_7)
+		var_9 := `Flow`
+		_, err = templBuffer.WriteString(var_9)
 		if err != nil {
 			return err
 		}
@@ -161,7 +225,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 		}
 		for key, isRequired := range cmp.FlowSelector.Params {
 			if isRequired == "true" {
-				_, err = templBuffer.WriteString("<div class=\"form-floating required\"><input class=\"form-control\" type=\"text\" name=\"flowParams\" id=\"")
+				_, err = templBuffer.WriteString("<div class=\"form-floating required pt-3\"><input class=\"form-control\" type=\"text\" name=\"flowParams\" id=\"")
 				if err != nil {
 					return err
 				}
@@ -181,8 +245,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 				if err != nil {
 					return err
 				}
-				var var_8 string = key
-				_, err = templBuffer.WriteString(templ.EscapeString(var_8))
+				var var_10 string = key
+				_, err = templBuffer.WriteString(templ.EscapeString(var_10))
 				if err != nil {
 					return err
 				}
@@ -191,7 +255,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 					return err
 				}
 			} else {
-				_, err = templBuffer.WriteString("<div class=\"form-floating\"><input class=\"form-control\" type=\"text\" name=\"flowParams\" id=\"")
+				_, err = templBuffer.WriteString("<div class=\"form-floating pt-3\"><input class=\"form-control\" type=\"text\" name=\"flowParams\" id=\"")
 				if err != nil {
 					return err
 				}
@@ -211,8 +275,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 				if err != nil {
 					return err
 				}
-				var var_9 string = key
-				_, err = templBuffer.WriteString(templ.EscapeString(var_9))
+				var var_11 string = key
+				_, err = templBuffer.WriteString(templ.EscapeString(var_11))
 				if err != nil {
 					return err
 				}
@@ -239,8 +303,8 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 			if err != nil {
 				return err
 			}
-			var_10 := `required`
-			_, err = templBuffer.WriteString(var_10)
+			var_12 := `required`
+			_, err = templBuffer.WriteString(var_12)
 			if err != nil {
 				return err
 			}
@@ -249,7 +313,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 				return err
 			}
 		}
-		_, err = templBuffer.WriteString("</div><div class=\"form-group col-lg-9\"><textarea type=\"text\" class=\"form-control text-light input-dark\" rows=\"5\" aria-label=\"chat prompt\" name=\"prompt\" hx-post=\"/interactions\" hx-target=\"#chat-content-root\" hx-indicator=\"#chat-loader\" hx-trigger=\"keydown[key==&#39;Enter&#39;]\" hx-swap=\"afterend\" autofocus=\"true\" hx-ext=\"disable-element\" hx-disable-element=\"self\" placeholder=\"type something...\"></textarea></div></form>")
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
