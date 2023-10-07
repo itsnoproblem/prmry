@@ -3,12 +3,12 @@ package interacting
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
-	"github.com/itsnoproblem/prmry/internal/htmx"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 	"github.com/itsnoproblem/prmry/internal/interaction"
 	"github.com/itsnoproblem/prmry/internal/moderation"
 )
@@ -36,7 +36,7 @@ type chatPromptResponse struct {
 	RequiredParams map[string]bool
 }
 
-func makeChatPromptEndpoint(svc flowService) htmx.HandlerFunc {
+func makeChatPromptEndpoint(svc flowService) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -82,7 +82,7 @@ func (req createInteractionRequest) validate() error {
 	return nil
 }
 
-func makeCreateInteractionEndpoint(svc interactingService) htmx.HandlerFunc {
+func makeCreateInteractionEndpoint(svc interactingService) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(Input)
 		if !ok {
@@ -98,7 +98,7 @@ func makeCreateInteractionEndpoint(svc interactingService) htmx.HandlerFunc {
 	}
 }
 
-func makeListInteractionsEndpoint(svc interactingService) htmx.HandlerFunc {
+func makeListInteractionsEndpoint(svc interactingService) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		ixns, err := svc.Interactions(ctx)
 		if err != nil {
@@ -113,7 +113,7 @@ type getInteractionRequest struct {
 	ID string
 }
 
-func makeGetInteractionEndpoint(svc interactingService) htmx.HandlerFunc {
+func makeGetInteractionEndpoint(svc interactingService) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(getInteractionRequest)
 		if !ok {

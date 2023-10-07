@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
@@ -23,6 +23,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 
 	"github.com/itsnoproblem/prmry/internal/accounting"
+	"github.com/itsnoproblem/prmry/internal/api"
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/authenticating"
 	"github.com/itsnoproblem/prmry/internal/envvars"
@@ -129,26 +130,8 @@ func main() {
 		}
 	}(db)
 
-	fixHostAndProto := appConfig.Env != "DEV"
-
-	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RedirectSlashes)
-	r.Use(middleware.Heartbeat("/ping"))
-	r.Use(render.SetContentType(render.ContentTypeHTML))
-	r.Use(middleware.Compress(5))
-	r.Use(htmx.Middleware)
-	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
-
-	goth.UseProviders(oauthProviders(appConfig)...)
-	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)
-	gothic.GetProviderName = func(req *http.Request) (string, error) {
-		return chi.URLParam(req, "provider"), nil
-	}
-
 	renderer := htmx.NewRenderer()
+	apiRenderer := api.NewRenderer()
 	gptClient := openai.NewClient(appConfig.OpenAPIKey)
 
 	usersRepo := sql.NewUsersRepo(db)
@@ -166,11 +149,31 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	interactingTransport := interacting.RouteHandler(interactingService, flowingService, renderer)
+	interactingTransport := interacting.RouteHandler(interactingService, flowingService, renderer, apiRenderer)
 	flowingTransport := flowing.RouteHandler(flowingService, renderer)
 	staticTransport := prmrying.RouteHandler(renderer)
 	accountingTransport := accounting.RouteHandler(renderer)
 	authenticatingTransport := authResource.RouteHandler()
+
+	fixHostAndProto := appConfig.Env != "DEV"
+
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RedirectSlashes)
+	r.Use(middleware.Heartbeat("/ping"))
+	r.Use(render.SetContentType(render.ContentTypeHTML))
+	r.Use(middleware.Compress(5))
+	r.Use(htmx.Middleware)
+	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
+	r.Use(api.Middleware(usersRepo, apiRenderer))
+
+	goth.UseProviders(oauthProviders(appConfig)...)
+	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)
+	gothic.GetProviderName = func(req *http.Request) (string, error) {
+		return chi.URLParam(req, "provider"), nil
+	}
 
 	r.Group(authenticatingTransport)
 	r.Group(accountingTransport)

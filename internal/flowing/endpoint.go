@@ -10,12 +10,10 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/flow"
-	"github.com/itsnoproblem/prmry/internal/htmx"
-
-	// @TODO(marty): write local types for these and eliminate these imports
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 	"github.com/itsnoproblem/prmry/internal/components/redirect"
+	"github.com/itsnoproblem/prmry/internal/flow"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 const (
@@ -41,7 +39,7 @@ type flowSummary struct {
 	LastChanged time.Time
 }
 
-func makeListFlowsEndpoint(svc Service) htmx.HandlerFunc {
+func makeListFlowsEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -73,7 +71,7 @@ type flowBuilderResponse struct {
 	Form flowcmp.Detail
 }
 
-func makeFlowBuilderEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -109,7 +107,7 @@ type editFlowRequest struct {
 	SelectedTab string
 }
 
-func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
+func makeEditFlowFormEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -151,7 +149,7 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderAddInputEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderAddInputEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		cmp, ok := request.(flowcmp.Detail)
 		if !ok {
@@ -168,7 +166,7 @@ func makeFlowBuilderAddInputEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderAddRuleEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderAddRuleEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		cmp, ok := request.(flowcmp.Detail)
 		if !ok {
@@ -188,7 +186,7 @@ type flowBuilderRemoveItemRequest struct {
 	Form  flowcmp.Detail
 }
 
-func makeFlowBuilderRemoveInputEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderRemoveInputEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(flowBuilderRemoveItemRequest)
 		if !ok {
@@ -209,7 +207,7 @@ func makeFlowBuilderRemoveInputEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderRemoveRuleEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(flowBuilderRemoveItemRequest)
 		if !ok {
@@ -230,7 +228,7 @@ func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderUpdatePromptEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderUpdatePromptEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		cmp, ok := request.(flowcmp.Detail)
 		if !ok {
@@ -278,7 +276,7 @@ type successMessageResponse struct {
 	Message string
 }
 
-func makeSaveFlowEndpoint(svc Service) htmx.HandlerFunc {
+func makeSaveFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_, err = getAuthorizedUser(ctx)
 		if err != nil {
@@ -321,7 +319,7 @@ func (req deleteFlowRequest) validate() error {
 	return nil
 }
 
-func makeDeleteFlowEndpoint(svc Service) htmx.HandlerFunc {
+func makeDeleteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_, err = getAuthorizedUser(ctx)
 		if err != nil {

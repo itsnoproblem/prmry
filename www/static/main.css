@@ -266,12 +266,14 @@ ul.usage hr {
 }
 
 .prompt-display {
-    margin-bottom: 0.2em;
+    margin-bottom: 0.6em;
     padding: 0.6em 0 0.6em 1.2em;
     border-left: 1.2em solid rgb(32 185 118);
-    font-size: 24px;
-    line-height: 40px;
+    font-size: 20px;
+    line-height: 36px;
     font-family: 'Public Sans', sans-serif;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 .response-display {
@@ -281,6 +283,8 @@ ul.usage hr {
     font-weight: 200;
     font-family: 'Public Sans', sans-serif;
     line-height: 32px;
+    overflow-y: auto;
+    max-height: 250px;
 }
 
 .token-badge {

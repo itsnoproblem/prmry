@@ -36,6 +36,20 @@ type Summary struct {
 	UserID         string
 }
 
+func (s Summary) PromptFragment(charLimit int) string {
+	if len(s.Prompt) <= charLimit {
+		return s.Prompt
+	}
+
+	for i, char := range s.Prompt {
+		if i > charLimit && char == ' ' {
+			return s.Prompt[:i] + "..."
+		}
+	}
+
+	return s.Prompt
+}
+
 // PromptHTML returns the prompt as HTML
 func (ixn Interaction) PromptHTML() string {
 	if ixn.Prompt == "" && len(ixn.Request.Messages) < 1 {

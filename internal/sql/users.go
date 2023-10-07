@@ -130,6 +130,33 @@ func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.
 	return userRow.ToUser(), true, nil
 }
 
+func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
+	if key == "" {
+		return auth.User{}, false, nil
+	}
+
+	query := `
+		SELECT 
+			id, 
+			email, 
+			name,
+			nickname,
+			avatar_url
+		FROM users
+		WHERE api_key = ?
+	`
+
+	var userRow UserRow
+	if err := r.db.QueryRowxContext(ctx, query, key).StructScan(&userRow); err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return auth.User{}, false, nil
+		}
+		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByAPIKey")
+	}
+
+	return userRow.ToUser(), true, nil
+}
+
 func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM oauth_users 

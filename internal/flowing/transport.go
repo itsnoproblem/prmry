@@ -16,6 +16,7 @@ import (
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/htmx"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 type Renderer interface {
@@ -24,77 +25,77 @@ type Renderer interface {
 }
 
 func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
-	listFlowsEndpoint := htmx.NewEndpoint(
+	listFlowsEndpoint := internalhttp.NewHTMXEndpoint(
 		makeListFlowsEndpoint(svc),
 		decodeEmptyRequest,
 		formatFlowSummaries,
 		auth.Required,
 	)
 
-	getFlowBuilderEndpoint := htmx.NewEndpoint(
+	getFlowBuilderEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderEndpoint(svc),
 		decodeEmptyRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	updateFlowBuilderEndpoint := htmx.NewEndpoint(
+	updateFlowBuilderEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderEndpoint(svc),
 		decodeEmptyRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	editFlowEndpoint := htmx.NewEndpoint(
+	editFlowEndpoint := internalhttp.NewHTMXEndpoint(
 		makeEditFlowFormEndpoint(svc),
 		decodeEditFormRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	flowBuilderAddRuleEndpoint := htmx.NewEndpoint(
+	flowBuilderAddRuleEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderAddRuleEndpoint(svc),
 		decodeFlowBuilderRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	flowBuilderDeleteRuleEndpoint := htmx.NewEndpoint(
+	flowBuilderDeleteRuleEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderRemoveRuleEndpoint(svc),
 		decodeFlowBuilderDeleteRuleRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	flowBuilderAddInputEndpoint := htmx.NewEndpoint(
+	flowBuilderAddInputEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderAddInputEndpoint(svc),
 		decodeFlowBuilderRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	flowBuilderDeleteInputEndpoint := htmx.NewEndpoint(
+	flowBuilderDeleteInputEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderRemoveInputEndpoint(svc),
 		decodeFlowBuilderDeleteInputRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	flowBuilderUpdatePromptEndpoint := htmx.NewEndpoint(
+	flowBuilderUpdatePromptEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderUpdatePromptEndpoint(svc),
 		decodeFlowBuilderRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
 
-	saveFlowEndpoint := htmx.NewEndpoint(
+	saveFlowEndpoint := internalhttp.NewHTMXEndpoint(
 		makeSaveFlowEndpoint(svc),
 		decodeFlowBuilderRequest,
 		formatRedirectResponse,
 		auth.Required,
 	)
 
-	deleteFlowEndpoint := htmx.NewEndpoint(
+	deleteFlowEndpoint := internalhttp.NewHTMXEndpoint(
 		makeDeleteFlowEndpoint(svc),
 		decodeDeleteFlowRequest,
 		formatRedirectResponse,

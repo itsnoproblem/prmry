@@ -9,6 +9,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/htmx"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 type Renderer interface {
@@ -17,7 +18,7 @@ type Renderer interface {
 }
 
 func RouteHandler(renderer Renderer) func(chi.Router) {
-	accountEndpoint := htmx.NewEndpoint(
+	accountEndpoint := internalhttp.NewHTMXEndpoint(
 		makeAccountEndpoint(),
 		decodeEmptyRequest,
 		formatAccountResponse,
