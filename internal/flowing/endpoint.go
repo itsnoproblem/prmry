@@ -3,9 +3,10 @@ package flowing
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"regexp"
+
+	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"

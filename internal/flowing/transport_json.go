@@ -3,11 +3,13 @@ package flowing
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
+
 	"github.com/itsnoproblem/prmry/internal/api"
 	"github.com/itsnoproblem/prmry/internal/auth"
 	internalhttp "github.com/itsnoproblem/prmry/internal/http"
-	"net/http"
 )
 
 type JSONRenderer interface {

@@ -2,9 +2,10 @@ package inmem
 
 import (
 	"context"
-	"github.com/itsnoproblem/prmry/internal/moderation"
 
 	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/internal/moderation"
 )
 
 type ModerationMemoryRepo struct {

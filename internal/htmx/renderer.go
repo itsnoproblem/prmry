@@ -2,11 +2,11 @@ package htmx
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io"
 	"net/http"
 
 	"github.com/a-h/templ"
+	"github.com/pkg/errors"
 	"github.com/yosssi/gohtml"
 
 	"github.com/itsnoproblem/prmry/internal/auth"

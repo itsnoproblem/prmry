@@ -3,12 +3,14 @@ package interacting
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/pkg/errors"
+
 	"github.com/itsnoproblem/prmry/internal/api"
 	"github.com/itsnoproblem/prmry/internal/auth"
 	internalhttp "github.com/itsnoproblem/prmry/internal/http"
-	"github.com/pkg/errors"
-	"net/http"
 )
 
 type JSONRenderer interface {

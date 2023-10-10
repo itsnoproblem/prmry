@@ -3,9 +3,9 @@ package accounting
 import (
 	"context"
 	"fmt"
-	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 type accountResponse struct {
