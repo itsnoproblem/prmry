@@ -37,12 +37,12 @@ type ModerationRepo interface {
 	Insert(ctx context.Context, mod moderation.Moderation) error
 }
 
-type FlowRepo interface {
+type FlowService interface {
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 }
 
-func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowRepo) service {
+func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowService) service {
 	log.Printf("PRMRY - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
 		GPTModel, GPTMaxTokens, GPTCharactersPerToken)
 
@@ -58,7 +58,7 @@ type service struct {
 	gptClient   *openai.Client
 	history     InteractionRepo
 	moderations ModerationRepo
-	flows       FlowRepo
+	flows       FlowService
 	input       string
 }
 
@@ -121,38 +121,54 @@ func (s service) NewInteraction(ctx context.Context, msg, flowID string, params 
 		return interaction.Interaction{}, errors.New("Unauthorized")
 	}
 
-	ixn, err := s.executeFlow(ctx, msg, flowID, params)
+	ixn, executes, err := s.executeFlowAndInteract(ctx, msg, flowID, params)
 	if err != nil {
 		return interaction.Interaction{}, errors.Wrap(err, "interacting.NewInteraction")
+	}
+
+	if !executes {
+		return interaction.Interaction{}, fmt.Errorf("interacting.NewInteraction: flow does not execute")
 	}
 
 	return ixn, nil
 }
 
+func (s *service) ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (prompt string, executes bool, err error) {
+	flw, err := s.flows.GetFlow(ctx, flowID)
+	if err != nil {
+		return "", false, errors.Wrap(err, "flowing.ExecuteFlow")
+	}
+
+	s.input = inputText
+	prompt, err = s.getPromptFromFlow(ctx, inputText, flw, params)
+	if err != nil {
+		return "", false, errors.Wrap(err, "interacting.ExecuteFlow")
+	}
+
+	if prompt == "" {
+		return "", false, nil
+	}
+
+	return prompt, true, nil
+}
+
 // ---- private -----
 
-func (s service) executeFlow(ctx context.Context, inputText, flowID string, params map[string]string) (interaction.Interaction, error) {
+func (s service) executeFlowAndInteract(ctx context.Context, inputText, flowID string, params map[string]string) (ixn interaction.Interaction, executes bool, err error) {
 	if inputText == "" {
-		return interaction.Interaction{}, fmt.Errorf("executeFlow: input text cannot be empty")
+		return interaction.Interaction{}, false, fmt.Errorf("executeFlowAndInteract: input text cannot be empty")
 	}
 	s.input = inputText
 	prompt := inputText
 
 	if flowID != "" {
-		flw, err := s.flows.GetFlow(ctx, flowID)
+		prompt, executes, err = s.ExecuteFlow(ctx, inputText, flowID, params)
 		if err != nil {
-			return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
+			return interaction.Interaction{}, false, errors.Wrap(err, "executeFlowAndInteract")
 		}
 
-		// TODO: validate params here?
-
-		prompt, err = s.getPromptFromFlow(ctx, inputText, flw, params)
-		if err != nil {
-			return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
-		}
-
-		if prompt == "" {
-			return interaction.Interaction{}, fmt.Errorf("Flow '%s' does not execute.", flw.Name)
+		if !executes {
+			return interaction.Interaction{}, false, nil
 		}
 	}
 
@@ -172,7 +188,7 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string, para
 
 	resp, gptErr := s.gptClient.CreateChatCompletion(ctx, req)
 	if gptErr != nil {
-		return interaction.Interaction{}, gptErr
+		return interaction.Interaction{}, true, gptErr
 	}
 
 	var completion string
@@ -180,7 +196,7 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string, para
 		completion = resp.Choices[0].Message.Content
 	}
 
-	newInteraction := interaction.Interaction{
+	ixn = interaction.Interaction{
 		ID:               uuid.New().String(),
 		Request:          req,
 		Response:         resp,
@@ -195,16 +211,19 @@ func (s service) executeFlow(ctx context.Context, inputText, flowID string, para
 		TokensCompletion: resp.Usage.CompletionTokens,
 	}
 
-	err := s.history.Insert(ctx, newInteraction)
+	err = s.history.Insert(ctx, ixn)
 	if err != nil {
-		return interaction.Interaction{}, errors.Wrap(err, "executeFlow")
+		return interaction.Interaction{}, true, errors.Wrap(err, "executeFlowAndInteract")
 	}
 
-	go s.moderate(ctx, newInteraction.ID, inputText)
+	go s.moderate(ctx, ixn.ID, inputText)
 
-	ixn, err := s.history.GetInteraction(ctx, newInteraction.ID)
+	ixn, err = s.history.GetInteraction(ctx, ixn.ID)
+	if err != nil {
+		ixn.FlowName = "Error fetching flow"
+	}
 
-	return ixn, nil
+	return ixn, true, nil
 }
 
 func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw flow.Flow, params map[string]string) (string, error) {
@@ -224,12 +243,17 @@ func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw fl
 		case flow.FieldSourceInput:
 			comparator = inputText
 		case flow.FieldSourceFlow:
-			ixn, err := s.executeFlow(ctx, inputText, cond.Field.Value, params)
+			if flw.ID == cond.Field.Value {
+				return "", fmt.Errorf("getPromptFromFlow: flow '%s' cannot reference itself", flw.Name)
+			}
+			ixn, executes, err := s.executeFlowAndInteract(ctx, inputText, cond.Field.Value, params)
 			if err != nil {
 				return "", errors.Wrap(err, "getPromptFromFlow")
 			}
 
-			comparator = ixn.ResponseText()
+			if executes {
+				comparator = ixn.ResponseText()
+			}
 		}
 
 		conditionMatches, err := cond.Matches(comparator)
@@ -262,12 +286,17 @@ func (s service) compilePrompt(ctx context.Context, flw flow.Flow, params map[st
 			args = append(args, params[arg.Value])
 
 		case flow.FieldSourceFlow:
-			ixn, err := s.executeFlow(ctx, s.input, arg.Value, params)
+			ixn, executes, err := s.executeFlowAndInteract(ctx, s.input, arg.Value, params)
 			if err == nil {
 				return "", errors.Wrap(err, "compilePrompt")
 			}
 
-			args = append(args, ixn.ResponseText())
+			var responseText string
+			if executes {
+				responseText = ixn.ResponseText()
+			}
+
+			args = append(args, responseText)
 		}
 	}
 

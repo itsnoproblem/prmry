@@ -126,7 +126,7 @@ func InputMessage(cmp ChatControlsView) templ.Component {
 			var_4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"form-group col\"><textarea type=\"text\" class=\"form-control text-light input-dark\" rows=\"10\" aria-label=\"chat prompt\" name=\"prompt\" hx-post=\"/interactions\" hx-target=\"#content-root\" hx-indicator=\"#chat-loader\" hx-trigger=\"keydown[key==&#39;Enter&#39;]\" hx-swap=\"afterend\" autofocus=\"true\" hx-ext=\"disable-element\" hx-disable-element=\"self\" placeholder=\"type something...\"></textarea></div>")
+		_, err = templBuffer.WriteString("<div class=\"form-group col\"><textarea type=\"text\" class=\"form-control text-light input-dark\" rows=\"10\" aria-label=\"chat prompt\" name=\"prompt\" hx-post=\"/interactions\" hx-target=\"#content-root\" hx-indicator=\"#chat-loader\" hx-trigger=\"keydown[key==&#39;Enter&#39;]\" hx-swap=\"afterend\" autofocus=\"true\" hx-ext=\"disable-element\" hx-disable-element=\"self\" placeholder=\"the input message...\"></textarea></div>")
 		if err != nil {
 			return err
 		}

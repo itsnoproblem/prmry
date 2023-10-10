@@ -65,7 +65,7 @@ func (s *service) CreateFlow(ctx context.Context, flw flow.Flow) (ID string, err
 	return flw.ID, nil
 }
 
-func (s service) UpdateFlow(ctx context.Context, flw flow.Flow) error {
+func (s *service) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	flw.UpdatedAt = time.Now()
 	if err := s.flowsRepo.UpdateFlow(ctx, flw); err != nil {
 		return errors.Wrap(err, "flowing.UpdateFlow")
@@ -74,7 +74,7 @@ func (s service) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	return nil
 }
 
-func (s service) DeleteFlow(ctx context.Context, flowID string) error {
+func (s *service) DeleteFlow(ctx context.Context, flowID string) error {
 	if err := s.flowsRepo.DeleteFlow(ctx, flowID); err != nil {
 		return errors.Wrap(err, "flowing.DeleteFlow")
 	}

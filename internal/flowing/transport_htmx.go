@@ -260,7 +260,6 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	form.RequireAll, err = strconv.ParseBool(req.RequireAll)
 	if err != nil {
 		form.RequireAll = false
-		//return nil, errors.Wrap(err, "decodeFlowBuilderRequest: parsing requireAll")
 	}
 
 	return form, nil

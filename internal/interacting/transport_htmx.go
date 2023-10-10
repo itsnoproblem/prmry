@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 
-	"github.com/itsnoproblem/prmry/internal/api"
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/htmx"
@@ -24,15 +23,7 @@ type Renderer interface {
 	Unauthorized(w http.ResponseWriter, r *http.Request)
 }
 
-type JSONRenderer interface {
-	Render(w http.ResponseWriter, r *http.Request, data json.RawMessage) error
-	RenderError(w http.ResponseWriter, r *http.Request, err error)
-}
-
-func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer, jsonRenderer JSONRenderer) func(chi.Router) {
-
-	// HTMX endpoints
-
+func HTMXRouteHandler(svc interactingService, flowSvc flowService, renderer Renderer) func(chi.Router) {
 	chatPromptEndpoint := internalhttp.NewHTMXEndpoint(
 		makeChatPromptEndpoint(flowSvc),
 		decodeChatPromptRequest,
@@ -61,22 +52,6 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 		auth.Required,
 	)
 
-	// API endpoints
-
-	createInteractionAPIEndpoint := internalhttp.NewJSONEndpoint(
-		makeCreateInteractionEndpoint(svc),
-		decodeCreateInteractionAPIRequest,
-		formatInteractionAPIResponse,
-		auth.NotRequired,
-	)
-
-	getInteractionsAPIEndpoint := internalhttp.NewJSONEndpoint(
-		makeListInteractionsEndpoint(svc),
-		decodeEmptyRequest,
-		formatInteractionSummariesAPIResponse,
-		auth.NotRequired,
-	)
-
 	return func(r chi.Router) {
 		r.Route("/interactions", func(r chi.Router) {
 			r.Post("/", htmx.MakeHandler(createInteractionEndpoint, renderer))
@@ -84,10 +59,6 @@ func RouteHandler(svc interactingService, flowSvc flowService, renderer Renderer
 			r.Get("/chat", htmx.MakeHandler(chatPromptEndpoint, renderer))
 			r.Put("/chat", htmx.MakeHandler(chatPromptEndpoint, renderer))
 			r.Get("/{id}", htmx.MakeHandler(getInteractionEndpoint, renderer))
-		})
-		r.Route("/api", func(r chi.Router) {
-			r.Post("/interactions", api.MakeHandler(createInteractionAPIEndpoint, jsonRenderer))
-			r.Get("/interactions", api.MakeHandler(getInteractionsAPIEndpoint, jsonRenderer))
 		})
 	}
 }

@@ -3,11 +3,9 @@ package flowing
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"regexp"
-	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
@@ -28,17 +26,6 @@ type Service interface {
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 }
 
-type listFlowsResponse struct {
-	Summaries []flowSummary
-}
-
-type flowSummary struct {
-	ID          string
-	Name        string
-	RuleCount   int
-	LastChanged time.Time
-}
-
 func makeListFlowsEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
@@ -51,19 +38,7 @@ func makeListFlowsEndpoint(svc Service) internalhttp.HandlerFunc {
 			return nil, errors.Wrap(err, "flowing.makeListFlowsEndpoint")
 		}
 
-		summaries := make([]flowSummary, 0)
-		for _, flow := range flows {
-			summaries = append(summaries, flowSummary{
-				ID:          flow.ID,
-				Name:        flow.Name,
-				RuleCount:   len(flow.Rules),
-				LastChanged: flow.UpdatedAt,
-			})
-		}
-
-		return listFlowsResponse{
-			Summaries: summaries,
-		}, nil
+		return flows, nil
 	}
 }
 

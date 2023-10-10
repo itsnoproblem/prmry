@@ -4,32 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/interaction"
 )
-
-type createInteractionAPIRequest struct {
-	FlowID     string            `json:"flowID"`
-	FlowParams map[string]string `json:"flowParams"`
-	Message    string            `json:"message"`
-}
-
-func decodeCreateInteractionAPIRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req createInteractionAPIRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errors.Wrap(err, "decodeCreateInteractionRequest")
-	}
-
-	return Input{
-		FlowID:       req.FlowID,
-		InputMessage: req.Message,
-		Params:       req.FlowParams,
-	}, nil
-}
 
 type interactionAPIResponse struct {
 	ID               string    `json:"id"`
@@ -117,6 +97,27 @@ func formatInteractionSummariesAPIResponse(ctx context.Context, response interfa
 	encoded, err := json.Marshal(res)
 	if err != nil {
 		return nil, errors.Wrap(err, "formatInteractionSummariesAPIResponse")
+	}
+
+	return encoded, nil
+}
+
+func formatExecuteFlowAPIResponse(ctx context.Context, response interface{}) (json.RawMessage, error) {
+	res, ok := response.(executeFlowResponse)
+	if !ok {
+		return nil, fmt.Errorf("formatExecuteFlowAPIResponse: failed to parse response")
+	}
+
+	formatted := map[string]interface{}{
+		"data": map[string]interface{}{
+			"prompt":   res.Prompt,
+			"executes": res.Executes,
+		},
+	}
+
+	encoded, err := json.Marshal(formatted)
+	if err != nil {
+		return nil, errors.Wrap(err, "formatExecuteFlowAPIResponse")
 	}
 
 	return encoded, nil

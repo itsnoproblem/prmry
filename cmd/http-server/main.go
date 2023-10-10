@@ -149,11 +149,16 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	interactingTransport := interacting.RouteHandler(interactingService, flowingService, renderer, apiRenderer)
+	// UI Transports
+	interactingTransport := interacting.HTMXRouteHandler(&interactingService, flowingService, renderer)
 	flowingTransport := flowing.RouteHandler(flowingService, renderer)
 	staticTransport := prmrying.RouteHandler(renderer)
 	accountingTransport := accounting.RouteHandler(renderer)
 	authenticatingTransport := authResource.RouteHandler()
+
+	// API Transports
+	interactingAPITransport := interacting.JSONRouteHandler(&interactingService, apiRenderer)
+	flowingAPITransport := flowing.JSONRouteHandler(flowingService, apiRenderer)
 
 	fixHostAndProto := appConfig.Env != "DEV"
 
@@ -175,11 +180,16 @@ func main() {
 		return chi.URLParam(req, "provider"), nil
 	}
 
+	// UI Routes
 	r.Group(authenticatingTransport)
 	r.Group(accountingTransport)
 	r.Group(interactingTransport)
 	r.Group(flowingTransport)
 	r.Group(staticTransport)
+
+	// API Routes
+	r.Group(interactingAPITransport)
+	r.Group(flowingAPITransport)
 
 	staticFS := http.FileServer(http.Dir("www/static"))
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))
