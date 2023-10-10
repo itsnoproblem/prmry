@@ -3,32 +3,91 @@ package flow
 import (
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
-	"sort"
 )
 
-type Detail struct {
-	ID                  string
-	Name                string
-	Rules               []RuleView
-	RequireAll          bool
-	Prompt              string
-	PromptArgs          []PromptArg
-	SupportedFields     SortedMap
-	SupportedConditions SortedMap
-	AvailableFlowsByID  SortedMap
-	components.BaseComponent
+const (
+	TabNameTrigger = "trigger"
+	TabNameInputs  = "input"
+	TabNamePreview = "preview"
+	TabNameLogs    = "logs"
+)
+
+type Field struct {
+	Source string
+	Value  string
 }
 
-func (d *Detail) SetAvalableFlows(flows []flow.Flow) {
-	d.AvailableFlowsByID = make(SortedMap, len(flows))
-	for _, f := range flows {
-		d.AvailableFlowsByID[f.ID] = f.Name
-	}
+type RuleView struct {
+	Field
+	Condition string
+	Value     string
+}
+
+type FlowsListView struct {
+	Flows []FlowSummary
+	components.BaseComponent
 }
 
 type PromptArg struct {
 	Source flow.SourceType
 	Value  string
+}
+
+type FlowSummary struct {
+	ID          string
+	Name        string
+	RuleCount   string
+	LastChanged string
+}
+
+type InputParam struct {
+	Type     flow.ParamType
+	Key      string
+	Required bool
+	Value    string
+}
+
+type InputParams []InputParam
+
+func (p InputParams) Map() components.SortedMap {
+	m := make(map[string]string)
+	for _, param := range p {
+		m[param.Key] = param.Key
+	}
+
+	return components.SortedMap(m)
+}
+
+type Detail struct {
+	components.BaseComponent
+	ID                  string
+	Name                string
+	Rules               []RuleView
+	SelectedTab         string
+	RequireAll          bool
+	Prompt              string
+	PromptArgs          []PromptArg
+	SupportedFields     components.SortedMap
+	SupportedConditions components.SortedMap
+	AvailableFlowsByID  components.SortedMap
+	InputParams         InputParams
+}
+
+func (d *Detail) AvailableTags() components.SortedMap {
+	tags := make(map[string]string, 0)
+	for _, arg := range d.PromptArgs {
+		if arg.Source == flow.FieldSourceInputArg {
+			tags[arg.Value] = arg.Value
+		}
+	}
+	return tags
+}
+
+func (d *Detail) SetAvalableFlows(flows []flow.Flow) {
+	d.AvailableFlowsByID = make(components.SortedMap, len(flows))
+	for _, f := range flows {
+		d.AvailableFlowsByID[f.ID] = f.Name
+	}
 }
 
 func (d *Detail) ToFlow() flow.Flow {
@@ -52,37 +111,24 @@ func (d *Detail) ToFlow() flow.Flow {
 		})
 	}
 
-	return flow.Flow{
-		ID:         d.ID,
-		Name:       d.Name,
-		Rules:      rules,
-		RequireAll: d.RequireAll,
-		Prompt:     d.Prompt,
-		PromptArgs: promptArgs,
+	inputParams := make([]flow.InputParam, 0)
+	for _, param := range d.InputParams {
+		inputParams = append(inputParams, flow.InputParam{
+			Type:       param.Type,
+			Key:        param.Key,
+			IsRequired: param.Required,
+		})
 	}
-}
 
-type Field struct {
-	Source string
-	Value  string
-}
-
-type RuleView struct {
-	Field
-	Condition string
-	Value     string
-}
-
-type FlowsListView struct {
-	Flows []FlowSummary
-	components.BaseComponent
-}
-
-type FlowSummary struct {
-	ID          string
-	Name        string
-	RuleCount   string
-	LastChanged string
+	return flow.Flow{
+		ID:          d.ID,
+		Name:        d.Name,
+		Rules:       rules,
+		RequireAll:  d.RequireAll,
+		Prompt:      d.Prompt,
+		PromptArgs:  promptArgs,
+		InputParams: inputParams,
+	}
 }
 
 func NewDetail(flw flow.Flow) Detail {
@@ -106,6 +152,15 @@ func NewDetail(flw flow.Flow) Detail {
 		})
 	}
 
+	inputParams := make([]InputParam, 0)
+	for _, param := range flw.InputParams {
+		inputParams = append(inputParams, InputParam{
+			Type:     param.Type,
+			Key:      param.Key,
+			Required: param.IsRequired,
+		})
+	}
+
 	return Detail{
 		ID:                  flw.ID,
 		Name:                flw.Name,
@@ -113,19 +168,9 @@ func NewDetail(flw flow.Flow) Detail {
 		RequireAll:          flw.RequireAll,
 		Prompt:              flw.Prompt,
 		PromptArgs:          promptArgs,
-		SupportedFields:     SortedMap(flow.SupportedFields()),
-		SupportedConditions: SortedMap(flow.SupportedConditions()),
+		SupportedFields:     components.SortedMap(flow.SupportedFields()),
+		SupportedConditions: components.SortedMap(flow.SupportedConditions()),
+		InputParams:         inputParams,
 		AvailableFlowsByID:  nil,
 	}
-}
-
-type SortedMap map[string]string
-
-func (s SortedMap) Keys() []string {
-	keys := make([]string, 0)
-	for k, _ := range s {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }

@@ -3,6 +3,7 @@ package flowing
 import (
 	"context"
 	"fmt"
+	"github.com/itsnoproblem/prmry/internal/flow"
 
 	"github.com/a-h/templ"
 
@@ -13,23 +14,23 @@ import (
 )
 
 func formatFlowSummaries(ctx context.Context, response interface{}) (components.Component, error) {
-	res, ok := response.(listFlowsResponse)
+	flows, ok := response.([]flow.Flow)
 	if !ok {
 		return &components.BaseComponent{}, fmt.Errorf("formatFlowSummaries: failed to cast response")
 	}
 
 	summaries := make([]flowcmp.FlowSummary, 0)
-	for _, flow := range res.Summaries {
+	for _, flow := range flows {
 		label := "rule"
-		if flow.RuleCount > 1 {
+		if len(flows) > 1 {
 			label = "rules"
 		}
 
 		summaries = append(summaries, flowcmp.FlowSummary{
 			ID:          flow.ID,
 			Name:        flow.Name,
-			RuleCount:   fmt.Sprintf("%d %s", flow.RuleCount, label),
-			LastChanged: flow.LastChanged.Format("Jan 02, 2006 15:04"),
+			RuleCount:   fmt.Sprintf("%d %s", len(flow.Rules), label),
+			LastChanged: flow.UpdatedAt.Format("Jan 02, 2006 15:04"),
 		})
 	}
 

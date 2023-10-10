@@ -3,19 +3,15 @@ package flowing
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"regexp"
-	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/flow"
-	"github.com/itsnoproblem/prmry/internal/htmx"
-
-	// @TODO(marty): write local types for these and eliminate these imports
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 	"github.com/itsnoproblem/prmry/internal/components/redirect"
+	"github.com/itsnoproblem/prmry/internal/flow"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 const (
@@ -30,18 +26,7 @@ type Service interface {
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
 }
 
-type listFlowsResponse struct {
-	Summaries []flowSummary
-}
-
-type flowSummary struct {
-	ID          string
-	Name        string
-	RuleCount   int
-	LastChanged time.Time
-}
-
-func makeListFlowsEndpoint(svc Service) htmx.HandlerFunc {
+func makeListFlowsEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -53,19 +38,7 @@ func makeListFlowsEndpoint(svc Service) htmx.HandlerFunc {
 			return nil, errors.Wrap(err, "flowing.makeListFlowsEndpoint")
 		}
 
-		summaries := make([]flowSummary, 0)
-		for _, flow := range flows {
-			summaries = append(summaries, flowSummary{
-				ID:          flow.ID,
-				Name:        flow.Name,
-				RuleCount:   len(flow.Rules),
-				LastChanged: flow.UpdatedAt,
-			})
-		}
-
-		return listFlowsResponse{
-			Summaries: summaries,
-		}, nil
+		return flows, nil
 	}
 }
 
@@ -73,29 +46,25 @@ type flowBuilderResponse struct {
 	Form flowcmp.Detail
 }
 
-func makeNewFlowFormEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, "makeNewFlowFormEndpoint")
+			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
 		}
 
 		flows, err := svc.GetFlowsForUser(ctx, user.ID)
 		if err != nil {
-			return nil, errors.Wrap(err, "makeNewFlowFormEndpoint")
+			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
 		}
 
-		//cmp := flowcmp.Detail{
-		//	SupportedFields:     flow.SupportedFields(),
-		//	SupportedConditions: flow.SupportedConditions(),
-		//}
 		cmp := flowcmp.NewDetail(flow.Flow{})
 		if existing := ctx.Value(ContextKeyFlow); existing != nil {
 			cmp = existing.(flowcmp.Detail)
 		}
 
 		cmp.SetAvalableFlows(flows)
-		cmp.SetUser(auth.UserFromContext(ctx))
+		cmp.SetUser(&user)
 
 		fullPage := flowcmp.FlowBuilderPage(cmp)
 		fragment := flowcmp.FlowBuilder(cmp)
@@ -108,11 +77,12 @@ func makeNewFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 }
 
 type editFlowRequest struct {
-	FlowID string
-	Form   *flowcmp.Detail
+	FlowID      string
+	Form        *flowcmp.Detail
+	SelectedTab string
 }
 
-func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
+func makeEditFlowFormEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
@@ -146,6 +116,7 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 
 		cmp.SupportedFields = flow.SupportedFields()
 		cmp.SupportedConditions = flow.SupportedConditions()
+		cmp.SelectedTab = req.SelectedTab
 
 		return flowBuilderResponse{
 			Form: cmp,
@@ -153,7 +124,24 @@ func makeEditFlowFormEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderAddRuleEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderAddInputEndpoint(svc Service) internalhttp.HandlerFunc {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		cmp, ok := request.(flowcmp.Detail)
+		if !ok {
+			return nil, fmt.Errorf("makeFlowBuilderAddRuleEndpoint: failed to parse request")
+		}
+
+		if cmp.InputParams == nil {
+			cmp.InputParams = make([]flowcmp.InputParam, 0)
+		}
+		cmp.InputParams = append(cmp.InputParams, flowcmp.InputParam{})
+		return flowBuilderResponse{
+			Form: cmp,
+		}, nil
+	}
+}
+
+func makeFlowBuilderAddRuleEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		cmp, ok := request.(flowcmp.Detail)
 		if !ok {
@@ -168,14 +156,35 @@ func makeFlowBuilderAddRuleEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-type flowBuilderRemoveRuleRequest struct {
+type flowBuilderRemoveItemRequest struct {
 	Index int
 	Form  flowcmp.Detail
 }
 
-func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderRemoveInputEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req, ok := request.(flowBuilderRemoveRuleRequest)
+		req, ok := request.(flowBuilderRemoveItemRequest)
+		if !ok {
+			return nil, fmt.Errorf("makeFlowBuilderRemoveInputEndpoint: failed to parse request")
+		}
+
+		cmp := req.Form
+
+		if len(cmp.Rules) > 0 {
+			revisedInputs := make([]flowcmp.InputParam, 0)
+			revisedInputs = append(revisedInputs, cmp.InputParams[:req.Index]...)
+			cmp.InputParams = append(revisedInputs, cmp.InputParams[req.Index+1:]...)
+		}
+
+		return flowBuilderResponse{
+			Form: cmp,
+		}, nil
+	}
+}
+
+func makeFlowBuilderRemoveRuleEndpoint(svc Service) internalhttp.HandlerFunc {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(flowBuilderRemoveItemRequest)
 		if !ok {
 			return nil, fmt.Errorf("makeFlowBuilderRemoveRuleEndpoint: failed to parse request")
 		}
@@ -194,7 +203,7 @@ func makeFlowBuilderRemoveRuleEndpoint(svc Service) htmx.HandlerFunc {
 	}
 }
 
-func makeFlowBuilderUpdatePromptEndpoint(svc Service) htmx.HandlerFunc {
+func makeFlowBuilderUpdatePromptEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		cmp, ok := request.(flowcmp.Detail)
 		if !ok {
@@ -242,7 +251,7 @@ type successMessageResponse struct {
 	Message string
 }
 
-func makeSaveFlowEndpoint(svc Service) htmx.HandlerFunc {
+func makeSaveFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_, err = getAuthorizedUser(ctx)
 		if err != nil {
@@ -274,7 +283,8 @@ func makeSaveFlowEndpoint(svc Service) htmx.HandlerFunc {
 }
 
 type deleteFlowRequest struct {
-	FlowID string
+	FlowID      string
+	SelectedTab string
 }
 
 func (req deleteFlowRequest) validate() error {
@@ -284,7 +294,7 @@ func (req deleteFlowRequest) validate() error {
 	return nil
 }
 
-func makeDeleteFlowEndpoint(svc Service) htmx.HandlerFunc {
+func makeDeleteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_, err = getAuthorizedUser(ctx)
 		if err != nil {

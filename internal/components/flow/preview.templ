@@ -1,0 +1,25 @@
+package flow
+
+templ Preview(view Detail) {
+    <h2>{ view.Name }</h2>
+    <div class="row">
+        <b>Triggered by:</b>
+        if len(view.Rules) > 0 {
+            <ul>
+            for _, rule := range view.Rules {
+                <li>{ rule.Field.Source }
+                if rule.Field.Value != "" {
+                    ({ rule.Field.Value })
+                }
+                </li>
+                <li>{ rule.Condition }</li>
+                <li>{ rule.Value }</li>
+            }
+            </ul>
+        } else {
+            <span class="text-body-secondary">
+                any input
+            </span>
+        }
+    </div>
+}

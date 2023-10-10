@@ -8,6 +8,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/components/redirect"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 type Renderer interface {
@@ -15,7 +16,7 @@ type Renderer interface {
 	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
-func MakeHandler(endpoint Endpoint, renderer Renderer) http.HandlerFunc {
+func MakeHandler(endpoint internalhttp.HTMXEndpoint, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		decoded, err := endpoint.DecodeRequest(ctx, r)

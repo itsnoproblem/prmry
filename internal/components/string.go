@@ -1,29 +1,18 @@
 package components
 
 import (
-	"strings"
+	"sort"
 )
 
-func TrimWordsToMaxCharacters(maxChars int, text string) string {
-	var (
-		trimmed = ""
-		strlen  = 0
-	)
+type SortedMap map[string]string
 
-	fields := strings.Fields(text)
-	for i, f := range fields {
-		strlen += len(f) + 1
-		if strlen > maxChars {
-			trimmed = strings.TrimSuffix(trimmed, " ") + "..."
-			return trimmed
-		}
-
-		if i < len(fields) {
-			trimmed += f + " "
-		}
+func (s SortedMap) Keys() []string {
+	keys := make([]string, 0)
+	for k, _ := range s {
+		keys = append(keys, k)
 	}
-
-	return trimmed
+	sort.Strings(keys)
+	return keys
 }
 
 func SelectedIfTrue(cond bool) string {

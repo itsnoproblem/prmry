@@ -42,7 +42,7 @@
    ```
    **watch.sh** will restart the process if a **.templ** file changes.  In both cases the scripts run: 
    ```shell
-   templ generate && go run ./cmd/htmx-server
+   templ generate && go run ./cmd/http-server
    ```
    
 #  Design

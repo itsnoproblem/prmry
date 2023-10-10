@@ -1,0 +1,98 @@
+package flow
+
+import (
+    "fmt"
+
+    "github.com/itsnoproblem/prmry/internal/flow"
+)
+
+templ RuleBuilder(view Detail) {
+    <div class="p-4 ps-2">
+        <div class="row">
+            <div class="col text-left">
+                <label for="require-all" class="pt-1 pe-2 larger">Execute this flow when</label>
+                <select name="requireAll" 
+                    id="require-all" 
+                    class="rounded p-1"
+                    placeholder="Choose...">
+                    if view.RequireAll {
+                        <option value="true" selected>All rules match</option>
+                        <option value="false">Any rule matches</option>
+                    } else {
+                        <option value="true">All rules match</option>
+                        <option value="false" selected>Any rule matches</option>
+                    }
+                </select>
+                <button id="add-rule"
+                    hx-post="/flow-builder/rules"
+                    hx-target="#content-root"
+                    hx-push-url="false"
+                    class="btn btn-info btn-sm ms-3">
+                    Add Rule
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rules-container" class="container p-4 ps-2">
+
+        if len(view.Rules) == 0 {
+            <div class="text-left">
+                <h2 class="pb-2 text-body-secondary">Flow always executes</h2>
+                <div>
+                    <em>Create a rule to add conditions.</em>
+                </div>
+            </div>
+        }
+
+        for i, rule := range view.Rules {
+            if i > 0 {
+                <hr class="text-secondary pb-3"/>
+            }
+            <div class="row flow-rule fade-in">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    @FieldSelector(fmt.Sprintf("fieldName-%d", i), "fieldName", view.SupportedFields, rule.Field.Source, "Source")
+                </div>
+
+                if rule.Field.Source == flow.FieldSourceFlow.String() {
+                    <div class="form-floating mb-3">
+                        @FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
+                    </div>
+                }
+
+                if rule.Field.Source == flow.FieldSourceInputArg.String() {
+                    <div class="form-floating mb-3">
+                        @FieldSelector(fmt.Sprintf("ruleInputParams-%d", i), "ruleInputParams", view.InputParams.Map(), rule.Field.Value, "Param name")
+                    </div>
+                }
+
+            </div>
+            <div class="col">
+                <div class="form-floating mb-3">
+                    @FieldSelector(fmt.Sprintf("condition-%d", i), "condition", view.SupportedConditions, rule.Condition, "Condition")
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input  type="text"
+                            name="value"
+                            id={ fmt.Sprintf("value-%d", i) }
+                            class="form-control form-control-md"
+                            placeholder="Value"
+                            value={ rule.Value }/>
+                    <label for={ fmt.Sprintf("value-%d", i) }>Value</label>
+                </div>
+            </div>
+            <div class="col-1 pt-3">
+                <a  hx-delete={ fmt.Sprintf("/flow-builder/rules/%d", i) }
+                    hx-target="#content-root"
+                    class="button-secondary"
+                >
+                    <i class="fa fa-close"></i>
+                </a>
+            </div>
+        </div>
+        }
+    </div>
+}

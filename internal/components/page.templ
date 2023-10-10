@@ -4,6 +4,7 @@ templ Page(cmp Component) {
     <html lang="en" data-bs-theme="dark">
         <head>
             <title>PRMRY - AI Hub</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
             <link rel="icon" type="image/x-png" href="/static/favicon.png"/>
 
@@ -14,11 +15,14 @@ templ Page(cmp Component) {
             <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Cormorant+Garamond:wght@300;400&family=Public+Sans:wght@200;300;500&display=swap" rel="stylesheet"/>
             <link rel="stylesheet" href="/static/main.css"/>
 
+            <script src="/static/main.js"></script>
             <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+            <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+            <script src="https://unpkg.com/idiomorph/dist/idiomorph-ext.min.js"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
             <script src="https://unpkg.com/htmx.org/dist/ext/remove-me.js"></script>
-            <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
+            <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
 
 
 
@@ -27,7 +31,7 @@ templ Page(cmp Component) {
             <div id="layout" class="container">
                 @TopNavigation(cmp)
                 <div id="notices" class="fade-out"></div>
-                <div id="content-root">
+                <div id="content-root" class="p-3">
                     <div>
                     { children... }
                     </div>

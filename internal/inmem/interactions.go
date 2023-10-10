@@ -34,7 +34,6 @@ func (r *InteractionMemoryRepo) Add(ctx context.Context, in interaction.Interact
 		Prompt:         in.PromptHTML(),
 		TokensUsed:     in.Response.Usage.TotalTokens,
 		ResponseLength: len(in.ResponseHTML()),
-		Error:          in.Error,
 		CreatedAt:      in.CreatedAt,
 		UserID:         in.UserID,
 	}
@@ -51,7 +50,7 @@ func (r *InteractionMemoryRepo) Remove(ctx context.Context, id string) error {
 
 	delete(r.interactions, id)
 
-	// Remove summary from userInteractions
+	// Delete summary from userInteractions
 	for i, s := range r.userInteractions[in.UserID] {
 		if s.ID == id {
 			r.userInteractions[in.UserID] = append(r.userInteractions[in.UserID][:i], r.userInteractions[in.UserID][i+1:]...)

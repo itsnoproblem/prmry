@@ -53,6 +53,7 @@ func formatCreateInteractionResponse(ctx context.Context, response interface{}) 
 
 	cmp := chat.ChatResponseView{
 		Interaction: chat.NewChatDetailView(ixn),
+		Controls:    chat.ChatControlsView{},
 	}
 	cmp.SetUser(auth.UserFromContext(ctx))
 
@@ -74,7 +75,7 @@ func formatChatPromptResponse(ctx context.Context, response interface{}) (compon
 	}
 	cmp.SetUser(auth.UserFromContext(ctx))
 
-	chatFragment := chat.ChatConsole(cmp)
+	chatFragment := chat.ChatControls(cmp)
 	chatPage := chat.ChatPage(cmp)
 	cmp.SetTemplates(chatPage, chatFragment)
 

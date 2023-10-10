@@ -1,8 +1,7 @@
 <html lang="en" data-bs-theme="dark">
   <head>
-    <title>
-      PRMRY - AI Hub
-    </title>
+    <title>PRMRY - AI Hub</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-png" href="/static/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -10,11 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&amp;family=Cormorant+Garamond:wght@300;400&amp;family=Public+Sans:wght@200;300;500&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/main.js"></script>
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+    <script src="https://unpkg.com/idiomorph/dist/idiomorph-ext.min.js"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/remove-me.js"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
   </head>
   <body>
     <div id="layout" class="container">
@@ -26,67 +28,46 @@
             </a>
             <ul class="dropdown-menu" hx-target="#content-root" hx-push-url="true">
               <li>
-                <a class="dropdown-item" hx-get="/account" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                  Profile
-                </a>
+                <a class="dropdown-item" hx-get="/account" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Profile</a>
               </li>
               <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                  Settings
-                </a>
+                <a class="dropdown-item" href="#" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Settings</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
               <li>
-                <a class="dropdown-item" href="/auth/logout/github">
-                  Log out
-                </a>
+                <a class="dropdown-item" href="/auth/logout/github">Log out</a>
               </li>
               <li>
                 <hr class="dropdown-divider">
               </li>
               <li>
-                <a class="dropdown-item" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show" hx-get="/legal/terms">
-                  TOS
-                </a>
+                <a class="dropdown-item" title="Terms of Service" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show" hx-get="/legal/terms">TOS</a>
               </li>
               <li>
-                <a class="dropdown-item" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show" hx-get="/legal/privacy">
-                  Privacy
-                </a>
+                <a class="dropdown-item" title="Privacy Policy" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show" hx-get="/legal/privacy">Privacy</a>
               </li>
             </ul>
           </li>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
           <div id="top-nav" class="collapse navbar-collapse justify-content-left" hx-swap-oob="false">
             <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end">
               <li class="nav-item">
                 <a class="nav-link" title="Flows" hx-get="/flows" hx-target="#content-root" hx-push-url="true" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                  <span class="d-lg-none">
-                    Flows
-                  </span>
-                  &nbsp;
+                  <span class="d-lg-none">Flows</span>&nbsp; 
                   <i class="fa fa-circle-nodes fa-2x"></i>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" title="Interact" hx-get="/interactions/chat" hx-target="#content-root" hx-push-url="true" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                  <span class="d-lg-none">
-                    Interact
-                  </span>
-                  &nbsp;
+                  <span class="d-lg-none">Interact</span>&nbsp; 
                   <i class="fa fa-message fa-2x" aria-hidden="true"></i>
                 </a>
               </li>
               <li nav-class="nav-item">
                 <a class="nav-link" title="Interactions" hx-get="/interactions" hx-target="#content-root" hx-push-url="true" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                  <span class="d-lg-none">
-                    Interactions
-                  </span>
-                  &nbsp;
+                  <span class="d-lg-none">Interactions</span>&nbsp; 
                   <i class="fa fa-list fa-2x"></i>
                 </a>
               </li>
@@ -95,165 +76,176 @@
         </div>
       </nav>
       <div id="notices" class="fade-out"></div>
-      <div id="content-root">
+      <div id="content-root" class="p-3">
         <div>
+          <div hx-script="true">
+            <script>
+              function updateHighlight() {
+              const textArea = document.getElementById('promptEditor');
+              const promptInput = document.getElementById('promptInput');
+              const highlight = document.getElementById('highlight');
+              const text = textArea.innerHTML.replace(/^\s+/, "");
+              const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+
+              promptInput.value = text;
+              highlight.innerHTML = highlightedText;
+              }
+
+              try {
+              window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
+              window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
+              document.getElementById("highlight").scrollTop = this.scrollTop;
+              });
+              } catch(e) {
+              console.log(e);
+              }
+
+              document.addEventListener("DOMContentLoaded", function() {
+              // Initialize
+              updateHighlight();
+              });
+            </script>
+          </div>
           <form id="flow-builder" hx-post="/flows" hx-target="#content-root" hx-push-url="false" hx-ext="json-enc">
             <input type="hidden" name="id" value="123">
+            <input type="hidden" name="selectedTab" value="">
             <div class="row">
-              <div class="col col-5">
+              <div class="col-12 col-md-5">
                 <div class="form-floating pb-4">
-                  <input name="name" type="text" class="form-control" placeholder="Welcome Flow" value="Test Flow A">
-                  <label for="name">
-                    Flow Name
-                  </label>
+                  <input id="flow-name" name="name" type="text" class="form-control" placeholder="Welcome Flow" value="Test Flow A">
+                  <label for="flow-name">Flow Name</label>
                 </div>
-                <div class="text-body-secondary pb-2">
-                  Trigger this flow when
-                </div>
-                <div class="container pb-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="requireAll" id="require-all-true" value="true">
-                    <label class="form-check-label" for="require-all-true">
-                      <em>
-                        ALL
-                      </em>
-                      rules match
-                    </label>
+                <div class="mb-3" hx-ext="morph">
+                  <label for="promptEditor" class="form-label">Prompt generated by this flow</label>
+                  <div id="highlight-container" class="border rounded mb-1">
+                    <div id="highlight"></div>
+                    <div id="promptEditor" contenteditable="true" class="form-control" hx-swap="morph:innerHTML" hx-put="/flow-builder/prompt" hx-trigger="input delay:1100ms from:#promptEditor">Tell me a story based on this text: %s</div>
                   </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="requireAll" id="require-all-false" value="false" checked>
-                    <label class="form-check-label" for="require-all-false">
-                      <em>
-                        ANY
-                      </em>
-                      rule matches
-                    </label>
-                  </div>
+                  <span class="smaller">indicate prompt arguments with <code>%s</code></span>
+                  <input type="hidden" name="prompt" id="promptInput" value="{ view.Prompt }">
+                  <br>
                 </div>
                 <div class="mb-3">
-                  <label for="prompt" class="form-label text-body-secondary">
-                    Prompt generated by this flow
-                    <br>
-                    (indicate replacements with
-                    <code>
-                      %s
-                    </code>
-                    )
-                  </label>
-                  <textarea class="form-control" name="prompt" id="prompt" rows="5" hx-put="/flows/new/prompt" hx-trigger="keyup changed delay:1100ms">Tell me a story based on this text: %s</textarea>
-                </div>
-                <div class="mb-3">
-                  <div class="mb-2 text-body-secondary">
-                    Replacements:
+                  <div class="mb-2">
+                    <label>Prompt Arguments:</label>
                   </div>
                   <div class="row mb-3">
                     <div class="form-floating col">
-                      <select name="promptArgs" class="form-select form-select-md" aria-label="Replacement 0" hx-put="/flows/new/prompt">
-                        <option></option>
-                        <option value="input message" selected="true">
-                          Input Message
-                        </option>
-                        <option value="interaction result from another flow">
-                          Output from another Flow
-                        </option>
-                        <option value="moderation result">
-                          A Moderation result
-                        </option>
+                      <select id="promptArgs-0" name="promptArgs" class="form-select form-select-md" aria-label="Argument 0" hx-put="/flow-builder/prompt">
+                        <option value="">Choose...</option>
+                        <option value="input message" selected="true">The Input Message</option>
+                        <option value="input tag">An Input Parameter</option>
+                        <option value="interaction result from another flow">Output from another Flow</option>
+                        <option value="moderation result">A Moderation result (of the input message)</option>
                       </select>
-                      <label>
-                        Replacement 0
-                      </label>
+                      <label for="promptArgs-0">Argument 0</label>
                     </div>
                   </div>
                 </div>
+                <script> updateHighlight(); </script>
               </div>
-              <div class="col col-7">
-                <div class="d-flex justify-content-between">
-                  <h4 class="text-info">
-                    Rules
-                  </h4>
-                  <button id="add-rule" hx-post="/flows/new/rules" hx-target="#content-root" hx-push-url="false" class="btn btn-info btn-sm mb-3">
-                    New
-                  </button>
-                </div>
-                <hr class="text-info mb-5 mt-0">
-                <div id="rules-container" class="container pb-4">
-                  <div class="row flow-rule fade-in">
-                    <div class="col">
-                      <div class="form-floating mb-3">
-                        <select name="fieldName" class="form-select form-select-md" aria-label="Field Name" hx-put="/flows/new/prompt">
-                          <option></option>
-                          <option value="input message" selected="true">
-                            Input Message
-                          </option>
-                          <option value="interaction result from another flow">
-                            Output from another Flow
-                          </option>
-                          <option value="moderation result">
-                            A Moderation result
-                          </option>
-                        </select>
-                        <label>
-                          Field Name
-                        </label>
+              <div class="col-12 col-md-7">
+                <ul class="nav nav-tabs pb-2">
+                  <li class="nav-item border-bottom">
+                    <a hx-put="/flow-builder/prompt?tab=trigger" hx-push-url="?tab=trigger" class="nav-link active" aria-current="page">Trigger</a>
+                  </li>
+                  <li class="nav-item border-bottom">
+                    <a hx-put="/flow-builder/prompt?tab=input" hx-push-url="?tab=input" class="nav-link">Inputs</a>
+                  </li>
+                  <li class="nav-item border-bottom">
+                    <a hx-put="/flow-builder/prompt?tab=preview" hx-push-url="?tab=preview" class="nav-link">Preview</a>
+                  </li>
+                </ul>
+                <div class="tab-content pt-2">
+                  <div>
+                    <div class="p-4 ps-2">
+                      <div class="row">
+                        <div class="col text-left">
+                          <label for="require-all" class="pt-1 pe-2 larger">Execute this flow when</label>
+                          <select name="requireAll" id="require-all" class="rounded p-1" placeholder="Choose...">
+                            <option value="true">All rules match</option>
+                            <option value="false" selected>Any rule matches</option>
+                          </select>
+                          <button id="add-rule" hx-post="/flow-builder/rules" hx-target="#content-root" hx-push-url="false" class="btn btn-info btn-sm ms-3">Add Rule</button>
+                        </div>
                       </div>
                     </div>
-                    <div class="col">
-                      <div class="form-floating mb-3">
-                        <select name="condition" class="form-select form-select-md" aria-label="Condition" hx-put="/flows/new/prompt">
-                          <option></option>
-                          <option value="contains">
-                            contains
-                          </option>
-                          <option value="does not contain">
-                            does not contain
-                          </option>
-                          <option value="does not equal">
-                            does not equal
-                          </option>
-                          <option value="ends with">
-                            ends with
-                          </option>
-                          <option value="equals" selected="true">
-                            equals
-                          </option>
-                          <option value="starts with">
-                            starts with
-                          </option>
-                        </select>
-                        <label>
-                          Condition
-                        </label>
+                    <div id="rules-container" class="container p-4 ps-2">
+                      <div class="row flow-rule fade-in">
+                        <div class="col">
+                          <div class="form-floating mb-3">
+                            <select id="fieldName-0" name="fieldName" class="form-select form-select-md" aria-label="Source" hx-put="/flow-builder/prompt">
+                              <option value="">Choose...</option>
+                              <option value="input message" selected="true">The Input Message</option>
+                              <option value="input tag">An Input Parameter</option>
+                              <option value="interaction result from another flow">Output from another Flow</option>
+                              <option value="moderation result">A Moderation result (of the input message)</option>
+                            </select>
+                            <label for="fieldName-0">Source</label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-floating mb-3">
+                            <select id="condition-0" name="condition" class="form-select form-select-md" aria-label="Condition" hx-put="/flow-builder/prompt">
+                              <option value="">Choose...</option>
+                              <option value="contains">contains</option>
+                              <option value="does not contain">does not contain</option>
+                              <option value="does not equal">does not equal</option>
+                              <option value="ends with">ends with</option>
+                              <option value="equals" selected="true">equals</option>
+                              <option value="starts with">starts with</option>
+                            </select>
+                            <label for="condition-0">Condition</label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-floating mb-3">
+                            <input type="text" name="value" id="value-0" class="form-control form-control-md" placeholder="Value" value="test">
+                            <label for="value-0">Value</label>
+                          </div>
+                        </div>
+                        <div class="col-1 pt-3">
+                          <a hx-delete="/flow-builder/rules/0" hx-target="#content-root" class="button-secondary">
+                            <i class="fa fa-close"></i>
+                          </a>
+                        </div>
                       </div>
                     </div>
-                    <div class="col">
-                      <div class="form-floating mb-3">
-                        <input type="text" name="value" id="value" class="form-control form-control-md" placeholder="Value" value="test">
-                        <label for="value">
-                          Value
-                        </label>
+                  </div>
+                  <div class="d-none">
+                    <div class="row p-1 pe pb-4">
+                      <div class="col-7">
+                        <label class="larger">Input Parameters</label>
                       </div>
+                      <div class="col-2">
+                        <button class="btn btn-info" hx-post="/flow-builder/inputs">Add Input</button>
+                      </div>
+                      <div class="col-3"></div>
                     </div>
-                    <div class="col-1 pt-3">
-                      <a hx-delete="/flows/new/rules/0" hx-target="#content-root" class="button-secondary">
-                        <i class="fa fa-close"></i>
-                      </a>
+                    <div class="row p-1"></div>
+                  </div>
+                  <div class="d-none">
+                    <h2>Test Flow A</h2>
+                    <div class="row">
+                      <b>Triggered by:</b>
+                      <ul>
+                        <li>input message</li>
+                        <li>equals</li>
+                        <li>test</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <hr class="text-info mb-4 mt-4">
-            <div class="row">
-              <div class="col col-1">
+            <div class="d-flex justify-content-center">
+              <div class="pe-4">
+                <button class="btn btn-secondary" hx-get="/flows" hx-target="#content-root" hx-push-url="true" hx-confirm="Abandon changes?">Cancel</button>
+              </div>
+              <div>
                 <input class="btn btn-primary" type="submit" value="Save">
               </div>
-              <div class="col col-1">
-                <button class="btn btn-secondary" hx-get="/flows" hx-target="#content-root" hx-push-url="true" hx-confirm="Abandon changes?">
-                  Cancel
-                </button>
-              </div>
-              <div class="col col-10"></div>
             </div>
           </form>
         </div>

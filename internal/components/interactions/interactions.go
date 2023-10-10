@@ -28,7 +28,7 @@ func NewListView(summaries []interaction.Summary) ListView {
 	for i, s := range summaries {
 		interactions[i] = SummaryView{
 			ID:         s.ID,
-			Prompt:     components.TrimWordsToMaxCharacters(PromptSummaryMaxCharacters, s.Prompt),
+			Prompt:     s.PromptFragment(250),
 			Type:       s.Type,
 			FlowID:     s.FlowID,
 			FlowName:   s.FlowName,

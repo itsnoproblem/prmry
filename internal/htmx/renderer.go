@@ -1,6 +1,8 @@
 package htmx
 
 import (
+	"encoding/json"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 
@@ -20,6 +22,15 @@ func NewRenderer() *renderer {
 func (rnd *renderer) Render(w http.ResponseWriter, r *http.Request, cmp components.Component) error {
 	ctx := r.Context()
 	cmp.SetUser(auth.UserFromContext(ctx))
+	debug := r.URL.Query().Get("debug")
+
+	if debug != "" {
+		err := writeDebug(w, cmp)
+		if err != nil {
+			return errors.Wrap(err, "RenderTemplComponent")
+		}
+		return nil
+	}
 
 	if IsHXRequest(ctx) {
 		return cmp.GetFragmentTemplate().Render(r.Context(), newHTMLWriter(w))
@@ -40,7 +51,7 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 	view := components.NewErrorView(err.Error(), http.StatusInternalServerError)
 	ctx := r.Context()
 
-	w.WriteHeader(view.Code)
+	//w.WriteHeader(view.Code)
 
 	if IsHXRequest(ctx) {
 		components.Error(view).Render(ctx, newHTMLWriter(w))
@@ -59,7 +70,20 @@ func (rnd *renderer) Unauthorized(w http.ResponseWriter, r *http.Request) {
 }
 
 func newHTMLWriter(w io.Writer) io.Writer {
+	gohtml.Condense = true
 	htmlWriter := gohtml.NewWriter(w)
 	htmlWriter.SetLastElement(">")
 	return htmlWriter
+}
+
+func writeDebug(w http.ResponseWriter, cmp components.Component) error {
+	response, err := json.Marshal(cmp)
+	if err != nil {
+		return errors.Wrap(err, "writeDebug")
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
+
+	return nil
 }

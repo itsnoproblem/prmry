@@ -10,7 +10,7 @@ RUN go install github.com/a-h/templ/cmd/templ@latest
 
 COPY . .
 RUN templ generate ./
-RUN GOOS=linux go build -o htmx-server ./cmd/htmx-server
+RUN GOOS=linux go build -o http-server ./cmd/http-server
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
@@ -47,7 +47,7 @@ ENV SESSION_SECRET=$SESSION_SECRET
 
 WORKDIR /root/
 
-COPY --from=builder /app/htmx-server .
+COPY --from=builder /app/http-server .
 COPY --from=builder /app/www ./www
 
-CMD [ "./htmx-server" ]
+CMD [ "./http-server" ]

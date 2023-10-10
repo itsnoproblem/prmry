@@ -1,0 +1,26 @@
+package flow
+
+
+templ TabNav(tabID string, label string, isSelected bool) {
+    <li class="nav-item border-bottom">
+        <a hx-put={ "/flow-builder/prompt?tab=" + tabID }
+           hx-push-url={ "?tab=" + tabID }
+            if isSelected {
+                class="nav-link active"
+                aria-current="page"
+            } else {
+                class="nav-link"
+            }
+        >{ label }</a>
+    </li>
+}
+
+templ TabPanel(isActive bool, cmp templ.Component) {
+    <div
+        if !isActive {
+            class="d-none"
+        }
+    >
+        @cmp
+    </div>
+}

@@ -22,7 +22,7 @@ func init() {
 }
 
 func TestAccounting(t *testing.T) {
-	reporter := approvals.UseReporter(reporters.NewGoLandReporter())
+	reporter := approvals.UseReporter(reporters.NewFileMergeReporter())
 	defer reporter.Close()
 
 	renderer := htmx.NewRenderer()

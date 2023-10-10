@@ -26,10 +26,16 @@ type Rule struct {
 	Value     string
 }
 
+func (r Rule) String() string {
+	fieldDescription := r.Field.Source.String() + " " + r.Field.Value
+	return fmt.Sprintf("%s %s %s", fieldDescription, r.Condition, r.Value)
+}
+
 func (c Rule) Matches(field string) (bool, error) {
 	matches := false
 	fld := strings.ToLower(field)
 	val := strings.ToLower(c.Value)
+
 	for strings.HasPrefix(val, "\n") {
 		val = strings.TrimPrefix(val, "\n")
 	}

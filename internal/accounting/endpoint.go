@@ -3,9 +3,9 @@ package accounting
 import (
 	"context"
 	"fmt"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/htmx"
 )
 
 type accountResponse struct {
@@ -15,7 +15,7 @@ type accountResponse struct {
 	AvatarURL string
 }
 
-func makeAccountEndpoint() htmx.HandlerFunc {
+func makeAccountEndpoint() internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		user := auth.UserFromContext(ctx)
 		if user == nil {

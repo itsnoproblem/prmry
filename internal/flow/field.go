@@ -2,6 +2,7 @@ package flow
 
 const (
 	FieldSourceInput      SourceType = "input message"
+	FieldSourceInputArg   SourceType = "input tag"
 	FieldSourceFlow       SourceType = "interaction result from another flow"
 	FieldSourceModeration SourceType = "moderation result"
 )
@@ -19,8 +20,9 @@ func (s SourceType) String() string {
 
 func SupportedFields() map[string]string {
 	return map[string]string{
-		FieldSourceInput.String():      "Input Message",
+		FieldSourceInput.String():      "The Input Message",
+		FieldSourceInputArg.String():   "An Input Parameter",
 		FieldSourceFlow.String():       "Output from another Flow",
-		FieldSourceModeration.String(): "A Moderation result",
+		FieldSourceModeration.String(): "A Moderation result (of the input message)",
 	}
 }

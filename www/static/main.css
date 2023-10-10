@@ -111,12 +111,55 @@ h3 {
     border-radius: 2em;
     padding: 0.3em 1em 0.3em 1em;
 }
+
+.required .control-label:before {
+    content: "*" !important;
+    color: #B62BD2FF !important;
+}
+
 #chat-controls .form-group {
     padding: 4px;
 }
+
 label[for=flow-selector] {
     margin-left: 8px;
     padding-top: 12px;
+}
+
+#flow-builder h3 {
+    font-size: 1.5em;
+}
+
+#flow-builder label {
+    /*color: #BA55D3FF;*/
+    /*color: #ffff8b;*/
+    color: #7bbbfd;
+    left: 14px;
+}
+
+#flow-builder label.form-check-label {
+    color: unset;
+}
+
+#flow-builder .smaller {
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: 0.14em;
+}
+
+#flow-builder .larger {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#flow-builder .text-body-secondary {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.nav a {
+    color: #ffff8b;
+    /*color: #7bbbfd;*/
 }
 
 .content {
@@ -223,12 +266,14 @@ ul.usage hr {
 }
 
 .prompt-display {
-    margin-bottom: 0.2em;
+    margin-bottom: 0.6em;
     padding: 0.6em 0 0.6em 1.2em;
     border-left: 1.2em solid rgb(32 185 118);
-    font-size: 24px;
-    line-height: 40px;
+    font-size: 20px;
+    line-height: 36px;
     font-family: 'Public Sans', sans-serif;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 .response-display {
@@ -238,6 +283,8 @@ ul.usage hr {
     font-weight: 200;
     font-family: 'Public Sans', sans-serif;
     line-height: 32px;
+    overflow-y: auto;
+    max-height: 250px;
 }
 
 .token-badge {
@@ -484,3 +531,33 @@ li.dropdown {
     cursor: pointer;
 }
 
+#highlight-container {
+    position: relative;
+}
+
+#highlight, #promptEditor {
+    width: 100%;
+    min-height: 200px;
+    padding: 0.5rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+}
+
+#highlight {
+    position: absolute;
+    pointer-events: none;
+    padding: 9px;
+    z-index: 99;
+}
+
+#promptEditor {
+    position: relative;
+    background: transparent;
+    z-index: 2;
+}
+
+.highlight {
+    color: #e685b5;
+}

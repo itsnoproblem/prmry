@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/itsnoproblem/prmry/internal/htmx"
+	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
 type homeResponse struct {
@@ -12,7 +12,7 @@ type homeResponse struct {
 	OAuthProvidersByName map[string]string
 }
 
-func makeHomeEndpoint() htmx.HandlerFunc {
+func makeHomeEndpoint() internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		keys, providersByName := auth.Providers()
 		return homeResponse{
@@ -22,13 +22,13 @@ func makeHomeEndpoint() htmx.HandlerFunc {
 	}
 }
 
-func makeTermsEndpoint() htmx.HandlerFunc {
+func makeTermsEndpoint() internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		return nil, nil
 	}
 }
 
-func makePrivacyEndpoint() htmx.HandlerFunc {
+func makePrivacyEndpoint() internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		return nil, nil
 	}
