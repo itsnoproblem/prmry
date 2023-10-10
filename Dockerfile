@@ -47,7 +47,7 @@ ENV SESSION_SECRET=$SESSION_SECRET
 
 WORKDIR /root/
 
-COPY --from=builder /app/htmx-server .
+COPY --from=builder /app/http-server .
 COPY --from=builder /app/www ./www
 
-CMD [ "./htmx-server" ]
+CMD [ "./http-server" ]
