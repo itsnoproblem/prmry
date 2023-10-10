@@ -3,7 +3,6 @@ package flowing
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/flow"
 
 	"github.com/a-h/templ"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/components"
 	flowcmp "github.com/itsnoproblem/prmry/internal/components/flow"
 	"github.com/itsnoproblem/prmry/internal/components/success"
+	"github.com/itsnoproblem/prmry/internal/flow"
 )
 
 func formatFlowSummaries(ctx context.Context, response interface{}) (components.Component, error) {
