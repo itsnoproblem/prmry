@@ -150,7 +150,7 @@ func FlowSelectorControl(cmp ControlsView) templ.Component {
 			var_5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"form-floating\"><select id=\"flow-selector\" name=\"flowSelector\" class=\"form-select form-select-md\" aria-label=\"Flow Selector\" hx-put=\"/interactions/chat\" hx-target=\"#chat-controls\"><option value=\"\">")
+		_, err = templBuffer.WriteString("<div class=\"form-floating\"><select id=\"flow-selector\" name=\"flowSelector\" class=\"mb-3 form-select form-select-md\" aria-label=\"Flow Selector\" hx-put=\"/interactions/chat\" hx-target=\"#chat-controls\"><option value=\"\">")
 		if err != nil {
 			return err
 		}

@@ -84,8 +84,13 @@ h3 {
 }
 
 .form-floating label {
-    top: -18px !important;
+    top: -10px !important;
 }
+
+.form-floating {
+    padding: 8px;
+}
+
 .content-subhead {
     text-transform: uppercase;
     color: #aaa;
