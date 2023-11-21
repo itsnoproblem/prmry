@@ -41,7 +41,7 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 
 	updateFlowBuilderEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderEndpoint(svc),
-		decodeEmptyRequest,
+		decodeFlowBuilderRequest,
 		formatFlowBuilderResponse,
 		auth.Required,
 	)
@@ -84,7 +84,7 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	flowBuilderUpdatePromptEndpoint := internalhttp.NewHTMXEndpoint(
 		makeFlowBuilderUpdatePromptEndpoint(svc),
 		decodeFlowBuilderRequest,
-		formatFlowBuilderResponse,
+		formatFlowBuilderPromptResponse,
 		auth.Required,
 	)
 
@@ -218,13 +218,15 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 	}
 
 	var req FlowBuilderFormRequest
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
-	}
+	if r.Body != nil {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
+		}
 
-	if err = json.Unmarshal(body, &req); err != nil {
-		return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
+		if err = json.Unmarshal(body, &req); err != nil {
+			return nil, errors.Wrap(err, "decodeFlowBuilderRequest")
+		}
 	}
 
 	promptArgs, err := makePromptArgs(req)

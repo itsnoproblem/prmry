@@ -3,7 +3,8 @@ package flow
 
 templ TabNav(tabID string, label string, isSelected bool) {
     <li class="nav-item border-bottom">
-        <a hx-put={ "/flow-builder/prompt?tab=" + tabID }
+        <button hx-put={ "/flow-builder?tab=" + tabID }
+           hx-target="#content-root"
            hx-push-url={ "?tab=" + tabID }
             if isSelected {
                 class="nav-link active"
@@ -11,7 +12,7 @@ templ TabNav(tabID string, label string, isSelected bool) {
             } else {
                 class="nav-link"
             }
-        >{ label }</a>
+        >{ label }</button>
     </li>
 }
 

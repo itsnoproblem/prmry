@@ -160,17 +160,16 @@ func main() {
 	interactingAPITransport := interacting.JSONRouteHandler(&interactingService, apiRenderer)
 	flowingAPITransport := flowing.JSONRouteHandler(flowingService, apiRenderer)
 
-	fixHostAndProto := appConfig.Env != "DEV"
-
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(render.SetContentType(render.ContentTypeHTML))
 	r.Use(middleware.Compress(5))
 	r.Use(htmx.Middleware)
+	fixHostAndProto := appConfig.Env != "DEV"
 	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
 	r.Use(api.Middleware(usersRepo, apiRenderer))
 

@@ -11,7 +11,6 @@ templ FlowBuilderPage(view Detail) {
 }
 
 templ FlowBuilder(view Detail) {
-    @FlowBuilderScripts()
     <form
             id="flow-builder"
             hx-post="/flows"
@@ -36,19 +35,8 @@ templ FlowBuilder(view Detail) {
                 </div>
                 @PromptEditor(view)
             </div>
-            <div class="col-12 col-md-7">
 
-                <ul class="nav nav-tabs pb-2">
-                    @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "")
-                    @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
-                    @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
-                </ul>
-                <div class="tab-content pt-2">
-                    @TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view))
-                    @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
-                    @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
-                </div>
-            </div>
+            @FlowBuilderTabs(view)
         </div>
 
         <hr class="text-info mb-4 mt-4"/>
@@ -74,35 +62,37 @@ templ FlowBuilder(view Detail) {
             </div>
         </div>
     </form>
+    @FlowBuilderScripts()
+}
+
+templ FlowBuilderTabs(view Detail) {
+    <div id="flow-builder-tabs" class="col-12 col-md-7">
+        <ul class="nav nav-tabs pb-2">
+            @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "")
+            @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
+            @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
+        </ul>
+        <div id="tab-content" class="tab-content pt-2">
+            @TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view))
+            @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
+            @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
+        </div>
+    </div>
 }
 
 templ FlowBuilderScripts() {
-    <div hx-script="true">
+    <div id="flow-builder-scripts" hx-script="true">
         <script>
-            function updateHighlight() {
-                const textArea = document.getElementById('promptEditor');
-                const promptInput = document.getElementById('promptInput');
-                const highlight = document.getElementById('highlight');
-                const text = textArea.innerHTML.replace(/^\s+/, "");
-                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+            (() => {
+                let editor = getPromptEditor();
 
-                promptInput.value = text;
-                highlight.innerHTML = highlightedText;
-            }
+                editor.innerHTML = parse(editor.innerText);
+                editor.removeEventListener("input", handleEditorInput);
+                editor.addEventListener("input", handleEditorInput);
 
-            try {
-                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
-                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
-                    document.getElementById("highlight").scrollTop = this.scrollTop;
-                });
-            } catch(e) {
-                console.log(e);
-            }
-
-            document.addEventListener("DOMContentLoaded", function() {
-                // Initialize
-                updateHighlight();
-            });
+                editor.removeEventListener("paste", plainTextPaste);
+                editor.addEventListener("paste", plainTextPaste);
+            })()
         </script>
     </div>
 }

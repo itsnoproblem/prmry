@@ -49,6 +49,11 @@ type flowBuilderResponse struct {
 
 func makeFlowBuilderEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(flowcmp.Detail)
+		if !ok {
+			req = flowcmp.NewDetail(flow.Flow{})
+		}
+
 		user, err := getAuthorizedUser(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
@@ -59,13 +64,14 @@ func makeFlowBuilderEndpoint(svc Service) internalhttp.HandlerFunc {
 			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
 		}
 
-		cmp := flowcmp.NewDetail(flow.Flow{})
+		cmp := req
 		if existing := ctx.Value(ContextKeyFlow); existing != nil {
 			cmp = existing.(flowcmp.Detail)
 		}
 
 		cmp.SetAvalableFlows(flows)
 		cmp.SetUser(&user)
+		cmp.SelectedTab = req.SelectedTab
 
 		fullPage := flowcmp.FlowBuilderPage(cmp)
 		fragment := flowcmp.FlowBuilder(cmp)

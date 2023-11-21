@@ -61,18 +61,19 @@ func NewFlowSelector(flows []flow.Flow, selectedFlow string) FlowSelector {
 	}
 }
 
-type ChatControlsView struct {
+type ControlsView struct {
 	FlowSelector FlowSelector
+	SelectedFlow flow.Flow
 	components.BaseComponent
 }
 
-type ChatResponseView struct {
+type ResponseView struct {
 	Interaction DetailView
-	Controls    ChatControlsView
+	Controls    ControlsView
 	components.BaseComponent
 }
 
-func NewChatDetailView(ixn interaction.Interaction) DetailView {
+func NewDetailView(ixn interaction.Interaction) DetailView {
 	prompt := ixn.Prompt
 	if prompt == "" && len(ixn.Request.Messages) > 0 {
 		prompt = ixn.Request.Messages[0].Content

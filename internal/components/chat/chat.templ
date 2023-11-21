@@ -2,13 +2,13 @@ package chat
 
 import "github.com/itsnoproblem/prmry/internal/components"
 
-templ ChatPage(cmp ChatControlsView) {
+templ ChatPage(cmp ControlsView) {
     @components.Page(&cmp) {
         @ChatConsole(cmp)
     }
 }
 
-templ ChatConsole(cmp ChatControlsView) {
+templ ChatConsole(cmp ControlsView) {
     <div class="container" id="chat-content">
         <div id="chat-content-root"></div>
         <span id="chat-loader" class="htmx-indicator loader"></span>
@@ -16,7 +16,16 @@ templ ChatConsole(cmp ChatControlsView) {
     </div>    
 }
 
-templ ChatResponse(cmp ChatResponseView) {
+templ FlowExecutionPreview(cmp ControlsView) {
+    <div class="row" id="flow-preview">
+        <div></div>
+        <span id="preview-loader" class="htmx-indicator loader">
+            
+        </span>
+    </div>
+}
+
+templ ChatResponse(cmp ResponseView) {
 
     @ChatControlsOOB(cmp.Controls)
 

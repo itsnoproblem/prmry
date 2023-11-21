@@ -22,15 +22,15 @@ func TabNav(tabID string, label string, isSelected bool) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<li class=\"nav-item border-bottom\"><a hx-put=\"")
+		_, err = templBuffer.WriteString("<li class=\"nav-item border-bottom\"><button hx-put=\"")
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(templ.EscapeString("/flow-builder/prompt?tab=" + tabID))
+		_, err = templBuffer.WriteString(templ.EscapeString("/flow-builder?tab=" + tabID))
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("\" hx-push-url=\"")
+		_, err = templBuffer.WriteString("\" hx-target=\"#content-root\" hx-push-url=\"")
 		if err != nil {
 			return err
 		}
@@ -62,7 +62,7 @@ func TabNav(tabID string, label string, isSelected bool) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</a></li>")
+		_, err = templBuffer.WriteString("</button></li>")
 		if err != nil {
 			return err
 		}

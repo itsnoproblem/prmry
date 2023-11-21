@@ -37,7 +37,7 @@ func PromptEditor(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label><div id=\"highlight-container\" class=\"border rounded mb-1\"><div id=\"highlight\"></div><div id=\"promptEditor\" contenteditable=\"true\" class=\"form-control\" hx-swap=\"morph:innerHTML\" hx-put=\"/flow-builder/prompt\" hx-trigger=\"input delay:1100ms from:#promptEditor\">")
+		_, err = templBuffer.WriteString("</label><div id=\"highlight-container\" class=\"border rounded mb-1\"><div id=\"highlight\"></div><div id=\"promptEditor\" contenteditable=\"true\" class=\"form-control\" hx-put=\"/flow-builder/prompt\" hx-target=\"#prompt-args\" hx-trigger=\"input delay:1600ms from:#promptEditor\">")
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,43 @@ func PromptEditor(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</code></span><input type=\"hidden\" name=\"prompt\" id=\"promptInput\" value=\"{ view.Prompt }\"><br></div><div class=\"mb-3\">")
+		_, err = templBuffer.WriteString("</code></span><input type=\"hidden\" name=\"prompt\" id=\"promptInput\" value=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(view.Prompt))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"><br></div>")
+		if err != nil {
+			return err
+		}
+		err = PromptArgs(view).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func PromptArgs(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_6 := templ.GetChildren(ctx)
+		if var_6 == nil {
+			var_6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"mb-3\" id=\"prompt-args\">")
 		if err != nil {
 			return err
 		}
@@ -73,8 +109,8 @@ func PromptEditor(view Detail) templ.Component {
 			if err != nil {
 				return err
 			}
-			var_6 := `Prompt Arguments:`
-			_, err = templBuffer.WriteString(var_6)
+			var_7 := `Prompt Arguments:`
+			_, err = templBuffer.WriteString(var_7)
 			if err != nil {
 				return err
 			}
@@ -129,18 +165,7 @@ func PromptEditor(view Detail) templ.Component {
 				return err
 			}
 		}
-		_, err = templBuffer.WriteString("</div><script>")
-		if err != nil {
-			return err
-		}
-		var_7 := `
-        updateHighlight();
-    `
-		_, err = templBuffer.WriteString(var_7)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</script>")
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}
