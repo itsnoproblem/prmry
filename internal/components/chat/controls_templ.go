@@ -9,7 +9,7 @@ import "context"
 import "io"
 import "bytes"
 
-func ChatControlsOOB(cmp ChatControlsView) templ.Component {
+func ChatControlsOOB(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -41,7 +41,7 @@ func ChatControlsOOB(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func ChatControls(cmp ChatControlsView) templ.Component {
+func ChatControls(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -73,7 +73,7 @@ func ChatControls(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func ChatControlsForm(cmp ChatControlsView) templ.Component {
+func ChatControlsForm(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -113,7 +113,7 @@ func ChatControlsForm(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func InputMessage(cmp ChatControlsView) templ.Component {
+func InputMessage(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -137,7 +137,7 @@ func InputMessage(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func FlowSelectorControl(cmp ChatControlsView) templ.Component {
+func FlowSelectorControl(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {

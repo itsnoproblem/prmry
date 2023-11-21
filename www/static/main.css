@@ -83,6 +83,9 @@ h3 {
     height: 100%;
 }
 
+.form-floating label {
+    top: -18px !important;
+}
 .content-subhead {
     text-transform: uppercase;
     color: #aaa;
@@ -531,6 +534,10 @@ li.dropdown {
     cursor: pointer;
 }
 
+#promptEditor > div {
+    display: inline;
+}
+
 #highlight-container {
     position: relative;
 }
@@ -560,4 +567,8 @@ li.dropdown {
 
 .highlight {
     color: #e685b5;
+}
+
+.highlight div {
+    opacity: 0;
 }

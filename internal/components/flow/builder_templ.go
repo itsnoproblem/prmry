@@ -65,10 +65,6 @@ func FlowBuilder(view Detail) templ.Component {
 			var_3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		err = FlowBuilderScripts().Render(ctx, templBuffer)
-		if err != nil {
-			return err
-		}
 		_, err = templBuffer.WriteString("<form id=\"flow-builder\" hx-post=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"false\" hx-ext=\"json-enc\"><input type=\"hidden\" name=\"id\" value=\"")
 		if err != nil {
 			return err
@@ -110,7 +106,52 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div><div class=\"col-12 col-md-7\"><ul class=\"nav nav-tabs pb-2\">")
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
+		}
+		err = FlowBuilderTabs(view).Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div><hr class=\"text-info mb-4 mt-4\"><div class=\"d-flex justify-content-center\"><div class=\"pe-4\"><button class=\"btn btn-secondary\" hx-get=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"true\" hx-confirm=\"Abandon changes?\">")
+		if err != nil {
+			return err
+		}
+		var_5 := `Cancel`
+		_, err = templBuffer.WriteString(var_5)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</button></div><div><input class=\"btn btn-primary\" type=\"submit\" value=\"Save\"></div></div></form>")
+		if err != nil {
+			return err
+		}
+		err = FlowBuilderScripts().Render(ctx, templBuffer)
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func FlowBuilderTabs(view Detail) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_6 := templ.GetChildren(ctx)
+		if var_6 == nil {
+			var_6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div id=\"flow-builder-tabs\" class=\"col-12 col-md-7\"><ul class=\"nav nav-tabs pb-2\">")
 		if err != nil {
 			return err
 		}
@@ -126,7 +167,7 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</ul><div class=\"tab-content pt-2\">")
+		_, err = templBuffer.WriteString("</ul><div id=\"tab-content\" class=\"tab-content pt-2\">")
 		if err != nil {
 			return err
 		}
@@ -142,16 +183,7 @@ func FlowBuilder(view Detail) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div></div></div><hr class=\"text-info mb-4 mt-4\"><div class=\"d-flex justify-content-center\"><div class=\"pe-4\"><button class=\"btn btn-secondary\" hx-get=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"true\" hx-confirm=\"Abandon changes?\">")
-		if err != nil {
-			return err
-		}
-		var_5 := `Cancel`
-		_, err = templBuffer.WriteString(var_5)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</button></div><div><input class=\"btn btn-primary\" type=\"submit\" value=\"Save\"></div></div></form>")
+		_, err = templBuffer.WriteString("</div></div>")
 		if err != nil {
 			return err
 		}
@@ -170,42 +202,28 @@ func FlowBuilderScripts() templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_6 := templ.GetChildren(ctx)
-		if var_6 == nil {
-			var_6 = templ.NopComponent
+		var_7 := templ.GetChildren(ctx)
+		if var_7 == nil {
+			var_7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div hx-script=\"true\"><script>")
+		_, err = templBuffer.WriteString("<div id=\"flow-builder-scripts\" hx-script=\"true\"><script>")
 		if err != nil {
 			return err
 		}
-		var_7 := `
-            function updateHighlight() {
-                const textArea = document.getElementById('promptEditor');
-                const promptInput = document.getElementById('promptInput');
-                const highlight = document.getElementById('highlight');
-                const text = textArea.innerHTML.replace(/^\s+/, "");
-                const highlightedText = text.replace(/(%s)/g, '<span class="highlight">$1</span>');
+		var_8 := `
+            (() => {
+                let editor = getPromptEditor();
 
-                promptInput.value = text;
-                highlight.innerHTML = highlightedText;
-            }
+                editor.innerHTML = parse(editor.innerText);
+                editor.removeEventListener("input", handleEditorInput);
+                editor.addEventListener("input", handleEditorInput);
 
-            try {
-                window.prmry.AddLiveEventListener('input', 'promptEditor', updateHighlight);
-                window.prmry.AddLiveEventListener('scroll', 'promptEditor', function() {
-                    document.getElementById("highlight").scrollTop = this.scrollTop;
-                });
-            } catch(e) {
-                console.log(e);
-            }
-
-            document.addEventListener("DOMContentLoaded", function() {
-                // Initialize
-                updateHighlight();
-            });
+                editor.removeEventListener("paste", plainTextPaste);
+                editor.addEventListener("paste", plainTextPaste);
+            })()
         `
-		_, err = templBuffer.WriteString(var_7)
+		_, err = templBuffer.WriteString(var_8)
 		if err != nil {
 			return err
 		}

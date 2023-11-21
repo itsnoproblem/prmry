@@ -57,6 +57,20 @@ func formatFlowBuilderResponse(ctx context.Context, response interface{}) (compo
 	return &resp.Form, nil
 }
 
+func formatFlowBuilderPromptResponse(ctx context.Context, response interface{}) (components.Component, error) {
+	resp, ok := response.(flowBuilderResponse)
+	if !ok {
+		return &components.BaseComponent{}, fmt.Errorf("formatFlowBuilderResponse: failed to parse response")
+	}
+	resp.Form.SetUser(auth.UserFromContext(ctx))
+
+	fullPageShouldNeverBeRequested := flowcmp.FlowBuilderPage(resp.Form)
+	fragment := flowcmp.PromptArgs(resp.Form)
+	resp.Form.SetTemplates(fullPageShouldNeverBeRequested, fragment)
+
+	return &resp.Form, nil
+}
+
 func formatSuccessMessageResponse(ctx context.Context, response interface{}) (components.Component, error) {
 	cmp, ok := response.(success.SuccessView)
 	if !ok {

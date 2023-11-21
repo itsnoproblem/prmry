@@ -1,18 +1,18 @@
 package chat
 
-templ ChatControlsOOB(cmp ChatControlsView) {
+templ ChatControlsOOB(cmp ControlsView) {
     <div class="container navbar-fixed-bottom" id="chat-controls" hx-swap-oob="true">
         @ChatControlsForm(cmp)  
     </div>
 }
 
-templ ChatControls(cmp ChatControlsView) {
+templ ChatControls(cmp ControlsView) {
     <div class="container navbar-fixed-bottom" id="chat-controls">
         @ChatControlsForm(cmp)  
     </div>
 }
 
-templ ChatControlsForm(cmp ChatControlsView) {
+templ ChatControlsForm(cmp ControlsView) {
     <form hx-ext="json-enc" id="chat-controls-form" class="row">
         <div class="row">
             <div class="col-4">
@@ -25,7 +25,7 @@ templ ChatControlsForm(cmp ChatControlsView) {
     </form>
 }
 
-templ InputMessage(cmp ChatControlsView) {
+templ InputMessage(cmp ControlsView) {
     <div class="form-group col">
         <textarea
                 type="text"
@@ -46,7 +46,7 @@ templ InputMessage(cmp ChatControlsView) {
     </div>
 }
 
-templ FlowSelectorControl(cmp ChatControlsView) {
+templ FlowSelectorControl(cmp ControlsView) {
     <div class="form-floating">
         <select
             id="flow-selector"

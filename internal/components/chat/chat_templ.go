@@ -11,7 +11,7 @@ import "bytes"
 
 import "github.com/itsnoproblem/prmry/internal/components"
 
-func ChatPage(cmp ChatControlsView) templ.Component {
+func ChatPage(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -50,7 +50,7 @@ func ChatPage(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func ChatConsole(cmp ChatControlsView) templ.Component {
+func ChatConsole(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -82,7 +82,7 @@ func ChatConsole(cmp ChatControlsView) templ.Component {
 	})
 }
 
-func ChatResponse(cmp ChatResponseView) templ.Component {
+func FlowExecutionPreview(cmp ControlsView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -95,6 +95,30 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 			var_4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"row\" id=\"flow-preview\"><div></div><span id=\"preview-loader\" class=\"htmx-indicator loader\"></span></div>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func ChatResponse(cmp ResponseView) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_5 := templ.GetChildren(ctx)
+		if var_5 == nil {
+			var_5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		err = ChatControlsOOB(cmp.Controls).Render(ctx, templBuffer)
 		if err != nil {
 			return err
@@ -103,8 +127,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_5 string = cmp.Interaction.Date
-		_, err = templBuffer.WriteString(templ.EscapeString(var_5))
+		var var_6 string = cmp.Interaction.Date
+		_, err = templBuffer.WriteString(templ.EscapeString(var_6))
 		if err != nil {
 			return err
 		}
@@ -112,13 +136,13 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_6 := `Model: `
-		_, err = templBuffer.WriteString(var_6)
+		var_7 := `Model: `
+		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
 		}
-		var var_7 string = cmp.Interaction.Model
-		_, err = templBuffer.WriteString(templ.EscapeString(var_7))
+		var var_8 string = cmp.Interaction.Model
+		_, err = templBuffer.WriteString(templ.EscapeString(var_8))
 		if err != nil {
 			return err
 		}
@@ -126,8 +150,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_8 := `|`
-		_, err = templBuffer.WriteString(var_8)
+		var_9 := `|`
+		_, err = templBuffer.WriteString(var_9)
 		if err != nil {
 			return err
 		}
@@ -135,8 +159,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_9 string = cmp.Interaction.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_9))
+		var var_10 string = cmp.Interaction.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_10))
 		if err != nil {
 			return err
 		}
@@ -144,8 +168,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_10 := `tokens`
-		_, err = templBuffer.WriteString(var_10)
+		var_11 := `tokens`
+		_, err = templBuffer.WriteString(var_11)
 		if err != nil {
 			return err
 		}
@@ -169,8 +193,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_11 := `prompt`
-		_, err = templBuffer.WriteString(var_11)
+		var_12 := `prompt`
+		_, err = templBuffer.WriteString(var_12)
 		if err != nil {
 			return err
 		}
@@ -178,8 +202,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_12 string = cmp.Interaction.Usage.PromptTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_12))
+		var var_13 string = cmp.Interaction.Usage.PromptTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_13))
 		if err != nil {
 			return err
 		}
@@ -187,8 +211,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_13 := `tokens`
-		_, err = templBuffer.WriteString(var_13)
+		var_14 := `tokens`
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
@@ -196,8 +220,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_14 := `+`
-		_, err = templBuffer.WriteString(var_14)
+		var_15 := `+`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -205,8 +229,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_15 := `completion`
-		_, err = templBuffer.WriteString(var_15)
+		var_16 := `completion`
+		_, err = templBuffer.WriteString(var_16)
 		if err != nil {
 			return err
 		}
@@ -214,8 +238,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_16 string = cmp.Interaction.Usage.CompletionTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_16))
+		var var_17 string = cmp.Interaction.Usage.CompletionTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_17))
 		if err != nil {
 			return err
 		}
@@ -223,8 +247,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_17 := `tokens`
-		_, err = templBuffer.WriteString(var_17)
+		var_18 := `tokens`
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -232,8 +256,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_18 := `=`
-		_, err = templBuffer.WriteString(var_18)
+		var_19 := `=`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -241,8 +265,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_19 := `total`
-		_, err = templBuffer.WriteString(var_19)
+		var_20 := `total`
+		_, err = templBuffer.WriteString(var_20)
 		if err != nil {
 			return err
 		}
@@ -250,8 +274,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var var_20 string = cmp.Interaction.Usage.TotalTokens
-		_, err = templBuffer.WriteString(templ.EscapeString(var_20))
+		var var_21 string = cmp.Interaction.Usage.TotalTokens
+		_, err = templBuffer.WriteString(templ.EscapeString(var_21))
 		if err != nil {
 			return err
 		}
@@ -259,8 +283,8 @@ func ChatResponse(cmp ChatResponseView) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_21 := `tokens`
-		_, err = templBuffer.WriteString(var_21)
+		var_22 := `tokens`
+		_, err = templBuffer.WriteString(var_22)
 		if err != nil {
 			return err
 		}

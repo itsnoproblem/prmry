@@ -35,7 +35,7 @@ func formatGetInteractionResponse(ctx context.Context, response interface{}) (co
 		return nil, fmt.Errorf("formatGetInteractionResponse: failed to parse response")
 	}
 
-	cmp := chat.NewChatDetailView(ixn)
+	cmp := chat.NewDetailView(ixn)
 	cmp.SetUser(auth.UserFromContext(ctx))
 
 	page := interactions.InteractionDetailPage(cmp)
@@ -51,9 +51,9 @@ func formatCreateInteractionResponse(ctx context.Context, response interface{}) 
 		return nil, fmt.Errorf("formatGetInteractionResponse: failed to parse response")
 	}
 
-	cmp := chat.ChatResponseView{
-		Interaction: chat.NewChatDetailView(ixn),
-		Controls:    chat.ChatControlsView{},
+	cmp := chat.ResponseView{
+		Interaction: chat.NewDetailView(ixn),
+		Controls:    chat.ControlsView{},
 	}
 	cmp.SetUser(auth.UserFromContext(ctx))
 
@@ -70,7 +70,7 @@ func formatChatPromptResponse(ctx context.Context, response interface{}) (compon
 		return nil, fmt.Errorf("formatChatPromptResponse: failed to parse response")
 	}
 
-	cmp := chat.ChatControlsView{
+	cmp := chat.ControlsView{
 		FlowSelector: chat.NewFlowSelector(res.Flows, res.SelectedFlow),
 	}
 	cmp.SetUser(auth.UserFromContext(ctx))
