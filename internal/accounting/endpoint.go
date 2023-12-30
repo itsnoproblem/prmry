@@ -8,6 +8,9 @@ import (
 	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 
+type userService interface {
+}
+
 type accountResponse struct {
 	Provider  string
 	Email     string

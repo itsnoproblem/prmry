@@ -11,5 +11,5 @@ fi
 
 ulimit -n 99999
 cd "$DIR"/../ || (echo "failed to change directory to $DIR" && exit)
-templ generate "$DIR"/../ && go run "$DIR"/../cmd/htmx-server
+templ generate "$DIR"/../ && go run "$DIR"/../cmd/http-server
 cd -
