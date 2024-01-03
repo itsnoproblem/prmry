@@ -11,7 +11,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/auth"
 )
 
-type UserRow struct {
+type userRow struct {
 	ID        string `db:"id"`
 	Email     string `db:"email"`
 	Name      string `db:"name"`
@@ -19,13 +19,27 @@ type UserRow struct {
 	AvatarURL string `db:"avatar_url"`
 }
 
-func (r UserRow) ToUser() auth.User {
+func (r userRow) ToUser() auth.User {
 	return auth.User{
 		ID:        r.ID,
 		Email:     r.Email,
 		Name:      r.Name,
 		Nickname:  r.Nickname,
 		AvatarURL: r.AvatarURL,
+	}
+}
+
+type apiKeyRow struct {
+	Name      string    `db:"name"`
+	Value     string    `db:"value"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (r apiKeyRow) ToAPIKey() auth.APIKey {
+	return auth.APIKey{
+		Name:      r.Name,
+		Key:       r.Value,
+		CreatedAt: r.CreatedAt,
 	}
 }
 
@@ -98,7 +112,7 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 	}
 
 	for rows.Next() {
-		var userRow UserRow
+		var userRow userRow
 		if err = rows.StructScan(&userRow); err != nil {
 			return auth.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
 		}
@@ -119,15 +133,15 @@ func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.
 		WHERE email = ?
 	`
 
-	var userRow UserRow
-	if err := r.db.QueryRowxContext(ctx, query, email).StructScan(&userRow); err != nil {
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, email).StructScan(&row); err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			return auth.User{}, false, nil
 		}
 		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
 	}
 
-	return userRow.ToUser(), true, nil
+	return row.ToUser(), true, nil
 }
 
 func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
@@ -143,18 +157,39 @@ func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.U
 			nickname,
 			avatar_url
 		FROM users
-		WHERE api_key = ?
+		INNER JOIN rgb.api_keys ak on users.id = ak.user_id
+		WHERE ak.value = ?
 	`
 
-	var userRow UserRow
-	if err := r.db.QueryRowxContext(ctx, query, key).StructScan(&userRow); err != nil {
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, key).StructScan(&row); err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			return auth.User{}, false, nil
 		}
 		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByAPIKey")
 	}
 
-	return userRow.ToUser(), true, nil
+	return row.ToUser(), true, nil
+}
+
+func (r usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
+	query := `
+		SELECT name, value, created_at 
+		FROM rgb.api_keys 
+		WHERE user_id = ?
+	`
+
+	var rows []apiKeyRow
+	if err := r.db.SelectContext(ctx, &rows, query, userID); err != nil {
+		return nil, errors.Wrapf(err, "usersRepo.FindAPIKeysForUser")
+	}
+
+	keys := make([]auth.APIKey, len(rows))
+	for i, row := range rows {
+		keys[i] = row.ToAPIKey()
+	}
+
+	return keys, nil
 }
 
 func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {

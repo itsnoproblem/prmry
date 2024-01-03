@@ -3,6 +3,7 @@ package accounting
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
@@ -20,7 +21,17 @@ func formatAccountResponse(ctx context.Context, response interface{}) (component
 		Email:     res.Email,
 		Name:      res.Name,
 		AvatarURL: res.AvatarURL,
+		APIKeys:   make([]profile.APIKeyView, len(res.APIKeys)),
 	}
+
+	for i, key := range res.APIKeys {
+		cmp.APIKeys[i] = profile.APIKeyView{
+			Name:      key.Name,
+			Key:       key.Key,
+			CreatedAt: key.CreatedAt.Format(time.DateOnly),
+		}
+	}
+
 	cmp.SetUser(auth.UserFromContext(ctx))
 
 	fullPage := profile.ProfilePage(cmp)

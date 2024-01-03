@@ -17,9 +17,9 @@ type Renderer interface {
 	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
-func RouteHandler(renderer Renderer) func(chi.Router) {
+func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	accountEndpoint := internalhttp.NewHTMXEndpoint(
-		makeAccountEndpoint(),
+		makeAccountEndpoint(svc),
 		decodeEmptyRequest,
 		formatAccountResponse,
 		auth.Required,

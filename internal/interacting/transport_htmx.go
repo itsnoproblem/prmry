@@ -23,7 +23,7 @@ type Renderer interface {
 	Unauthorized(w http.ResponseWriter, r *http.Request)
 }
 
-func HTMXRouteHandler(svc interactingService, flowSvc flowService, renderer Renderer) func(chi.Router) {
+func HTMXRouteHandler(svc Service, flowSvc flowService, renderer Renderer) func(chi.Router) {
 	chatPromptEndpoint := internalhttp.NewHTMXEndpoint(
 		makeChatPromptEndpoint(flowSvc),
 		decodeChatPromptRequest,

@@ -139,6 +139,7 @@ func main() {
 	moderationsRepo := sql.NewModerationsRepo(db)
 	flowsRepo := sql.NewFlowsRepository(db)
 
+	accountingService := accounting.NewService(usersRepo)
 	authService := authenticating.NewService(usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	flowingService := flowing.NewService(flowsRepo)
@@ -150,14 +151,14 @@ func main() {
 	}
 
 	// UI Transports
-	interactingTransport := interacting.HTMXRouteHandler(&interactingService, flowingService, renderer)
+	interactingTransport := interacting.HTMXRouteHandler(interactingService, flowingService, renderer)
 	flowingTransport := flowing.RouteHandler(flowingService, renderer)
 	staticTransport := prmrying.RouteHandler(renderer)
-	accountingTransport := accounting.RouteHandler(renderer)
+	accountingTransport := accounting.RouteHandler(accountingService, renderer)
 	authenticatingTransport := authResource.RouteHandler()
 
 	// API Transports
-	interactingAPITransport := interacting.JSONRouteHandler(&interactingService, apiRenderer)
+	interactingAPITransport := interacting.JSONRouteHandler(interactingService, apiRenderer)
 	flowingAPITransport := flowing.JSONRouteHandler(flowingService, apiRenderer)
 
 	r := chi.NewRouter()

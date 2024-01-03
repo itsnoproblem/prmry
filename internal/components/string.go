@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -27,4 +28,8 @@ func TrueFalse(b bool) string {
 		return "true"
 	}
 	return "false"
+}
+
+func IToS(i int) string {
+	return fmt.Sprintf("%d", i)
 }

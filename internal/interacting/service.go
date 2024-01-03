@@ -42,11 +42,11 @@ type FlowService interface {
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 }
 
-func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowService) service {
+func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowService) *service {
 	log.Printf("PRMRY - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
 		GPTModel, GPTMaxTokens, GPTCharactersPerToken)
 
-	return service{
+	return &service{
 		gptClient:   c,
 		history:     r,
 		moderations: m,
@@ -311,7 +311,7 @@ func (s service) moderate(ctx context.Context, interactionID, msg string) {
 
 	modRes, err := s.gptClient.Moderations(ctx, modReq)
 	if err != nil {
-		log.Printf("ERROR - interactingService.moderate: %s", err)
+		log.Printf("ERROR - Service.moderate: %s", err)
 	}
 
 	s.moderations.Insert(ctx, moderation.Moderation{

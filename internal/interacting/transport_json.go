@@ -18,7 +18,7 @@ type JSONRenderer interface {
 	RenderError(w http.ResponseWriter, r *http.Request, err error)
 }
 
-func JSONRouteHandler(svc interactingService, jsonRenderer JSONRenderer) func(chi.Router) {
+func JSONRouteHandler(svc Service, jsonRenderer JSONRenderer) func(chi.Router) {
 	createInteractionAPIEndpoint := internalhttp.NewJSONEndpoint(
 		makeCreateInteractionEndpoint(svc),
 		decodeCreateInteractionAPIRequest,
