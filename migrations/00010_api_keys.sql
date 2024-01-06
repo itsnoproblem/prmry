@@ -8,7 +8,7 @@ create table api_keys
     created_at datetime     default CURRENT_TIMESTAMP not null,
     constraint api_keys_pk
         primary key (value)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 create index idx_user_id
     on api_keys (user_id);

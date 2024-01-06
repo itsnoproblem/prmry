@@ -6,6 +6,7 @@ type APIKeyView struct {
 	Name      string
 	Key       string
 	CreatedAt string
+	components.BaseComponent
 }
 
 type ProfileView struct {
@@ -14,5 +15,10 @@ type ProfileView struct {
 	Name      string
 	AvatarURL string
 	APIKeys   []APIKeyView
+	components.BaseComponent
+}
+
+type APIKeySuccessView struct {
+	Name string
 	components.BaseComponent
 }

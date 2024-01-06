@@ -139,8 +139,8 @@ func main() {
 	moderationsRepo := sql.NewModerationsRepo(db)
 	flowsRepo := sql.NewFlowsRepository(db)
 
-	accountingService := accounting.NewService(usersRepo)
-	authService := authenticating.NewService(usersRepo)
+	accountingService := accounting.NewService(&usersRepo)
+	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	flowingService := flowing.NewService(flowsRepo)
 
@@ -172,7 +172,7 @@ func main() {
 	r.Use(htmx.Middleware)
 	fixHostAndProto := appConfig.Env != "DEV"
 	r.Use(auth.Middleware(appConfig.AuthSecret, fixHostAndProto))
-	r.Use(api.Middleware(usersRepo, apiRenderer))
+	r.Use(api.Middleware(&usersRepo, apiRenderer))
 
 	goth.UseProviders(oauthProviders(appConfig)...)
 	gothic.Store = sessions.NewCookieStore(appConfig.AuthSecret)

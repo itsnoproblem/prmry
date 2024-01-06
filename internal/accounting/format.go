@@ -3,6 +3,7 @@ package accounting
 import (
 	"context"
 	"fmt"
+	"github.com/a-h/templ"
 	"time"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
@@ -28,7 +29,7 @@ func formatAccountResponse(ctx context.Context, response interface{}) (component
 		cmp.APIKeys[i] = profile.APIKeyView{
 			Name:      key.Name,
 			Key:       key.Key,
-			CreatedAt: key.CreatedAt.Format(time.DateOnly),
+			CreatedAt: key.CreatedAt.Format(time.DateTime),
 		}
 	}
 
@@ -38,5 +39,34 @@ func formatAccountResponse(ctx context.Context, response interface{}) (component
 	fragment := profile.Profile(cmp)
 	cmp.SetTemplates(fullPage, fragment)
 
+	return &cmp, nil
+}
+
+func formatAPIKeyResponse(ctx context.Context, response interface{}) (components.Component, error) {
+	res, ok := response.(profile.APIKeyView)
+	if !ok {
+		return nil, fmt.Errorf("formatAPIKeyResponse: failed to parse response")
+	}
+
+	cmp := profile.APIKeyView{
+		Name: res.Name,
+		Key:  res.Key,
+	}
+
+	fragment := profile.APIKey(cmp)
+	cmp.SetTemplates(fragment, fragment)
+
+	return &cmp, nil
+}
+
+func formatUpdateAPIKeyResponse(ctx context.Context, _ interface{}) (components.Component, error) {
+	cmp := profile.APIKeySuccessView{}
+	cmp.SetTemplates(profile.APIKeySuccess(cmp), profile.APIKeySuccess(cmp))
+	return &cmp, nil
+}
+
+func formatDeleteAPIKeyResponse(_ context.Context, _ interface{}) (components.Component, error) {
+	cmp := components.BaseComponent{}
+	cmp.SetTemplates(templ.NopComponent, templ.NopComponent)
 	return &cmp, nil
 }

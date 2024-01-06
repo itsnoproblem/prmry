@@ -11,25 +11,16 @@ templ ProfilePage(view ProfileView) {
 }
 
 templ Profile(view ProfileView) {
-    <script type="text/javascript" hx-script="true">
-        function copytext(element) {
-            navigator.clipboard.writeText(element.getAttribute('data-copytext'));
-            element.classList.remove('fa-copy');
-            element.classList.add('fa-circle-check', 'text-success');
-            setTimeout(() => {
-                element.classList.remove('fa-circle-check', 'text-success');
-                element.classList.add('fa-copy');
-            }, 1000);
-        }
-    </script>
-
     <div class="container container-md w-75 ms-0">
         <div class="row pb-4">
             <div class="col">
                 <div class="row mb-3">
                     <div class="col text-start display-6">Contact Info</div>
                     <div class="col text-end">
-                        <button class="btn btn-primary" hx-put="/account/profile" hx-target="#profileSaveStatus">Save</button>
+                        <button class="btn btn-primary"
+                                hx-put="/account/profile"
+                                hx-target="#profileSaveStatus"
+                        >Save</button>
                         <div id="profileSaveStatus"></div>
                     </div>
                 </div>
@@ -46,11 +37,16 @@ templ Profile(view ProfileView) {
 
         <div class="row pt-4">
             <div class="col">
-                <div class="container ps-0 text-end">
+                <div id="api-keys" class="container ps-0 text-end">
                     <div class="row">
                         <div class="col text-start display-6">API Keys</div>
                         <div class="col text-end">
-                            <button class="btn btn-info" id="addApiKey">New</button>
+                            <button class="btn btn-info"
+                                    id="addApiKey"
+                                    hx-post="/account/api-keys"
+                                    hx-target="#api-keys"
+                                    hx-swap="beforeend"
+                            >New</button>
                         </div>
                     </div>
                     <div class="row">
@@ -59,24 +55,44 @@ templ Profile(view ProfileView) {
                         </div>
                     </div>
                     for _, key := range view.APIKeys {
-                    <div class="row text-start">
-                        <div class="col">{ key.Name }</div>
-                        <div class="col">{ key.CreatedAt }</div>
-                        <div class="col text-truncate">{ key.Key }</div>
-                        <div class="col-auto">
-                            <i class="fa fa-copy me-2"
-                               data-copytext={ key.Key }
-                               onclick="copytext(this)"
-                               style='cursor:pointer;'
-                            ></i>
-                            <i class="fa fa-trash"></i>
-                        </div>
-                    </div>
+                        @APIKey(key)
                     }
                 </div>
             </div>
         </div>
     </div>
 
+    <script type="text/javascript" hx-script="true">
+        document.getElementById("api-keys").addEventListener('keypress', (event) => {
+            if (event.target.classList.contains('apikey-name') && event.key === 'Enter') {
+                event.preventDefault();
+                event.target.blur();
+            }
+        });
+
+        document.getElementById("api-keys").addEventListener('focus', (event) => {
+            if (event.target.classList.contains('apikey-name')) {
+                selectContent(event.target);
+            }
+        }, true);
+
+        function copytext(element) {
+            navigator.clipboard.writeText(element.getAttribute('data-copytext'));
+            element.classList.remove('fa-copy');
+            element.classList.add('fa-circle-check', 'text-success');
+            setTimeout(() => {
+                element.classList.remove('fa-circle-check', 'text-success');
+                element.classList.add('fa-copy');
+            }, 2000);
+        }
+
+        function selectContent(element) {
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    </script>
 }
 

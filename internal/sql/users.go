@@ -53,7 +53,7 @@ func NewUsersRepo(db *sqlx.DB) usersRepo {
 	}
 }
 
-func (r usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
+func (r *usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
 	//id = uuid.NewCookie().String()
 	query := `
 		INSERT INTO 
@@ -73,7 +73,7 @@ func (r usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
 	return nil
 }
 
-func (r usersRepo) DeleteUser(ctx context.Context, id string) error {
+func (r *usersRepo) DeleteUser(ctx context.Context, id string) error {
 	userQuery := "DELETE FROM users WHERE id = ?"
 	oauthQuery := "DELETE FROM oauth_users WHERE user_id = ?"
 
@@ -88,7 +88,7 @@ func (r usersRepo) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
+func (r *usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			u.id, 
@@ -121,7 +121,7 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 	return usr, true, nil
 }
 
-func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
+func (r *usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			id, 
@@ -144,7 +144,7 @@ func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.
 	return row.ToUser(), true, nil
 }
 
-func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
+func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
 	if key == "" {
 		return auth.User{}, false, nil
 	}
@@ -172,7 +172,7 @@ func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.U
 	return row.ToUser(), true, nil
 }
 
-func (r usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
+func (r *usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
 	query := `
 		SELECT name, value, created_at 
 		FROM rgb.api_keys 
@@ -192,7 +192,7 @@ func (r usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]aut
 	return keys, nil
 }
 
-func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
+func (r *usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM oauth_users 
 		WHERE provider = ? and provider_user_id = ?
@@ -205,7 +205,7 @@ func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUse
 	return numRows > 0, nil
 }
 
-func (r usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, error) {
+func (r *usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM users 
 		WHERE id = ?
@@ -218,7 +218,7 @@ func (r usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, err
 	return numRows > 0, nil
 }
 
-func (r usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, error) {
+func (r *usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM users 
 		WHERE email = ?
@@ -231,7 +231,7 @@ func (r usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, e
 	return numRows > 0, nil
 }
 
-func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error {
+func (r *usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error {
 	query := `
 		INSERT INTO oauth_users (
 			user_id, 
@@ -252,6 +252,46 @@ func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthPr
 	_, err := r.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return errors.Wrapf(err, "usersRepo.SaveUserFromOAuth")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) UpdateAPIKeyName(ctx context.Context, userID string, keyID string, name string) error {
+	query := `
+		UPDATE api_keys 
+		SET name = ? 
+		WHERE user_id = ? AND value = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, name, userID, keyID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.UpdateAPIKeyName")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) InsertAPIKey(ctx context.Context, userID string, key auth.APIKey) error {
+	query := `
+		INSERT INTO api_keys (user_id, name, value, created_at)  
+		VALUES (?, ?, ?, ?)
+	`
+	_, err := r.db.ExecContext(ctx, query, userID, key.Name, key.Key, key.CreatedAt)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.InsertAPIKey")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) DeleteAPIKey(ctx context.Context, userID string, keyID string) error {
+	query := `
+		DELETE FROM api_keys 
+		WHERE user_id = ? AND value = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, userID, keyID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.DeleteAPIKey")
 	}
 
 	return nil
