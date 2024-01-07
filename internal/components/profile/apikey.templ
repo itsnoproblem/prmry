@@ -1,0 +1,39 @@
+package profile
+
+templ APIKeyName(key APIKeyView) {
+    <div class="col apikey-name"
+         id={ "keyname-" + key.Key }
+         contenteditable="true"
+         hx-put={ "/account/api-keys/" + key.Key }
+         hx-trigger="blur"
+         hx-swap="none"
+         hx-vals={ "javascript: keyName:htmx.find('#keyname-" + key.Key + "').innerText" }
+         style="cursor: pointer;"
+    >{ key.Name }</div>
+}
+
+templ APIKey(key APIKeyView) {
+    <div class="row text-start pb-3" id={ "key-" + key.Key }>
+        @APIKeyName(key)
+        <div class="col">{ key.CreatedAt }</div>
+        <div class="col text-truncate">{ key.Key }</div>
+        <div class="col-auto">
+            <i class="fa fa-copy me-2"
+               data-copytext={ key.Key }
+               onclick="copytext(this)"
+               style="cursor:pointer;"
+            ></i>
+            <i class="fa fa-trash"
+               style="cursor:pointer;"
+               hx-delete={ "/account/api-keys/" + key.Key }
+               hx-target={ "#key-" + key.Key }
+               hx-swap="outerHTML"
+               hx-confirm={ "Delete " + key.Name + "?" }
+            ></i>
+        </div>
+    </div>
+}
+
+templ APIKeySuccess(view APIKeySuccessView) {
+    { view.Name }
+}

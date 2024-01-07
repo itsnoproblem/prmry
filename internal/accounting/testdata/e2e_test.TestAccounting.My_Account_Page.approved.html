@@ -31,9 +31,6 @@
                 <a class="dropdown-item" hx-get="/account" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Profile</a>
               </li>
               <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">Settings</a>
-              </li>
-              <li>
                 <hr class="dropdown-divider">
               </li>
               <li>
@@ -78,22 +75,73 @@
       <div id="notices" class="fade-out"></div>
       <div id="content-root" class="p-3">
         <div>
-          <form>
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+          <form hx-put="/account/profile" hx-target="#profileSaveStatus" hx-ext="json-enc">
+            <div class="container container-md w-75 ms-0">
+              <div class="row pb-4">
+                <div class="col">
+                  <div class="row mb-3">
+                    <div class="col text-start display-6">Contact Info</div>
+                    <div class="col text-end">
+                      <input type="submit" class="btn btn-primary" value="Save">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" id="name" value="Test User">
+                  </div>
+                  <div class="mb-3">
+                    <label for="emailAddress" class="form-label">Email address</label>
+                    <input disabled="disabled" type="text" name="email" class="form-control" id="emailAddress" value="example@prmry.io">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col text-center">
+                  <div id="profileSaveStatus"></div>
+                </div>
+              </div>
+              <div class="row pt-4">
+                <div class="col">
+                  <div id="api-keys" class="container ps-0 text-end">
+                    <div class="row">
+                      <div class="col text-start display-6">API Keys</div>
+                      <div class="col text-end">
+                        <button class="btn btn-info" id="addApiKey" hx-post="/account/api-keys" hx-target="#api-keys" hx-swap="beforeend">New</button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <hr>
+                      </div>
+                    </div>
+                    <div class="row text-start pb-3" id="key-123">
+                      <div class="col apikey-name" id="keyname-123" contenteditable="true" hx-put="/account/api-keys/123" hx-trigger="blur" hx-swap="none" hx-vals="javascript: keyName:htmx.find(&#39;#keyname-123&#39;).innerText" style="cursor: pointer;">Test Key</div>
+                      <div class="col">0001-01-01 00:00:00</div>
+                      <div class="col text-truncate">123</div>
+                      <div class="col-auto">
+                        <i class="fa fa-copy me-2" data-copytext="123" onclick="copytext(this)" style="cursor:pointer;"></i>
+                        <i class="fa fa-trash" style="cursor:pointer;" hx-delete="/account/api-keys/123" hx-target="#key-123" hx-swap="outerHTML" hx-confirm="Delete Test Key?"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" id="exampleInputPassword1">
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="exampleCheck1">
-              <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
           </form>
+          <script type="text/javascript" hx-script="true">
+            document.getElementById("api-keys").addEventListener('keypress', (event) => {
+            if (event.target.classList.contains('apikey-name') && event.key === 'Enter') {
+            event.preventDefault();
+            event.target.blur();
+            }
+            });
+
+            document.getElementById("api-keys").addEventListener('focus', (event) => {
+            if (event.target.classList.contains('apikey-name')) {
+            selectContent(event.target);
+            }
+            }, true);
+          </script>
         </div>
       </div>
     </div>

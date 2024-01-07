@@ -13,7 +13,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/moderation"
 )
 
-type interactingService interface {
+type Service interface {
 	Interactions(ctx context.Context) ([]interaction.Summary, error)
 	Interaction(ctx context.Context, interactionID string) (interaction.Interaction, error)
 	Moderation(ctx context.Context, interactionID string) (moderation.Moderation, error)
@@ -83,7 +83,7 @@ func (req createInteractionRequest) validate() error {
 	return nil
 }
 
-func makeCreateInteractionEndpoint(svc interactingService) internalhttp.HandlerFunc {
+func makeCreateInteractionEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(Input)
 		if !ok {
@@ -99,7 +99,7 @@ func makeCreateInteractionEndpoint(svc interactingService) internalhttp.HandlerF
 	}
 }
 
-func makeListInteractionsEndpoint(svc interactingService) internalhttp.HandlerFunc {
+func makeListInteractionsEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		ixns, err := svc.Interactions(ctx)
 		if err != nil {
@@ -114,7 +114,7 @@ type getInteractionRequest struct {
 	ID string
 }
 
-func makeGetInteractionEndpoint(svc interactingService) internalhttp.HandlerFunc {
+func makeGetInteractionEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(getInteractionRequest)
 		if !ok {
@@ -135,7 +135,7 @@ type executeFlowResponse struct {
 	Executes bool
 }
 
-func makeExecuteFlowEndpoint(svc interactingService) internalhttp.HandlerFunc {
+func makeExecuteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(Input)
 		if !ok {

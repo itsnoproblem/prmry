@@ -11,7 +11,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/auth"
 )
 
-type UserRow struct {
+type userRow struct {
 	ID        string `db:"id"`
 	Email     string `db:"email"`
 	Name      string `db:"name"`
@@ -19,13 +19,27 @@ type UserRow struct {
 	AvatarURL string `db:"avatar_url"`
 }
 
-func (r UserRow) ToUser() auth.User {
+func (r userRow) ToUser() auth.User {
 	return auth.User{
 		ID:        r.ID,
 		Email:     r.Email,
 		Name:      r.Name,
 		Nickname:  r.Nickname,
 		AvatarURL: r.AvatarURL,
+	}
+}
+
+type apiKeyRow struct {
+	Name      string    `db:"name"`
+	Value     string    `db:"value"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (r apiKeyRow) ToAPIKey() auth.APIKey {
+	return auth.APIKey{
+		Name:      r.Name,
+		Key:       r.Value,
+		CreatedAt: r.CreatedAt,
 	}
 }
 
@@ -39,7 +53,7 @@ func NewUsersRepo(db *sqlx.DB) usersRepo {
 	}
 }
 
-func (r usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
+func (r *usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
 	//id = uuid.NewCookie().String()
 	query := `
 		INSERT INTO 
@@ -59,7 +73,7 @@ func (r usersRepo) InsertUser(ctx context.Context, usr auth.User) error {
 	return nil
 }
 
-func (r usersRepo) DeleteUser(ctx context.Context, id string) error {
+func (r *usersRepo) DeleteUser(ctx context.Context, id string) error {
 	userQuery := "DELETE FROM users WHERE id = ?"
 	oauthQuery := "DELETE FROM oauth_users WHERE user_id = ?"
 
@@ -74,7 +88,7 @@ func (r usersRepo) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
+func (r *usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserID string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			u.id, 
@@ -98,7 +112,7 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 	}
 
 	for rows.Next() {
-		var userRow UserRow
+		var userRow userRow
 		if err = rows.StructScan(&userRow); err != nil {
 			return auth.User{}, false, errors.Wrap(err, "usersRepo.FindUserViaOAuth")
 		}
@@ -107,7 +121,7 @@ func (r usersRepo) FindUserViaOAuth(ctx context.Context, provider, providerUserI
 	return usr, true, nil
 }
 
-func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
+func (r *usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			id, 
@@ -119,22 +133,18 @@ func (r usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth.
 		WHERE email = ?
 	`
 
-	var userRow UserRow
-	if err := r.db.QueryRowxContext(ctx, query, email).StructScan(&userRow); err != nil {
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, email).StructScan(&row); err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			return auth.User{}, false, nil
 		}
 		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByEmail")
 	}
 
-	return userRow.ToUser(), true, nil
+	return row.ToUser(), true, nil
 }
 
-func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
-	if key == "" {
-		return auth.User{}, false, nil
-	}
-
+func (r *usersRepo) FindUserByID(ctx context.Context, id string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			id, 
@@ -143,21 +153,69 @@ func (r usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.U
 			nickname,
 			avatar_url
 		FROM users
-		WHERE api_key = ?
+		WHERE id = ?
 	`
 
-	var userRow UserRow
-	if err := r.db.QueryRowxContext(ctx, query, key).StructScan(&userRow); err != nil {
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, id).StructScan(&row); err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return auth.User{}, false, nil
+		}
+		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByID")
+	}
+
+	return row.ToUser(), true, nil
+}
+
+func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
+	if key == "" {
+		return auth.User{}, false, nil
+	}
+
+	query := `
+		SELECT 
+			u.id, 
+			u.email, 
+			u.name,
+			u.nickname,
+			u.avatar_url
+		FROM users u
+		INNER JOIN rgb.api_keys ak ON u.id = ak.user_id
+		WHERE ak.value = ?
+	`
+
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, key).StructScan(&row); err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			return auth.User{}, false, nil
 		}
 		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByAPIKey")
 	}
 
-	return userRow.ToUser(), true, nil
+	return row.ToUser(), true, nil
 }
 
-func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
+func (r *usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
+	query := `
+		SELECT name, value, created_at 
+		FROM rgb.api_keys 
+		WHERE user_id = ?
+	`
+
+	var rows []apiKeyRow
+	if err := r.db.SelectContext(ctx, &rows, query, userID); err != nil {
+		return nil, errors.Wrapf(err, "usersRepo.FindAPIKeysForUser")
+	}
+
+	keys := make([]auth.APIKey, len(rows))
+	for i, row := range rows {
+		keys[i] = row.ToAPIKey()
+	}
+
+	return keys, nil
+}
+
+func (r *usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUserID string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM oauth_users 
 		WHERE provider = ? and provider_user_id = ?
@@ -170,7 +228,7 @@ func (r usersRepo) ExistsUserViaOAuth(ctx context.Context, provider, providerUse
 	return numRows > 0, nil
 }
 
-func (r usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, error) {
+func (r *usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM users 
 		WHERE id = ?
@@ -183,7 +241,7 @@ func (r usersRepo) ExistsUserByID(ctx context.Context, userID string) (bool, err
 	return numRows > 0, nil
 }
 
-func (r usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, error) {
+func (r *usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, error) {
 	query := `
 		SELECT COUNT(*) FROM users 
 		WHERE email = ?
@@ -196,7 +254,7 @@ func (r usersRepo) ExistsUserByEmail(ctx context.Context, email string) (bool, e
 	return numRows > 0, nil
 }
 
-func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error {
+func (r *usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthProvider, providerUserID string) error {
 	query := `
 		INSERT INTO oauth_users (
 			user_id, 
@@ -217,6 +275,60 @@ func (r usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthPr
 	_, err := r.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return errors.Wrapf(err, "usersRepo.SaveUserFromOAuth")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) UpdateAccountProfile(ctx context.Context, userID, name, email string) error {
+	query := `
+		UPDATE users 
+		SET name = ?, email = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, name, email, userID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.UpdateAccountProfile")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) UpdateAPIKeyName(ctx context.Context, userID string, keyID string, name string) error {
+	query := `
+		UPDATE api_keys 
+		SET name = ? 
+		WHERE user_id = ? AND value = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, name, userID, keyID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.UpdateAPIKeyName")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) InsertAPIKey(ctx context.Context, userID string, key auth.APIKey) error {
+	query := `
+		INSERT INTO api_keys (user_id, name, value, created_at)  
+		VALUES (?, ?, ?, ?)
+	`
+	_, err := r.db.ExecContext(ctx, query, userID, key.Name, key.Key, key.CreatedAt)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.InsertAPIKey")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) DeleteAPIKey(ctx context.Context, userID string, keyID string) error {
+	query := `
+		DELETE FROM api_keys 
+		WHERE user_id = ? AND value = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, userID, keyID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.DeleteAPIKey")
 	}
 
 	return nil

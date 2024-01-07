@@ -9,7 +9,9 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/itsnoproblem/prmry/internal/components"
+import (
+	"github.com/itsnoproblem/prmry/internal/components"
+)
 
 func ProfilePage(view ProfileView) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
@@ -63,52 +65,133 @@ func Profile(view ProfileView) templ.Component {
 			var_3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<form><div class=\"mb-3\"><label for=\"exampleInputEmail1\" class=\"form-label\">")
+		_, err = templBuffer.WriteString("<form hx-put=\"/account/profile\" hx-target=\"#profileSaveStatus\" hx-ext=\"json-enc\"><div class=\"container container-md w-75 ms-0\"><div class=\"row pb-4\"><div class=\"col\"><div class=\"row mb-3\"><div class=\"col text-start display-6\">")
 		if err != nil {
 			return err
 		}
-		var_4 := `Email address`
+		var_4 := `Contact Info`
 		_, err = templBuffer.WriteString(var_4)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label><input type=\"email\" class=\"form-control\" id=\"exampleInputEmail1\" aria-describedby=\"emailHelp\"><div id=\"emailHelp\" class=\"form-text\">")
+		_, err = templBuffer.WriteString("</div><div class=\"col text-end\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Save\"></div></div><div class=\"mb-3\"><label for=\"name\" class=\"form-label\">")
 		if err != nil {
 			return err
 		}
-		var_5 := `We'll never share your email with anyone else.`
+		var_5 := `Name`
 		_, err = templBuffer.WriteString(var_5)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div></div><div class=\"mb-3\"><label for=\"exampleInputPassword1\" class=\"form-label\">")
+		_, err = templBuffer.WriteString("</label><input type=\"text\" name=\"name\" class=\"form-control\" id=\"name\" value=\"")
 		if err != nil {
 			return err
 		}
-		var_6 := `Password`
+		_, err = templBuffer.WriteString(templ.EscapeString(view.Name))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"></div><div class=\"mb-3\"><label for=\"emailAddress\" class=\"form-label\">")
+		if err != nil {
+			return err
+		}
+		var_6 := `Email address`
 		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label><input type=\"password\" class=\"form-control\" id=\"exampleInputPassword1\"></div><div class=\"mb-3 form-check\"><input type=\"checkbox\" class=\"form-check-input\" id=\"exampleCheck1\"><label class=\"form-check-label\" for=\"exampleCheck1\">")
+		_, err = templBuffer.WriteString("</label><input disabled=\"disabled\" type=\"text\" name=\"email\" class=\"form-control\" id=\"emailAddress\" value=\"")
 		if err != nil {
 			return err
 		}
-		var_7 := `Check me out`
+		_, err = templBuffer.WriteString(templ.EscapeString(view.Email))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"></div></div></div><div class=\"row\"><div class=\"col text-center\"><div id=\"profileSaveStatus\"></div></div></div><div class=\"row pt-4\"><div class=\"col\"><div id=\"api-keys\" class=\"container ps-0 text-end\"><div class=\"row\"><div class=\"col text-start display-6\">")
+		if err != nil {
+			return err
+		}
+		var_7 := `API Keys`
 		_, err = templBuffer.WriteString(var_7)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</label></div><button type=\"submit\" class=\"btn btn-primary\">")
+		_, err = templBuffer.WriteString("</div><div class=\"col text-end\"><button class=\"btn btn-info\" id=\"addApiKey\" hx-post=\"/account/api-keys\" hx-target=\"#api-keys\" hx-swap=\"beforeend\">")
 		if err != nil {
 			return err
 		}
-		var_8 := `Submit`
+		var_8 := `New`
 		_, err = templBuffer.WriteString(var_8)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</button></form>")
+		_, err = templBuffer.WriteString("</button></div></div><div class=\"row\"><div class=\"col\"><hr></div></div>")
+		if err != nil {
+			return err
+		}
+		for _, key := range view.APIKeys {
+			err = APIKey(key).Render(ctx, templBuffer)
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString("</div></div></div></div></form><script type=\"text/javascript\" hx-script=\"true\">")
+		if err != nil {
+			return err
+		}
+		var_9 := `
+        document.getElementById("api-keys").addEventListener('keypress', (event) => {
+            if (event.target.classList.contains('apikey-name') && event.key === 'Enter') {
+                event.preventDefault();
+                event.target.blur();
+            }
+        });
+
+        document.getElementById("api-keys").addEventListener('focus', (event) => {
+            if (event.target.classList.contains('apikey-name')) {
+                selectContent(event.target);
+            }
+        }, true);
+    `
+		_, err = templBuffer.WriteString(var_9)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</script>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func ProfileSaveSuccess() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_10 := templ.GetChildren(ctx)
+		if var_10 == nil {
+			var_10 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div id=\"profileSaveStatus\" hx-swap-oob=\"true\" class=\"alert alert-success\" role=\"alert\">")
+		if err != nil {
+			return err
+		}
+		var_11 := `Profile saved successfully!`
+		_, err = templBuffer.WriteString(var_11)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</div>")
 		if err != nil {
 			return err
 		}

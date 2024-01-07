@@ -1,6 +1,8 @@
 package profile
 
-import "github.com/itsnoproblem/prmry/internal/components"
+import (
+    "github.com/itsnoproblem/prmry/internal/components"
+)
 
 templ ProfilePage(view ProfileView) {
     @components.Page(&view) {
@@ -9,21 +11,86 @@ templ ProfilePage(view ProfileView) {
 }
 
 templ Profile(view ProfileView) {
-    <form>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
-            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    <form hx-put="/account/profile"
+          hx-target="#profileSaveStatus"
+          hx-ext="json-enc"
+    >
+        <div class="container container-md w-75 ms-0">
+            <div class="row pb-4">
+                <div class="col">
+                    <div class="row mb-3">
+                        <div class="col text-start display-6">Contact Info</div>
+                        <div class="col text-end">
+                            <input type="submit" class="btn btn-primary" value="Save"/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" id="name" value={view.Name}/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailAddress" class="form-label">Email address</label>
+                        <input disabled="disabled" type="text" name="email" class="form-control" id="emailAddress" value={view.Email}/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <div id="profileSaveStatus"></div>
+                </div>
+            </div>
+
+            <div class="row pt-4">
+                <div class="col">
+                    <div id="api-keys" class="container ps-0 text-end">
+                        <div class="row">
+                            <div class="col text-start display-6">API Keys</div>
+                            <div class="col text-end">
+                                <button class="btn btn-info"
+                                        id="addApiKey"
+                                        hx-post="/account/api-keys"
+                                        hx-target="#api-keys"
+                                        hx-swap="beforeend"
+                                >New</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <hr/>
+                            </div>
+                        </div>
+                        for _, key := range view.APIKeys {
+                            @APIKey(key)
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1"/>
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1"/>
-            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+
+    <script type="text/javascript" hx-script="true">
+        document.getElementById("api-keys").addEventListener('keypress', (event) => {
+            if (event.target.classList.contains('apikey-name') && event.key === 'Enter') {
+                event.preventDefault();
+                event.target.blur();
+            }
+        });
+
+        document.getElementById("api-keys").addEventListener('focus', (event) => {
+            if (event.target.classList.contains('apikey-name')) {
+                selectContent(event.target);
+            }
+        }, true);
+    </script>
+}
+
+templ ProfileSaveSuccess() {
+    <div id="profileSaveStatus"
+         hx-swap-oob="true"
+         class="alert alert-success"
+         role="alert"
+    >
+        Profile saved successfully!
+    </div>
 }
 

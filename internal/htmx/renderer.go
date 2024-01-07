@@ -33,10 +33,19 @@ func (rnd *renderer) Render(w http.ResponseWriter, r *http.Request, cmp componen
 	}
 
 	if IsHXRequest(ctx) {
-		return cmp.GetFragmentTemplate().Render(r.Context(), newHTMLWriter(w))
+		tmpl := cmp.GetFragmentTemplate()
+		if tmpl == nil {
+			return errors.New("htmx.Render: missing fragment template")
+		}
+		return tmpl.Render(r.Context(), newHTMLWriter(w))
 	}
 
-	return cmp.GetFullTemplate().Render(r.Context(), newHTMLWriter(w))
+	tmpl := cmp.GetFullTemplate()
+	if tmpl == nil {
+		return errors.New("htmx.Render: missing full template")
+	}
+
+	return tmpl.Render(r.Context(), newHTMLWriter(w))
 }
 
 func (rnd *renderer) RenderTemplComponent(w http.ResponseWriter, r *http.Request, fullPage, fragment templ.Component) error {
