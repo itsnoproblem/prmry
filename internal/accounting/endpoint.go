@@ -107,14 +107,14 @@ func makeUpdateProfileEndpoint(s Service) internalhttp.HandlerFunc {
 	}
 }
 
-type updateAPIKeyRequest struct {
+type updateAPIKeyOptions struct {
 	KeyID string
 	Name  string
 }
 
 func makeUpdateAPIKeyEndpoint(s Service) internalhttp.HandlerFunc {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req, ok := request.(updateAPIKeyRequest)
+		req, ok := request.(updateAPIKeyOptions)
 		if !ok {
 			return nil, fmt.Errorf("makeUpdateAPIKeyEndpoint: failed to parse request")
 		}

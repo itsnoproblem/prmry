@@ -22,7 +22,7 @@ func APIKeyName(key APIKeyView) templ.Component {
 			var_1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<div class=\"col apikey-name\" id=\"")
+		_, err = templBuffer.WriteString("<div class=\"col\"><form class=\"d-inline\"><div class=\"apikey-name\" id=\"")
 		if err != nil {
 			return err
 		}
@@ -30,7 +30,7 @@ func APIKeyName(key APIKeyView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("\" contenteditable=\"true\" hx-put=\"")
+		_, err = templBuffer.WriteString("\" contenteditable=\"true\" hx-trigger=\"blur\" hx-put=\"")
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ func APIKeyName(key APIKeyView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("\" hx-trigger=\"blur\" hx-swap=\"none\" hx-vals=\"")
+		_, err = templBuffer.WriteString("\" hx-swap=\"none\" hx-vals=\"")
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func APIKeyName(key APIKeyView) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div>")
+		_, err = templBuffer.WriteString("</div></form></div>")
 		if err != nil {
 			return err
 		}
