@@ -173,21 +173,12 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</a></li><li><a class=\"dropdown-item\" href=\"#\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\">")
-		if err != nil {
-			return err
-		}
-		var_10 := `Settings`
-		_, err = templBuffer.WriteString(var_10)
-		if err != nil {
-			return err
-		}
 		_, err = templBuffer.WriteString("</a></li><li><hr class=\"dropdown-divider\"></li><li><a class=\"dropdown-item\" href=\"")
 		if err != nil {
 			return err
 		}
-		var var_11 templ.SafeURL = templ.SafeURL("/auth/logout/" + cmp.User().Provider)
-		_, err = templBuffer.WriteString(templ.EscapeString(string(var_11)))
+		var var_10 templ.SafeURL = templ.SafeURL("/auth/logout/" + cmp.User().Provider)
+		_, err = templBuffer.WriteString(templ.EscapeString(string(var_10)))
 		if err != nil {
 			return err
 		}
@@ -195,8 +186,8 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_12 := `Log out`
-		_, err = templBuffer.WriteString(var_12)
+		var_11 := `Log out`
+		_, err = templBuffer.WriteString(var_11)
 		if err != nil {
 			return err
 		}
@@ -204,8 +195,8 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_13 := `TOS`
-		_, err = templBuffer.WriteString(var_13)
+		var_12 := `TOS`
+		_, err = templBuffer.WriteString(var_12)
 		if err != nil {
 			return err
 		}
@@ -213,8 +204,8 @@ func ProfileNavButton(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_14 := `Privacy`
-		_, err = templBuffer.WriteString(var_14)
+		var_13 := `Privacy`
+		_, err = templBuffer.WriteString(var_13)
 		if err != nil {
 			return err
 		}
@@ -237,17 +228,17 @@ func UserNavigation(cmp Component) templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_15 := templ.GetChildren(ctx)
-		if var_15 == nil {
-			var_15 = templ.NopComponent
+		var_14 := templ.GetChildren(ctx)
+		if var_14 == nil {
+			var_14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, err = templBuffer.WriteString("<ul class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end\"><li class=\"nav-item\"><a class=\"nav-link\" title=\"Flows\" hx-get=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none\">")
 		if err != nil {
 			return err
 		}
-		var_16 := `Flows`
-		_, err = templBuffer.WriteString(var_16)
+		var_15 := `Flows`
+		_, err = templBuffer.WriteString(var_15)
 		if err != nil {
 			return err
 		}
@@ -255,8 +246,8 @@ func UserNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_17 := `&nbsp;`
-		_, err = templBuffer.WriteString(var_17)
+		var_16 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_16)
 		if err != nil {
 			return err
 		}
@@ -264,8 +255,8 @@ func UserNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_18 := `Interact`
-		_, err = templBuffer.WriteString(var_18)
+		var_17 := `Interact`
+		_, err = templBuffer.WriteString(var_17)
 		if err != nil {
 			return err
 		}
@@ -273,8 +264,8 @@ func UserNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_19 := `&nbsp;`
-		_, err = templBuffer.WriteString(var_19)
+		var_18 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_18)
 		if err != nil {
 			return err
 		}
@@ -282,8 +273,8 @@ func UserNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_20 := `Interactions`
-		_, err = templBuffer.WriteString(var_20)
+		var_19 := `Interactions`
+		_, err = templBuffer.WriteString(var_19)
 		if err != nil {
 			return err
 		}
@@ -291,8 +282,8 @@ func UserNavigation(cmp Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_21 := `&nbsp;`
-		_, err = templBuffer.WriteString(var_21)
+		var_20 := `&nbsp;`
+		_, err = templBuffer.WriteString(var_20)
 		if err != nil {
 			return err
 		}

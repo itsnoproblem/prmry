@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/a-h/templ"
+	"github.com/itsnoproblem/prmry/internal/components/success"
 	"time"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
@@ -68,5 +69,13 @@ func formatUpdateAPIKeyResponse(ctx context.Context, _ interface{}) (components.
 func formatDeleteAPIKeyResponse(_ context.Context, _ interface{}) (components.Component, error) {
 	cmp := components.BaseComponent{}
 	cmp.SetTemplates(templ.NopComponent, templ.NopComponent)
+	return &cmp, nil
+}
+
+func formatUpdateProfileResponse(_ context.Context, _ interface{}) (components.Component, error) {
+	cmp := success.SuccessView{
+		Message: "Profile updated",
+	}
+	cmp.SetTemplates(success.Success(cmp), success.Success(cmp))
 	return &cmp, nil
 }

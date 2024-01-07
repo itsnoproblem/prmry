@@ -144,11 +144,7 @@ func (r *usersRepo) FindUserByEmail(ctx context.Context, email string) (usr auth
 	return row.ToUser(), true, nil
 }
 
-func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
-	if key == "" {
-		return auth.User{}, false, nil
-	}
-
+func (r *usersRepo) FindUserByID(ctx context.Context, id string) (usr auth.User, exists bool, err error) {
 	query := `
 		SELECT 
 			id, 
@@ -157,7 +153,34 @@ func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.
 			nickname,
 			avatar_url
 		FROM users
-		INNER JOIN rgb.api_keys ak on users.id = ak.user_id
+		WHERE id = ?
+	`
+
+	var row userRow
+	if err := r.db.QueryRowxContext(ctx, query, id).StructScan(&row); err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			return auth.User{}, false, nil
+		}
+		return auth.User{}, false, errors.Wrapf(err, "usersRepo.FindUserByID")
+	}
+
+	return row.ToUser(), true, nil
+}
+
+func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.User, exists bool, err error) {
+	if key == "" {
+		return auth.User{}, false, nil
+	}
+
+	query := `
+		SELECT 
+			u.id, 
+			u.email, 
+			u.name,
+			u.nickname,
+			u.avatar_url
+		FROM users u
+		INNER JOIN rgb.api_keys ak ON u.id = ak.user_id
 		WHERE ak.value = ?
 	`
 
@@ -252,6 +275,20 @@ func (r *usersRepo) SaveUserFromOAuth(ctx context.Context, usr auth.User, oauthP
 	_, err := r.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return errors.Wrapf(err, "usersRepo.SaveUserFromOAuth")
+	}
+
+	return nil
+}
+
+func (r *usersRepo) UpdateAccountProfile(ctx context.Context, userID, name, email string) error {
+	query := `
+		UPDATE users 
+		SET name = ?, email = ?
+		WHERE id = ?
+	`
+	_, err := r.db.ExecContext(ctx, query, name, email, userID)
+	if err != nil {
+		return errors.Wrapf(err, "usersRepo.UpdateAccountProfile")
 	}
 
 	return nil

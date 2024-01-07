@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	CookieName  = "_prmry_user"
-	ContextKey  = "User"
-	Required    = true
-	NotRequired = false
+	CookieName           = "_prmry_user"
+	ContextKey           = "User"
+	ContextKeyUpdateUser = "UpdateUser"
+	Required             = true
+	NotRequired          = false
 )
 
 type Byte32 []byte

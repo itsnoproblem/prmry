@@ -11,56 +11,62 @@ templ ProfilePage(view ProfileView) {
 }
 
 templ Profile(view ProfileView) {
-    <div class="container container-md w-75 ms-0">
-        <div class="row pb-4">
-            <div class="col">
-                <div class="row mb-3">
-                    <div class="col text-start display-6">Contact Info</div>
-                    <div class="col text-end">
-                        <button class="btn btn-primary"
-                                hx-put="/account/profile"
-                                hx-target="#profileSaveStatus"
-                        >Save</button>
-                        <div id="profileSaveStatus"></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="name" class="form-label">Name</label>
-                    <input type="name" class="form-control" id="name" value={view.Name}/>
-                </div>
-                <div class="mb-3">
-                    <label for="emailAddress" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="emailAddress" value={view.Email}/>
-                </div>
-            </div>
-        </div>
-
-        <div class="row pt-4">
-            <div class="col">
-                <div id="api-keys" class="container ps-0 text-end">
-                    <div class="row">
-                        <div class="col text-start display-6">API Keys</div>
+    <form hx-put="/account/profile"
+          hx-target="#profileSaveStatus"
+          hx-ext="json-enc"
+    >
+        <div class="container container-md w-75 ms-0">
+            <div class="row pb-4">
+                <div class="col">
+                    <div class="row mb-3">
+                        <div class="col text-start display-6">Contact Info</div>
                         <div class="col text-end">
-                            <button class="btn btn-info"
-                                    id="addApiKey"
-                                    hx-post="/account/api-keys"
-                                    hx-target="#api-keys"
-                                    hx-swap="beforeend"
-                            >New</button>
+                            <input type="submit" class="btn btn-primary" value="Save"/>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <hr/>
-                        </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" id="name" value={view.Name}/>
                     </div>
-                    for _, key := range view.APIKeys {
-                        @APIKey(key)
-                    }
+                    <div class="mb-3">
+                        <label for="emailAddress" class="form-label">Email address</label>
+                        <input disabled="disabled" type="text" name="email" class="form-control" id="emailAddress" value={view.Email}/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <div id="profileSaveStatus"></div>
+                </div>
+            </div>
+
+            <div class="row pt-4">
+                <div class="col">
+                    <div id="api-keys" class="container ps-0 text-end">
+                        <div class="row">
+                            <div class="col text-start display-6">API Keys</div>
+                            <div class="col text-end">
+                                <button class="btn btn-info"
+                                        id="addApiKey"
+                                        hx-post="/account/api-keys"
+                                        hx-target="#api-keys"
+                                        hx-swap="beforeend"
+                                >New</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <hr/>
+                            </div>
+                        </div>
+                        for _, key := range view.APIKeys {
+                            @APIKey(key)
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <script type="text/javascript" hx-script="true">
         document.getElementById("api-keys").addEventListener('keypress', (event) => {
@@ -75,24 +81,16 @@ templ Profile(view ProfileView) {
                 selectContent(event.target);
             }
         }, true);
-
-        function copytext(element) {
-            navigator.clipboard.writeText(element.getAttribute('data-copytext'));
-            element.classList.remove('fa-copy');
-            element.classList.add('fa-circle-check', 'text-success');
-            setTimeout(() => {
-                element.classList.remove('fa-circle-check', 'text-success');
-                element.classList.add('fa-copy');
-            }, 2000);
-        }
-
-        function selectContent(element) {
-            const range = document.createRange();
-            range.selectNodeContents(element);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
     </script>
+}
+
+templ ProfileSaveSuccess() {
+    <div id="profileSaveStatus"
+         hx-swap-oob="true"
+         class="alert alert-success"
+         role="alert"
+    >
+        Profile saved successfully!
+    </div>
 }
 

@@ -128,5 +128,23 @@ function debounce(func, wait, immediate) {
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     };
-};
+}
+
+function copytext(element) {
+    navigator.clipboard.writeText(element.getAttribute('data-copytext'));
+    element.classList.remove('fa-copy');
+    element.classList.add('fa-circle-check', 'text-success');
+    setTimeout(() => {
+        element.classList.remove('fa-circle-check', 'text-success');
+        element.classList.add('fa-copy');
+    }, 2000);
+}
+
+function selectContent(element) {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
 
