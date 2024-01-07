@@ -115,10 +115,30 @@ func decodeUpdateProfileRequest(ctx context.Context, request *http.Request) (int
 	}, nil
 }
 
+type updateAPIKeyRequest struct {
+	KeyID string
+	Name  string `json:"keyName"`
+}
+
 func decodeUpdateAPIKeyRequest(_ context.Context, request *http.Request) (interface{}, error) {
-	return updateAPIKeyRequest{
-		KeyID: chi.URLParam(request, "keyID"),
-		Name:  request.FormValue("keyName"),
+	if request.Body == nil {
+		return nil, fmt.Errorf("decodeUpdateAPIKeyRequest: missing request body")
+	}
+
+	var req updateAPIKeyRequest
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "decodeUpdateAPIKeyRequest")
+	}
+
+	if err = json.Unmarshal(body, &req); err != nil {
+		return nil, errors.Wrap(err, "decodeUpdateAPIKeyRequest")
+	}
+
+	req.KeyID = chi.URLParam(request, "keyID")
+	return updateAPIKeyOptions{
+		KeyID: req.KeyID,
+		Name:  req.Name,
 	}, nil
 }
 

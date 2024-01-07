@@ -1,15 +1,19 @@
 package profile
 
 templ APIKeyName(key APIKeyView) {
-    <div class="col apikey-name"
-         id={ "keyname-" + key.Key }
-         contenteditable="true"
-         hx-put={ "/account/api-keys/" + key.Key }
-         hx-trigger="blur"
-         hx-swap="none"
-         hx-vals={ "javascript: keyName:htmx.find('#keyname-" + key.Key + "').innerText" }
-         style="cursor: pointer;"
-    >{ key.Name }</div>
+    <div class="col">
+        <form class="d-inline">
+            <div class="apikey-name"
+                 id={ "keyname-" + key.Key }
+                 contenteditable="true"
+                 hx-trigger="blur"
+                 hx-put={ "/account/api-keys/" + key.Key }
+                 hx-swap="none"
+                 hx-vals={ "javascript: keyName:htmx.find('#keyname-" + key.Key + "').innerText" }
+                 style="cursor: pointer;"
+            >{ key.Name }</div>
+        </form>
+    </div>
 }
 
 templ APIKey(key APIKeyView) {
