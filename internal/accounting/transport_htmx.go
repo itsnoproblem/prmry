@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"

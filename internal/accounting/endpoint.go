@@ -3,11 +3,12 @@ package accounting
 import (
 	"context"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/components/profile"
-	"github.com/pkg/errors"
 	"net/mail"
 
+	"github.com/pkg/errors"
+
 	"github.com/itsnoproblem/prmry/internal/auth"
+	"github.com/itsnoproblem/prmry/internal/components/profile"
 	internalhttp "github.com/itsnoproblem/prmry/internal/http"
 )
 

@@ -3,18 +3,20 @@ package accounting
 import (
 	"context"
 	"fmt"
-	"github.com/a-h/templ"
-	"github.com/itsnoproblem/prmry/internal/components/success"
 	"time"
+
+	"github.com/a-h/templ"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/components/profile"
+	"github.com/itsnoproblem/prmry/internal/components/success"
 )
 
 func formatAccountResponse(ctx context.Context, response interface{}) (components.Component, error) {
 	res, ok := response.(accountResponse)
 	if !ok {
+
 		return nil, fmt.Errorf("formatHomeResponse: failed to parse response")
 	}
 

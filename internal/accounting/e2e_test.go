@@ -1,6 +1,7 @@
 package accounting_test
 
 import (
+	"context"
 	"github.com/approvals/go-approval-tests/reporters"
 	"io"
 	"net/http"
@@ -26,6 +27,7 @@ func TestAccounting(t *testing.T) {
 	defer reporter.Close()
 
 	renderer := htmx.NewRenderer()
+	service := accounting.NewService(&userRepoMock{})
 
 	r := chi.NewRouter()
 	r.Use(auth.Middleware(auth.Byte32{}, false))
@@ -33,7 +35,7 @@ func TestAccounting(t *testing.T) {
 	r.Use(htmx.Middleware)
 	r.Use(auth.TestUserMiddleware)
 
-	r.Route("/", accounting.RouteHandler(renderer))
+	r.Route("/", accounting.RouteHandler(service, renderer))
 
 	server := httptest.NewServer(r)
 	defer server.Close()
@@ -99,5 +101,39 @@ func TestAccounting(t *testing.T) {
 			extensionOpt := approvals.Options().WithExtension("html")
 			approvals.VerifyString(t, string(data[:]), extensionOpt)
 		})
+	}
+}
+
+type userRepoMock struct{} // accounting.UserRepo
+func (m *userRepoMock) FindUserByID(ctx context.Context, id string) (usr auth.User, exists bool, err error) {
+	return fakeUser(), true, nil
+}
+func (m *userRepoMock) UpdateAccountProfile(ctx context.Context, userID, name, email string) error {
+	return nil
+}
+func (m *userRepoMock) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
+	return []auth.APIKey{
+		{
+			Key:  "123",
+			Name: "Test Key",
+		},
+	}, nil
+}
+func (m *userRepoMock) UpdateAPIKeyName(ctx context.Context, userID, keyID, name string) error {
+	return nil
+}
+func (m *userRepoMock) InsertAPIKey(ctx context.Context, userID string, key auth.APIKey) error {
+	return nil
+}
+func (m *userRepoMock) DeleteAPIKey(ctx context.Context, userID, keyID string) error {
+	return nil
+}
+
+func fakeUser() auth.User {
+	return auth.User{
+		ID:       "123",
+		Email:    "example@prmry.io",
+		Name:     "Test User",
+		Nickname: "testy",
 	}
 }

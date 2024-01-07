@@ -2,9 +2,11 @@ package accounting
 
 import (
 	"context"
-	"github.com/itsnoproblem/prmry/internal/auth"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/itsnoproblem/prmry/internal/auth"
 )
 
 type UserRepo interface {
