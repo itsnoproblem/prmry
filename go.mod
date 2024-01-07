@@ -3,7 +3,7 @@ module github.com/itsnoproblem/prmry
 go 1.18
 
 require (
-	github.com/a-h/templ v0.2.304
+	github.com/a-h/templ v0.2.513
 	github.com/approvals/go-approval-tests v0.0.0-20220530063708-32d5677069bd
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
@@ -27,7 +27,7 @@ require (
 	github.com/gorilla/mux v1.6.2 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
-	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
