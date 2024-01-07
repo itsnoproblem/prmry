@@ -38,7 +38,11 @@
             </div>
           </div>
           <div class="row text-start pb-3" id="key-123">
-            <div class="col apikey-name" id="keyname-123" contenteditable="true" hx-put="/account/api-keys/123" hx-trigger="blur" hx-swap="none" hx-vals="javascript: keyName:htmx.find(&#39;#keyname-123&#39;).innerText" style="cursor: pointer;">Test Key</div>
+            <div class="col">
+              <form class="d-inline">
+                <div class="apikey-name" id="keyname-123" contenteditable="true" hx-trigger="blur" hx-put="/account/api-keys/123" hx-swap="none" hx-vals="javascript: keyName:htmx.find(&#39;#keyname-123&#39;).innerText" style="cursor: pointer;">Test Key</div>
+              </form>
+            </div>
             <div class="col">0001-01-01 00:00:00</div>
             <div class="col text-truncate">123</div>
             <div class="col-auto">
