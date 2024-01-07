@@ -180,7 +180,7 @@ func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.
 			u.nickname,
 			u.avatar_url
 		FROM users u
-		INNER JOIN rgb.api_keys ak ON u.id = ak.user_id
+		INNER JOIN api_keys ak ON u.id = ak.user_id
 		WHERE ak.value = ?
 	`
 
@@ -198,7 +198,7 @@ func (r *usersRepo) FindUserByAPIKey(ctx context.Context, key string) (usr auth.
 func (r *usersRepo) FindAPIKeysForUser(ctx context.Context, userID string) ([]auth.APIKey, error) {
 	query := `
 		SELECT name, value, created_at 
-		FROM rgb.api_keys 
+		FROM api_keys 
 		WHERE user_id = ?
 	`
 
