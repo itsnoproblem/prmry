@@ -11,16 +11,16 @@ templ RuleBuilder(view Detail) {
         <div class="row">
             <div class="col text-left">
                 <label for="require-all" class="pt-1 pe-2 larger">Execute this flow when</label>
-                <select name="requireAll" 
-                    id="require-all" 
+                <select name="requireAll"
+                    id="require-all"
                     class="rounded p-1"
                     placeholder="Choose...">
                     if view.RequireAll {
-                        <option value="true" selected>All rules match</option>
+                        <option value="true" selected="selected">All rules match</option>
                         <option value="false">Any rule matches</option>
                     } else {
                         <option value="true">All rules match</option>
-                        <option value="false" selected>Any rule matches</option>
+                        <option value="false" selected="selected">Any rule matches</option>
                     }
                 </select>
                 <button id="add-rule"
@@ -57,7 +57,7 @@ templ RuleBuilder(view Detail) {
 
                 if rule.Field.Source == flow.FieldSourceFlow.String() {
                     <div class="form-floating mb-3">
-                        @FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
+                        @FieldSelector(fmt.Sprintf("selectedFlows-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
                     </div>
                 }
 

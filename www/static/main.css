@@ -53,6 +53,11 @@ h3 {
     display:inline;
     white-space:nowrap;
 }
+pre#promptEditor {
+    height: 420px;
+    overflow-y: auto;
+    resize: vertical;
+}
 
 /* LAYOUT CSS */
 #layout {

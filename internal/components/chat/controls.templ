@@ -2,13 +2,13 @@ package chat
 
 templ ChatControlsOOB(cmp ControlsView) {
     <div class="container navbar-fixed-bottom" id="chat-controls" hx-swap-oob="true">
-        @ChatControlsForm(cmp)  
+        @ChatControlsForm(cmp)
     </div>
 }
 
 templ ChatControls(cmp ControlsView) {
     <div class="container navbar-fixed-bottom" id="chat-controls">
-        @ChatControlsForm(cmp)  
+        @ChatControlsForm(cmp)
     </div>
 }
 
@@ -59,7 +59,7 @@ templ FlowSelectorControl(cmp ControlsView) {
             <option value="">Send input as-is</option>
             for _, flw := range cmp.FlowSelector.Flows {
             if flw.ID == cmp.FlowSelector.SelectedFlow {
-            <option value={ flw.ID } selected>{ flw.Name }</option>
+            <option value={ flw.ID } selected="selected">{ flw.Name }</option>
             } else {
             <option value={ flw.ID }>{ flw.Name }</option>
             }

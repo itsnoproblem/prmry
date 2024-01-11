@@ -19,7 +19,7 @@ templ Inputs(view Detail) {
         <div class="col-3"></div>
     </div>
 
-    <div class="row p-1">    
+    <div class="row p-1">
     for i, param := range view.InputParams {
         <div class="col-5 form-floating pb-4">
             <input id={ "input-param-" + iToS(i) }
@@ -32,19 +32,19 @@ templ Inputs(view Detail) {
             <label for={ "input-param-" + iToS(i) }>Parameter Name { iToS(i + 1) }</label>
         </div>
         <div class="col-4 pb-4">
-            <select id={ "input-param-required-" + iToS(i) } 
+            <select id={ "input-param-required-" + iToS(i) }
                 class="form-select form-select-lg form-control"
                 name="inputParamsRequired"
             >
 
             if param.Required {
                 <option value="false">Optional</option>
-                <option value="true" selected>Required</option>
+                <option value="true" selected="selected">Required</option>
             } else {
-                <option value="false" selected>Optional</option>
+                <option value="false" selected="selected">Optional</option>
                 <option value="true">Required</option>
             }
-                
+
             </select>
         </div>
         <div class="col form-floating pb-4">
