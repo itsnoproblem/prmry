@@ -2,17 +2,17 @@ package flow
 
 import "github.com/itsnoproblem/prmry/internal/components"
 
-templ FieldSelector(id string, name string, options components.SortedMap, selected string, label string) {
-    @FieldSelectorTarget(id, name, options, selected, label, "")
+templ FieldSelector(options components.SortedMap, id, name, selected, label, hxPut string) {
+    @FieldSelectorTarget(options, id, name, selected, label, hxPut, "")
 }
 
-templ FieldSelectorTarget(id string, name string, options components.SortedMap, selected string, label string, hxTarget string) {
+templ FieldSelectorTarget(options components.SortedMap, id, name, selected, label, hxPut, hxTarget string) {
     <select
         id={ id }
         name={ name }
         class="form-select form-select-md"
         aria-label={ label }
-        hx-put="/flow-builder/prompt"
+        hx-put={ hxPut }
         if hxTarget != "" {
             hx-target={ hxTarget }
         }>

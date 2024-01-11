@@ -53,16 +53,16 @@ templ PromptArgs(view Detail) {
         for j, arg := range view.PromptArgs {
             <div class="row mb-3">
                 <div class="form-floating col">
-                    @FieldSelectorTarget(fmt.Sprintf("promptArgs-%d", j), "promptArgs", view.SupportedFields, arg.Source.String(), fmt.Sprintf("Argument %d", j), "#prompt-args")
+                    @FieldSelectorTarget(view.SupportedFields, fmt.Sprintf("promptArgs-%d", j), "promptArgs", arg.Source.String(), fmt.Sprintf("Argument %d", j), "/flow-builder/prompt", "#prompt-args")
                 </div>
                 if arg.Source == flow.FieldSourceFlow {
                     <div class="form-floating col">
-                        @FieldSelectorTarget(fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", view.AvailableFlowsByID, arg.Value, "Flow", "#prompt-args")
+                        @FieldSelectorTarget(view.AvailableFlowsByID, fmt.Sprintf("promptArgFlows-%d", j), "promptArgFlows", arg.Value, "Flow", "/flow-builder/prompt", "#prompt-args")
                     </div>
                 }
                 if arg.Source == flow.FieldSourceInputArg {
                     <div class="form-floating col">
-                        @FieldSelectorTarget(fmt.Sprintf("promptInputParams-%d", j), "promptArgInputs", view.InputParams.Map(), arg.Value, "Param name", "#prompt-args")
+                        @FieldSelectorTarget(view.InputParams.Map(), fmt.Sprintf("promptInputParams-%d", j), "promptArgInputs", arg.Value, "Param name", "/flow-builder/prompt", "#prompt-args")
                     </div>
                 }
             </div>
