@@ -11,16 +11,16 @@ templ RuleBuilder(view Detail) {
         <div class="row">
             <div class="col text-left">
                 <label for="require-all" class="pt-1 pe-2 larger">Execute this flow when</label>
-                <select name="requireAll" 
-                    id="require-all" 
+                <select name="requireAll"
+                    id="require-all"
                     class="rounded p-1"
                     placeholder="Choose...">
                     if view.RequireAll {
-                        <option value="true" selected>All rules match</option>
+                        <option value="true" selected="selected">All rules match</option>
                         <option value="false">Any rule matches</option>
                     } else {
                         <option value="true">All rules match</option>
-                        <option value="false" selected>Any rule matches</option>
+                        <option value="false" selected="selected">Any rule matches</option>
                     }
                 </select>
                 <button id="add-rule"
@@ -52,25 +52,25 @@ templ RuleBuilder(view Detail) {
             <div class="row flow-rule fade-in">
             <div class="col">
                 <div class="form-floating mb-3">
-                    @FieldSelector(fmt.Sprintf("fieldName-%d", i), "fieldName", view.SupportedFields, rule.Field.Source, "Source")
+                    @FieldSelector(view.SupportedFields, fmt.Sprintf("fieldName-%d", i), "fieldName", rule.Field.Source, "Source", "/flow-builder")
                 </div>
 
                 if rule.Field.Source == flow.FieldSourceFlow.String() {
                     <div class="form-floating mb-3">
-                        @FieldSelector(fmt.Sprintf("selectedFlos-%d", i), "selectedFlows", view.AvailableFlowsByID, rule.Field.Value, "Flow")
+                        @FieldSelector(view.AvailableFlowsByID, fmt.Sprintf("selectedFlows-%d", i), "selectedFlows", rule.Field.Value, "Flow", "/flow-builder")
                     </div>
                 }
 
                 if rule.Field.Source == flow.FieldSourceInputArg.String() {
                     <div class="form-floating mb-3">
-                        @FieldSelector(fmt.Sprintf("ruleInputParams-%d", i), "ruleInputParams", view.InputParams.Map(), rule.Field.Value, "Param name")
+                        @FieldSelector(view.InputParams.Map(), fmt.Sprintf("ruleInputParams-%d", i), "ruleInputParams", rule.Field.Value, "Param name", "/flow-builder")
                     </div>
                 }
 
             </div>
             <div class="col">
                 <div class="form-floating mb-3">
-                    @FieldSelector(fmt.Sprintf("condition-%d", i), "condition", view.SupportedConditions, rule.Condition, "Condition")
+                    @FieldSelector(view.SupportedConditions, fmt.Sprintf("condition-%d", i), "condition", rule.Condition, "Condition", "/flow-builder")
                 </div>
             </div>
             <div class="col">

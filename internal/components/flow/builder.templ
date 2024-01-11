@@ -22,21 +22,9 @@ templ FlowBuilder(view Detail) {
         <input type="hidden" name="selectedTab" value={ view.SelectedTab }/>
 
         <div class="row">
-            <div class="col-12 col-md-5">
-                <div class="form-floating pb-4">
-                    <input id="flow-name"
-                            name="name"
-                        type="text"
-                        class="form-control"
-                        placeholder="Welcome Flow"
-                        value={ view.Name }
-                    />
-                    <label for="flow-name">Flow Name</label>
-                </div>
-                @PromptEditor(view)
+            <div class="col-12 col-md">
+                @FlowBuilderTabs(view)
             </div>
-
-            @FlowBuilderTabs(view)
         </div>
 
         <hr class="text-info mb-4 mt-4"/>
@@ -66,14 +54,16 @@ templ FlowBuilder(view Detail) {
 }
 
 templ FlowBuilderTabs(view Detail) {
-    <div id="flow-builder-tabs" class="col-12 col-md-7">
+    <div id="flow-builder-tabs" class="col ps-8 pe-8">
         <ul class="nav nav-tabs pb-2">
-            @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger || view.SelectedTab == "")
+            @TabNav(TabNamePrompt, "Prompt", view.SelectedTab == TabNamePrompt || view.SelectedTab == "")
+            @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger)
             @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
             @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
         </ul>
         <div id="tab-content" class="tab-content pt-2">
-            @TabPanel(view.SelectedTab == TabNameTrigger || view.SelectedTab == "", RuleBuilder(view))
+            @TabPanel(view.SelectedTab == TabNamePrompt || view.SelectedTab == "", PromptEditor(view))
+            @TabPanel(view.SelectedTab == TabNameTrigger, RuleBuilder(view))
             @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
             @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
         </div>
