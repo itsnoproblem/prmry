@@ -50,7 +50,10 @@ templ PromptEditor(view Detail) {
             </div>
         </div>
         <div class="col-5">
-            @Inputs(view)
+            <div class="container">
+                @Inputs(view)
+                @Settings(view)
+            </div>
         </div>
     </div>
 }

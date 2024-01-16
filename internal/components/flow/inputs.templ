@@ -9,56 +9,53 @@ func iToS(i int) string {
 }
 
 templ Inputs(view Detail) {
-    <div class="container">
-        <div class="row p-1 pb-4">
-            <div class="col text-end">
-                <button class="btn btn-info"
-                        hx-post="/flow-builder/inputs"
-                >Add</button>
-            </div>
+    <div class="row p-1 pb-4">
+        <div class="col text-end">
+            <button class="btn btn-info"
+                    hx-post="/flow-builder/inputs"
+            >Add</button>
         </div>
-        <div class="row p-1 pb-4">
-            <div class="col">
-                <h4 class="larger">Input Parameters</h4>
-                <p>Input parameters are used to pass data into the flow. They are available to all steps in the flow.</p>
-            </div>
-        </div>
-
-        for i, param := range view.InputParams {
-            <div class="row align-items-center">
-                <div class="col-8 align-self-start form-floating">
-                    <input id={ "input-param-" + iToS(i) }
-                        name="inputParams"
-                        type="text"
-                        class="form-control-lg input-param-name"
-                        placeholder="inputKey"
-                        value={ param.Key }
-                    />
-                    <label for={ "input-param-" + iToS(i) }>Parameter { iToS(i + 1) } Name</label>
-
-                </div>
-                <div class="col-2 align-self-center form-check">
-                    if i == 0 {
-                        <label class="is-required" for={ "input-param-required-" + iToS(i) }>Required?</label>
-                    }
-                    <input type="checkbox"
-                           id={ "input-param-required-" + iToS(i) }
-                           class="form-check-input form-control-lg input-param-required"
-                           value="true"
-                           name="inputParamsRequired"
-                           if param.Required {
-                               checked="checked"
-                           }
-                    />
-                </div>
-                <div class="col-2 align-self-end">
-                    <button class="btn btn-lg form-control-lg fa fa-close btn-secondary delete-btn mt-2"
-                        id={"delete-input-param-" + iToS(i) }
-                        hx-delete={ "/flow-builder/inputs/" + iToS(i) }>
-                    </button>
-
-                </div>
-            </div>
-        }
     </div>
+    <div class="row p-1 pb-4">
+        <div class="col">
+            <h4 class="larger">Input Parameters</h4>
+            <p>Input parameters are used to pass data into the flow. They are available to all steps in the flow.</p>
+        </div>
+    </div>
+
+    for i, param := range view.InputParams {
+        <div class="row align-items-center">
+            <div class="col-8 align-self-start form-floating">
+                <input id={ "input-param-" + iToS(i) }
+                    name="inputParams"
+                    type="text"
+                    class="form-control-lg input-param-name"
+                    placeholder={ "Parameter " + iToS(i + 1) + " Name" }
+                    value={ param.Key }
+                />
+
+            </div>
+            <div class="col-2 align-self-center form-check">
+                if i == 0 {
+                    <label class="is-required" for={ "input-param-required-" + iToS(i) }>Required?</label>
+                }
+                <input type="checkbox"
+                       id={ "input-param-required-" + iToS(i) }
+                       class="form-check-input form-control-lg input-param-required"
+                       value="true"
+                       name="inputParamsRequired"
+                       if param.Required {
+                           checked="checked"
+                       }
+                />
+            </div>
+            <div class="col-2 align-self-end">
+                <button class="btn btn-lg form-control-lg fa fa-close btn-secondary delete-btn mt-2"
+                    id={"delete-input-param-" + iToS(i) }
+                    hx-delete={ "/flow-builder/inputs/" + iToS(i) }>
+                </button>
+
+            </div>
+        </div>
+    }
 }

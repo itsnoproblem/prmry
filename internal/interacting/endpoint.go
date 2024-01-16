@@ -131,8 +131,10 @@ func makeGetInteractionEndpoint(svc Service) internalhttp.HandlerFunc {
 }
 
 type executeFlowResponse struct {
-	Prompt   string
-	Executes bool
+	Model       string
+	Temperature float64
+	Prompt      string
+	Executes    bool
 }
 
 func makeExecuteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
@@ -148,6 +150,7 @@ func makeExecuteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 		}
 
 		return executeFlowResponse{
+			Model:    req.Model,
 			Prompt:   prompt,
 			Executes: executes,
 		}, nil

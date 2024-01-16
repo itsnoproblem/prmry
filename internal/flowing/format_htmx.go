@@ -29,7 +29,7 @@ func formatFlowSummaries(ctx context.Context, response interface{}) (components.
 		summaries = append(summaries, flowcmp.FlowSummary{
 			ID:          flow.ID,
 			Name:        flow.Name,
-			RuleCount:   fmt.Sprintf("%d %s", len(flow.Rules), label),
+			RuleCount:   fmt.Sprintf("%d %s", len(flow.Triggers), label),
 			LastChanged: flow.UpdatedAt.Format("Jan 02, 2006 15:04"),
 		})
 	}

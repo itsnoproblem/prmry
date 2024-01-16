@@ -191,6 +191,8 @@ type FlowBuilderFormRequest struct {
 	Name           string      `json:"name"`
 	SelectedTab    string      `json:"selectedTab"`
 	AvailableFlows interface{} `json:"availableFlows"`
+	Model          string      `json:"model"`
+	Temperature    string      `json:"temperature"`
 
 	// Triggers
 	RequireAll      string      `json:"requireAll"`
@@ -244,13 +246,29 @@ func decodeFlowBuilderRequest(ctx context.Context, r *http.Request) (interface{}
 		selectedTab = req.SelectedTab
 	}
 
+	temp := flow.DefaultTemperature
+	if req.Temperature != "" {
+		temp, err = strconv.ParseFloat(req.Temperature, 64)
+		if err != nil {
+			return flowcmp.Detail{}, errors.Wrap(err, "decodeFlowBuilderRequest")
+		}
+	}
+
+	model := flow.DefaultModel
+	if req.Model != "" {
+		model = req.Model
+	}
+
 	form := flowcmp.Detail{
 		ID:                  req.ID,
 		Name:                req.Name,
+		Model:               model,
+		Temperature:         fmt.Sprintf("%.1f", temp),
 		Prompt:              req.Prompt,
 		PromptArgs:          promptArgs,
 		SupportedFields:     components.SortedMap(flow.SupportedFields()),
 		SupportedConditions: components.SortedMap(flow.SupportedConditions()),
+		SupportedModels:     components.SortedMap(flow.SupportedModels()),
 		InputParams:         inputParams,
 		SelectedTab:         selectedTab,
 	}

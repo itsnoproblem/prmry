@@ -14,6 +14,7 @@ import (
 type listFlowsAPIResponse struct {
 	ID             string          `json:"id"`
 	Name           string          `json:"name"`
+	Model          string          `json:"model"`
 	Trigger        string          `json:"trigger"`
 	Prompt         string          `json:"prompt"`
 	RequiredParams map[string]bool `json:"requiredParams"`
@@ -36,6 +37,7 @@ func formatListFlowsAPIResponse(ctx context.Context, response interface{}) (json
 		flows = append(flows, listFlowsAPIResponse{
 			ID:             flw.ID,
 			Name:           flw.Name,
+			Model:          flw.Model,
 			Trigger:        flw.TriggerDescription(),
 			Prompt:         flw.Prompt,
 			RequiredParams: params,

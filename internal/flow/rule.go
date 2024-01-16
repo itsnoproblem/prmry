@@ -20,18 +20,18 @@ func (t ConditionType) String() string {
 	return string(t)
 }
 
-type Rule struct {
+type Trigger struct {
 	Field     Field
 	Condition ConditionType
 	Value     string
 }
 
-func (r Rule) String() string {
+func (r Trigger) String() string {
 	fieldDescription := r.Field.Source.String() + " " + r.Field.Value
 	return fmt.Sprintf("%s %s %s", fieldDescription, r.Condition, r.Value)
 }
 
-func (c Rule) Matches(field string) (bool, error) {
+func (c Trigger) Matches(field string) (bool, error) {
 	matches := false
 	fld := strings.ToLower(field)
 	val := strings.ToLower(c.Value)
@@ -63,7 +63,7 @@ func (c Rule) Matches(field string) (bool, error) {
 		matches = strings.HasSuffix(fld, val)
 		break
 	default:
-		return false, fmt.Errorf("Rule.Matches: unknown condition type: %s", c.Condition)
+		return false, fmt.Errorf("Trigger.Matches: unknown condition type: %s", c.Condition)
 	}
 
 	return matches, nil

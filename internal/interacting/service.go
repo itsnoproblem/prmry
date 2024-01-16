@@ -43,8 +43,8 @@ type FlowService interface {
 }
 
 func NewService(c *openai.Client, r InteractionRepo, m ModerationRepo, f FlowService) *service {
-	log.Printf("PRMRY - model: [%s] - max tokens: [%d] - char per token: [%d]\n",
-		GPTModel, GPTMaxTokens, GPTCharactersPerToken)
+	log.Printf("PRMRY - max tokens: [%d] - char per token: [%d]\n",
+		GPTMaxTokens, GPTCharactersPerToken)
 
 	return &service{
 		gptClient:   c,
@@ -133,23 +133,28 @@ func (s service) NewInteraction(ctx context.Context, msg, flowID string, params 
 	return ixn, nil
 }
 
-func (s *service) ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (prompt string, executes bool, err error) {
+func (s *service) ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (exec flow.Execution, err error) {
 	flw, err := s.flows.GetFlow(ctx, flowID)
 	if err != nil {
-		return "", false, errors.Wrap(err, "flowing.ExecuteFlow")
+		return flow.Execution{}, errors.Wrap(err, "flowing.ExecuteFlow")
 	}
 
 	s.input = inputText
-	prompt, err = s.getPromptFromFlow(ctx, inputText, flw, params)
+	prompt, err := s.getPromptFromFlow(ctx, inputText, flw, params)
 	if err != nil {
-		return "", false, errors.Wrap(err, "interacting.ExecuteFlow")
+		return flow.Execution{}, errors.Wrap(err, "interacting.ExecuteFlow")
 	}
 
 	if prompt == "" {
-		return "", false, nil
+		return flow.Execution{}, nil
 	}
 
-	return prompt, true, nil
+	return flow.Execution{
+		Model:       flw.Model,
+		Temperature: flw.Temperature,
+		Executes:    true,
+		Prompt:      prompt,
+	}, nil
 }
 
 // ---- private -----
@@ -227,7 +232,7 @@ func (s service) executeFlowAndInteract(ctx context.Context, inputText, flowID s
 }
 
 func (s service) getPromptFromFlow(ctx context.Context, inputText string, flw flow.Flow, params map[string]string) (string, error) {
-	for _, cond := range flw.Rules {
+	for _, cond := range flw.Triggers {
 		// comparator is the value we're comparing against
 		var comparator string
 

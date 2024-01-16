@@ -77,7 +77,7 @@ func TestFlowing(t *testing.T) {
 			RequestPayload: nil,
 		},
 		{
-			Name:           "FlowBuilderFragment Add Rule",
+			Name:           "FlowBuilderFragment Add Trigger",
 			Method:         http.MethodPost,
 			Path:           "/flow-builder/rules",
 			FullPage:       false,
@@ -90,7 +90,7 @@ func TestFlowing(t *testing.T) {
 			},
 		},
 		{
-			Name:           "FlowBuilderFragment Delete Rule",
+			Name:           "FlowBuilderFragment Delete Trigger",
 			Method:         http.MethodDelete,
 			Path:           "/flow-builder/rules/0",
 			FullPage:       false,
@@ -300,8 +300,8 @@ type requestPayloadNewRule struct {
 }
 
 func createSomeFlows(ctx context.Context, userID string, repo flowing.FlowsRepo) error {
-	fakeRules := []flow.Rule{
-		flow.Rule{
+	fakeRules := []flow.Trigger{
+		flow.Trigger{
 			Field: flow.Field{
 				Source: flow.FieldSourceInput,
 			},
@@ -312,11 +312,11 @@ func createSomeFlows(ctx context.Context, userID string, repo flowing.FlowsRepo)
 
 	flows := []flow.Flow{
 		flow.Flow{
-			ID:     "123",
-			UserID: userID,
-			Name:   "Test Flow A",
-			Rules:  fakeRules,
-			Prompt: "Tell me a story based on this text: %s",
+			ID:       "123",
+			UserID:   userID,
+			Name:     "Test Flow A",
+			Triggers: fakeRules,
+			Prompt:   "Tell me a story based on this text: %s",
 			PromptArgs: []flow.Field{
 				{
 					Source: flow.FieldSourceInput,
@@ -324,16 +324,16 @@ func createSomeFlows(ctx context.Context, userID string, repo flowing.FlowsRepo)
 			},
 		},
 		flow.Flow{
-			ID:     "567",
-			UserID: userID,
-			Name:   "Test Flow B",
-			Rules:  fakeRules,
+			ID:       "567",
+			UserID:   userID,
+			Name:     "Test Flow B",
+			Triggers: fakeRules,
 		},
 		flow.Flow{
-			ID:     "998",
-			UserID: userID,
-			Name:   "Test Flow C",
-			Rules:  nil,
+			ID:       "998",
+			UserID:   userID,
+			Name:     "Test Flow C",
+			Triggers: nil,
 		},
 	}
 
