@@ -58,13 +58,11 @@ templ FlowBuilderTabs(view Detail) {
         <ul class="nav nav-tabs pb-2">
             @TabNav(TabNamePrompt, "Prompt", view.SelectedTab == TabNamePrompt || view.SelectedTab == "")
             @TabNav(TabNameTrigger, "Trigger", view.SelectedTab == TabNameTrigger)
-            @TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs)
             @TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview)
         </ul>
         <div id="tab-content" class="tab-content pt-2">
             @TabPanel(view.SelectedTab == TabNamePrompt || view.SelectedTab == "", PromptEditor(view))
             @TabPanel(view.SelectedTab == TabNameTrigger, RuleBuilder(view))
-            @TabPanel(view.SelectedTab == TabNameInputs, Inputs(view))
             @TabPanel(view.SelectedTab == TabNamePreview, Preview(view))
         </div>
     </div>

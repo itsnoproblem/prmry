@@ -9,49 +9,56 @@ func iToS(i int) string {
 }
 
 templ Inputs(view Detail) {
-    <div class="row p-1 pe pb-4">
-        <div class="col-7">
-            <label class="larger">Input Parameters</label>
+    <div class="container">
+        <div class="row p-1 pb-4">
+            <div class="col text-end">
+                <button class="btn btn-info"
+                        hx-post="/flow-builder/inputs"
+                >Add</button>
+            </div>
         </div>
-        <div class="col-2">
-            <button class="btn btn-info" hx-post="/flow-builder/inputs">Add Input</button>
+        <div class="row p-1 pb-4">
+            <div class="col">
+                <h4 class="larger">Input Parameters</h4>
+                <p>Input parameters are used to pass data into the flow. They are available to all steps in the flow.</p>
+            </div>
         </div>
-        <div class="col-3"></div>
-    </div>
 
-    <div class="row p-1">
-    for i, param := range view.InputParams {
-        <div class="col-5 form-floating pb-4">
-            <input id={ "input-param-" + iToS(i) }
-                name="inputParams"
-                type="text"
-                class="form-control"
-                placeholder="inputKey"
-                value={ param.Key }
-            />
-            <label for={ "input-param-" + iToS(i) }>Parameter Name { iToS(i + 1) }</label>
-        </div>
-        <div class="col-4 pb-4">
-            <select id={ "input-param-required-" + iToS(i) }
-                class="form-select form-select-lg form-control"
-                name="inputParamsRequired"
-            >
+        for i, param := range view.InputParams {
+            <div class="row align-items-center">
+                <div class="col-8 align-self-start form-floating">
+                    <input id={ "input-param-" + iToS(i) }
+                        name="inputParams"
+                        type="text"
+                        class="form-control-lg input-param-name"
+                        placeholder="inputKey"
+                        value={ param.Key }
+                    />
+                    <label for={ "input-param-" + iToS(i) }>Parameter { iToS(i + 1) } Name</label>
 
-            if param.Required {
-                <option value="false">Optional</option>
-                <option value="true" selected="selected">Required</option>
-            } else {
-                <option value="false" selected="selected">Optional</option>
-                <option value="true">Required</option>
-            }
+                </div>
+                <div class="col-2 align-self-center form-check">
+                    if i == 0 {
+                        <label class="is-required" for={ "input-param-required-" + iToS(i) }>Required?</label>
+                    }
+                    <input type="checkbox"
+                           id={ "input-param-required-" + iToS(i) }
+                           class="form-check-input form-control-lg input-param-required"
+                           value="true"
+                           name="inputParamsRequired"
+                           if param.Required {
+                               checked="checked"
+                           }
+                    />
+                </div>
+                <div class="col-2 align-self-end">
+                    <button class="btn btn-lg form-control-lg fa fa-close btn-secondary delete-btn mt-2"
+                        id={"delete-input-param-" + iToS(i) }
+                        hx-delete={ "/flow-builder/inputs/" + iToS(i) }>
+                    </button>
 
-            </select>
-        </div>
-        <div class="col form-floating pb-4">
-            <button class="btn btn-lg fa fa-close btn-secondary"
-                hx-delete={ "/flow-builder/inputs/" + iToS(i) }>
-            </button>
-        </div>
-    }
+                </div>
+            </div>
+        }
     </div>
 }

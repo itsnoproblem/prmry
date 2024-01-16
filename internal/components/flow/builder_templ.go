@@ -139,10 +139,6 @@ func FlowBuilderTabs(view Detail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TabNav(TabNameInputs, "Inputs", view.SelectedTab == TabNameInputs).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		templ_7745c5c3_Err = TabNav(TabNamePreview, "Preview", view.SelectedTab == TabNamePreview).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -156,10 +152,6 @@ func FlowBuilderTabs(view Detail) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = TabPanel(view.SelectedTab == TabNameTrigger, RuleBuilder(view)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = TabPanel(view.SelectedTab == TabNameInputs, Inputs(view)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

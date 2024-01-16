@@ -344,9 +344,13 @@ func makeInputParams(req FlowBuilderFormRequest) ([]flowcmp.InputParam, error) {
 
 	inputParams := make([]flowcmp.InputParam, 0)
 	for i, param := range parsedInputParams {
-		isRequired, err := strconv.ParseBool(parsedInputParamsRequired[i])
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse inputParams %d", i)
+		var isRequired bool
+		var err error
+		if len(parsedInputParamsRequired) > i {
+			isRequired, err = strconv.ParseBool(parsedInputParamsRequired[i])
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to parse inputParams %d", i)
+			}
 		}
 
 		inputParam := flowcmp.InputParam{
