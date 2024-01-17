@@ -28,6 +28,8 @@ func (r *repository) GetFlowsForUser(ctx context.Context, userID string) ([]flow
 		    id,
 		    user_id,
 		    name,
+		    model,
+		    temperature,
 		    rules,
 		    require_all,
 		    prompt,
@@ -70,6 +72,8 @@ func (r *repository) GetFlow(ctx context.Context, flowID string) (flow.Flow, err
 		    id,
 		    user_id,
 		    name,
+		    model,
+		    temperature,
 		    rules,
 		    require_all,
 		    prompt,
@@ -104,7 +108,7 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 		requireAll = 1
 	}
 
-	rules, err := json.Marshal(flw.Rules)
+	rules, err := json.Marshal(flw.Triggers)
 	if err != nil {
 		return errors.Wrap(err, "sql.flows.InsertFlow")
 	}
@@ -124,6 +128,8 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 			id,
 			user_id,
 		    name,
+		    model,
+		    temperature,
 		    rules,
 		    require_all,
 		    prompt,
@@ -132,13 +138,15 @@ func (r *repository) InsertFlow(ctx context.Context, flw flow.Flow) error {
 		    created_at,
 		    updated_at
 	  	) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)	
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)	
 	`
 
 	args := []interface{}{
 		flw.ID,
 		flw.UserID,
 		flw.Name,
+		flw.Model,
+		flw.Temperature,
 		rules,
 		requireAll,
 		flw.Prompt,
@@ -162,7 +170,7 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 		requireAll = 1
 	}
 
-	rules, err := json.Marshal(flw.Rules)
+	rules, err := json.Marshal(flw.Triggers)
 	if err != nil {
 		return errors.Wrap(err, "sql.flows.InsertFlow")
 	}
@@ -180,6 +188,8 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	sql := `
 		UPDATE flows SET 
 		    name = ?,
+		    model = ?,
+		    temperature = ?,
 		    rules = ?,
 		    require_all = ?,
 		    prompt = ?,
@@ -191,6 +201,8 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 
 	args := []interface{}{
 		flw.Name,
+		flw.Model,
+		flw.Temperature,
 		rules,
 		requireAll,
 		flw.Prompt,
@@ -222,20 +234,22 @@ func (r repository) DeleteFlow(ctx context.Context, flowID string) error {
 // private
 
 type flowsRow struct {
-	ID         string           `db:"id"`
-	UserID     string           `db:"user_id"`
-	Name       string           `db:"name"`
-	Rules      *json.RawMessage `db:"rules"`
-	RequireAll bool             `db:"require_all"`
-	Prompt     string           `db:"prompt"`
-	PromptArgs *json.RawMessage `db:"prompt_args"`
-	Inputs     *json.RawMessage `db:"inputs"`
-	CreatedAt  time.Time        `db:"created_at"`
-	UpdatedAt  time.Time        `db:"updated_at"`
+	ID          string           `db:"id"`
+	UserID      string           `db:"user_id"`
+	Name        string           `db:"name"`
+	Model       string           `db:"model"`
+	Temperature float64          `db:"temperature"`
+	Rules       *json.RawMessage `db:"rules"`
+	RequireAll  bool             `db:"require_all"`
+	Prompt      string           `db:"prompt"`
+	PromptArgs  *json.RawMessage `db:"prompt_args"`
+	Inputs      *json.RawMessage `db:"inputs"`
+	CreatedAt   time.Time        `db:"created_at"`
+	UpdatedAt   time.Time        `db:"updated_at"`
 }
 
 func (r flowsRow) toFlow() (flow.Flow, error) {
-	rules := make([]flow.Rule, 0)
+	rules := make([]flow.Trigger, 0)
 	if r.Rules != nil {
 		if err := json.Unmarshal(*r.Rules, &rules); err != nil {
 			return flow.Flow{}, errors.Wrap(err, "toFlow: rules")
@@ -256,11 +270,23 @@ func (r flowsRow) toFlow() (flow.Flow, error) {
 		}
 	}
 
+	model := flow.DefaultModel
+	if r.Model != "" {
+		model = r.Model
+	}
+
+	temp := flow.DefaultTemperature
+	if r.Temperature != 0 {
+		temp = r.Temperature
+	}
+
 	return flow.Flow{
 		ID:          r.ID,
 		UserID:      r.UserID,
 		Name:        r.Name,
-		Rules:       rules,
+		Model:       model,
+		Temperature: temp,
+		Triggers:    rules,
 		RequireAll:  r.RequireAll,
 		Prompt:      r.Prompt,
 		PromptArgs:  promptArgs,

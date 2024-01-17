@@ -1,0 +1,38 @@
+package flow
+
+templ Settings(view Detail) {
+    <div class="row pt-4">
+        <div class="col">
+            <div class="form-floating pb-4">
+                <select id="flow-model"
+                        name="model"
+                        class="form-control"
+                >
+                    <option value="0">Select a model</option>
+                    for _, model := range view.SupportedModels.Keys() {
+                        <option value={ model }
+                        if view.Model == model {
+                            selected="selected"
+                        }
+                        >{ view.SupportedModels[model] }</option>
+                    }
+                </select>
+                <label for="flow-model">Model</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="form-floating pb-4">
+                <input id="flow-temperature"
+                    name="temperature"
+                    type="text"
+                    class="form-control"
+                    placeholder="1.0"
+                    value={ view.Temperature }
+                />
+                <label for="flow-temperature">Temperature</label>
+            </div>
+        </div>
+    </div>
+}

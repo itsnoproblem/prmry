@@ -19,7 +19,7 @@ type Service interface {
 	Moderation(ctx context.Context, interactionID string) (moderation.Moderation, error)
 	ModerationByID(ctx context.Context, moderationID string) (moderation.Moderation, error)
 	NewInteraction(ctx context.Context, msg, flowID string, params map[string]string) (interaction.Interaction, error)
-	ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (prompt string, executes bool, err error)
+	ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (exec flow.Execution, err error)
 }
 
 type flowService interface {
@@ -131,8 +131,10 @@ func makeGetInteractionEndpoint(svc Service) internalhttp.HandlerFunc {
 }
 
 type executeFlowResponse struct {
-	Prompt   string
-	Executes bool
+	Model       string
+	Temperature float64
+	Prompt      string
+	Executes    bool
 }
 
 func makeExecuteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
@@ -142,14 +144,15 @@ func makeExecuteFlowEndpoint(svc Service) internalhttp.HandlerFunc {
 			return nil, fmt.Errorf("interacting.makeExecuteFlowEndpoint: failed to parse request")
 		}
 
-		prompt, executes, err := svc.ExecuteFlow(ctx, req.InputMessage, req.FlowID, req.Params)
+		exec, err := svc.ExecuteFlow(ctx, req.InputMessage, req.FlowID, req.Params)
 		if err != nil {
 			return nil, fmt.Errorf("interacting.makeExecuteFlowEndpoint: %s", err)
 		}
 
 		return executeFlowResponse{
-			Prompt:   prompt,
-			Executes: executes,
+			Model:    exec.Model,
+			Prompt:   exec.Prompt,
+			Executes: exec.Executes,
 		}, nil
 	}
 }
