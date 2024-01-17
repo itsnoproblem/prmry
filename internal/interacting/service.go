@@ -133,7 +133,7 @@ func (s service) NewInteraction(ctx context.Context, msg, flowID string, params 
 	return ixn, nil
 }
 
-func (s *service) ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (exec flow.Execution, err error) {
+func (s service) ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (exec flow.Execution, err error) {
 	flw, err := s.flows.GetFlow(ctx, flowID)
 	if err != nil {
 		return flow.Execution{}, errors.Wrap(err, "flowing.ExecuteFlow")
@@ -167,14 +167,16 @@ func (s service) executeFlowAndInteract(ctx context.Context, inputText, flowID s
 	prompt := inputText
 
 	if flowID != "" {
-		prompt, executes, err = s.ExecuteFlow(ctx, inputText, flowID, params)
+		exec, err := s.ExecuteFlow(ctx, inputText, flowID, params)
 		if err != nil {
 			return interaction.Interaction{}, false, errors.Wrap(err, "executeFlowAndInteract")
 		}
 
-		if !executes {
+		if !exec.Executes {
 			return interaction.Interaction{}, false, nil
 		}
+
+		prompt = exec.Prompt
 	}
 
 	promptTokens := s.tokenCount(prompt)
