@@ -29,7 +29,7 @@ func PromptEditor(view Detail) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row\"><div class=\"col-7\"><div class=\"row\"><div class=\"col\"><div class=\"form-floating pb-4\"><input id=\"flow-name\" name=\"name\" type=\"text\" class=\"form-control\" placeholder=\"Welcome Flow\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row\"><div class=\"col-sm-12 col-lg-7\"><div class=\"row\"><div class=\"col\"><div class=\"form-floating pb-4\"><input id=\"flow-name\" name=\"name\" type=\"text\" class=\"form-control\" placeholder=\"Welcome Flow\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -102,7 +102,7 @@ func PromptEditor(view Detail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div><div class=\"col-5\"><div class=\"container\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div><div class=\"col-sm-12 col-lg-5\"><div class=\"container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -31,7 +31,7 @@ func Inputs(view Detail) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row p-1 pb-4\"><div class=\"col text-end\"><button class=\"btn btn-info\" hx-post=\"/flow-builder/inputs\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row add-btn\"><div class=\"col text-end\"><button class=\"btn btn-info\" hx-post=\"/flow-builder/inputs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
