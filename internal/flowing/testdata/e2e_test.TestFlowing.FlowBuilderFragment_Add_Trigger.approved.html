@@ -96,9 +96,44 @@
               </div>
             </div>
             <div id="rules-container" class="container-lg ps-2">
-              <div class="text-left">
-                <h2 class="pb-2 text-body-secondary">Flow always executes</h2>
-                <div><em>Create a rule to add conditions.</em></div>
+              <div class="row flow-rule fade-in">
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <select id="fieldName-0" name="fieldName" class="form-select form-select-md" aria-label="Source" hx-put="/flow-builder">
+                      <option value="" selected="selected">Choose...</option>
+                      <option value="input message">The Input Message</option>
+                      <option value="input tag">An Input Parameter</option>
+                      <option value="interaction result from another flow">Output from another Flow</option>
+                      <option value="moderation result">A Moderation result (of the input message)</option>
+                    </select>
+                    <label for="fieldName-0">Source</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <select id="condition-0" name="condition" class="form-select form-select-md" aria-label="Condition" hx-put="/flow-builder">
+                      <option value="" selected="selected">Choose...</option>
+                      <option value="contains">contains</option>
+                      <option value="does not contain">does not contain</option>
+                      <option value="does not equal">does not equal</option>
+                      <option value="ends with">ends with</option>
+                      <option value="equals">equals</option>
+                      <option value="starts with">starts with</option>
+                    </select>
+                    <label for="condition-0">Condition</label>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-floating mb-3">
+                    <input type="text" name="value" id="value-0" class="form-control form-control-md" placeholder="Value" value="">
+                    <label for="value-0">Value</label>
+                  </div>
+                </div>
+                <div class="col-1 pt-3">
+                  <a hx-delete="/flow-builder/rules/0" hx-target="#content-root" class="button-secondary">
+                    <i class="fa fa-close"></i>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -106,7 +141,11 @@
             <h2></h2>
             <div class="row">
               <b>Triggered by:</b>
-              <span class="text-body-secondary">any input</span>
+              <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+              </ul>
             </div>
           </div>
         </div>
