@@ -197,7 +197,7 @@ label[for=flow-selector] {
 }
 
 #flow-builder .smaller {
-    font-size: 14px;
+    font-size: 0.86em;
     font-weight: normal;
     letter-spacing: 0.14em;
 }
