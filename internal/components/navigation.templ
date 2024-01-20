@@ -110,8 +110,8 @@ templ ProfileNavButton(cmp Component) {
 templ UserNavigation(cmp Component) {
     <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end">
 
-        <li class="nav-item">
-            <a class="nav-link"
+        <li class="nav-item text-center-lg ms-4">
+            <a class="nav-link d-block text-center-lg"
                title="Flows"
                hx-get="/flows"
                hx-target="#content-root"
@@ -119,34 +119,51 @@ templ UserNavigation(cmp Component) {
                data-bs-toggle="collapse"
                data-bs-target=".navbar-collapse.show"
             >
-                <span class="d-lg-none">Flows</span>&nbsp;
-                <i class="fa fa-circle-nodes fa-2x"></i>
+                <span class="d-lg-none smaller pe-3">flows</span>
+                <i class="fa fa-water fa-2x pb-2"></i>
+                <div class="d-none d-lg-block smaller">flows</div>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link"
-               title="Interact"
+        <li class="nav-item text-center-lg ms-4">
+            <a class="nav-link d-block text-center-lg"
+               title="Funnels"
+               hx-get="/funnels"
+               hx-target="#content-root"
+               hx-push-url="true"
+               data-bs-toggle="collapse"
+               data-bs-target=".navbar-collapse.show"
+            >
+                <span class="d-lg-none smaller pe-3">funnels</span>
+                <i class="fa fa-filter fa-2x pb-2" aria-hidden="true"></i>
+                <div class="d-none d-lg-block smaller">funnels</div>
+            </a>
+        </li>
+        <li class="nav-item text-center-lg ms-4">
+            <a class="nav-link d-block text-center-lg"
+               title="Create"
                hx-get="/interactions/chat"
                hx-target="#content-root"
                hx-push-url="true"
                data-bs-toggle="collapse"
                data-bs-target=".navbar-collapse.show"
             >
-                <span class="d-lg-none">Interact</span>&nbsp;
-                <i class="fa fa-message fa-2x" aria-hidden="true"></i>
+                <span class="d-lg-none smaller pe-3">create</span>
+                <i class="fa fa-bolt fa-2x pb-2" aria-hidden="true"></i>
+                <div class="d-none d-lg-block smaller">create</div>
             </a>
         </li>
-        <li nav-class="nav-item">
-            <a class="nav-link"
-               title="Interactions"
+        <li class="nav-item text-center-lg ms-4">
+            <a class="nav-link d-block text-center-lg"
+               title="History"
                hx-get="/interactions"
                hx-target="#content-root"
                hx-push-url="true"
                data-bs-toggle="collapse"
                data-bs-target=".navbar-collapse.show"
             >
-                <span class="d-lg-none">Interactions</span>&nbsp;
-                <i class="fa fa-list fa-2x"></i>
+                <span class="d-lg-none smaller pe-3">history</span>
+                <i class="fa-solid fa-clock-rotate-left  fa-2x pb-2"></i>
+                <div class="d-none d-lg-block smaller">history</div>
             </a>
         </li>
     </ul>
