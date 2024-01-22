@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"github.com/itsnoproblem/prmry/internal/funneling"
 	"log"
 	"net/http"
 	"os"
@@ -138,11 +139,13 @@ func main() {
 	interactionsRepo := sql.NewInteractionsRepo(db)
 	moderationsRepo := sql.NewModerationsRepo(db)
 	flowsRepo := sql.NewFlowsRepository(db)
+	funnelsRepo := sql.NewFunnelsRepository(db)
 
 	accountingService := accounting.NewService(&usersRepo)
 	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	flowingService := flowing.NewService(flowsRepo)
+	funnelingService := funneling.NewService(funnelsRepo)
 
 	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
 	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)
@@ -155,6 +158,7 @@ func main() {
 	flowingTransport := flowing.RouteHandler(flowingService, renderer)
 	staticTransport := prmrying.RouteHandler(renderer)
 	accountingTransport := accounting.RouteHandler(accountingService, renderer)
+	funnelingTransport := funneling.RouteHandler(funnelingService, renderer)
 	authenticatingTransport := authResource.RouteHandler()
 
 	// API Transports
@@ -181,11 +185,12 @@ func main() {
 	}
 
 	// UI Routes
+	r.Group(staticTransport)
 	r.Group(authenticatingTransport)
 	r.Group(accountingTransport)
 	r.Group(interactingTransport)
 	r.Group(flowingTransport)
-	r.Group(staticTransport)
+	r.Group(funnelingTransport)
 
 	// API Routes
 	r.Group(interactingAPITransport)
