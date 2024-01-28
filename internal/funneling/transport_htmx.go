@@ -20,46 +20,139 @@ type Renderer interface {
 }
 
 func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
-	funnelBuilderEndpoint := internalhttp.NewHTMXEndpoint(
-		makeFunnelBuilderEndpoint(svc),
-		decodeEmptyRequest,
+	editFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeEditFunnelEndpoint(svc),
+		decodeFunnelIDRequest,
 		formatFunnelBuilderResponse,
 		auth.Required,
 	)
 
-	//createFunnelEndpoint := internalhttp.NewHTMXEndpoint(
-	//	makeCreateFunnelEndpoint(svc),
-	//	decodeCreateFunnelRequest,
-	//	formatCreateFunnelResponse,
-	//	auth.Required,
-	//)
-	//
-	//listFunnelsEndpoint := internalhttp.NewHTMXEndpoint(
-	//	makeListFunnelsEndpoint(svc),
-	//	decodeEmptyRequest,
-	//	formatListFunnelsResponse,
-	//	auth.Required,
-	//)
+	funnelBuilderEndpoint := internalhttp.NewHTMXEndpoint(
+		makeFunnelBuilderEndpoint(svc),
+		decodeFunnelBuilderRequest,
+		formatFunnelBuilderResponse,
+		auth.Required,
+	)
+
+	saveFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeSaveFunnelEndpoint(svc),
+		decodeFunnelBuilderRequest,
+		formatFunnelBuilderResponse,
+		auth.Required,
+	)
+
+	listFunnelsEndpoint := internalhttp.NewHTMXEndpoint(
+		makeListFunnelsEndpoint(svc),
+		decodeEmptyRequest,
+		formatListFunnelsResponse,
+		auth.Required,
+	)
+
+	searchFlowsEndpoint := internalhttp.NewHTMXEndpoint(
+		makeSearchFlowsEndpoint(svc),
+		decodeSearchFlowsRequest,
+		formatSearchFlowsResponse,
+		auth.Required,
+	)
+
+	addFlowToFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeAddFlowToFunnelEndpoint(svc),
+		decodeAddFlowToFunnelRequest,
+		formatAddFlowToFunnelResponse,
+		auth.Required,
+	)
+
+	deleteFlowFromFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeRemoveFlowFromFunnelEndpoint(svc),
+		decodeRemoveFlowFromFunnelRequest,
+		formatRemoveFlowFromFunnelResponse,
+		auth.Required,
+	)
+
+	createFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeCreateFunnelEndpoint(svc),
+		decodeCreateFunnelRequest,
+		formatFunnelBuilderResponse,
+		auth.Required,
+	)
+
+	deleteFunnelEndpoint := internalhttp.NewHTMXEndpoint(
+		makeDeleteFunnelEndpoint(svc),
+		decodeFunnelIDRequest,
+		formatRedirectResponse,
+		auth.Required,
+	)
 
 	return func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Get("/funnels/edit", htmx.MakeHandler(funnelBuilderEndpoint, renderer))
-			r.Get("/funnels/edit/{id}", htmx.MakeHandler(funnelBuilderEndpoint, renderer))
-			//r.Post("/funnels", htmx.MakeHandler(createFunnelEndpoint, renderer))
-			//r.Get("/funnels", htmx.MakeHandler(listFunnelsEndpoint, renderer))
+			// funnel list, forms
+			r.Get("/funnels", htmx.MakeHandler(listFunnelsEndpoint, renderer))
+			r.Get("/funnels/new", htmx.MakeHandler(funnelBuilderEndpoint, renderer))
+			r.Post("/funnels", htmx.MakeHandler(createFunnelEndpoint, renderer))
+			r.Get("/funnels/{id}", htmx.MakeHandler(editFunnelEndpoint, renderer))
+			// create / update
+			r.Post("/funnels", htmx.MakeHandler(saveFunnelEndpoint, renderer))
+			r.Put("/funnels/{id}", htmx.MakeHandler(saveFunnelEndpoint, renderer))
+			r.Delete("/funnels/{id}", htmx.MakeHandler(deleteFunnelEndpoint, renderer))
+			// funnel flows
+			r.Post("/funnels/search-flows", htmx.MakeHandler(searchFlowsEndpoint, renderer))
+			r.Post("/funnels/{id}/flows/{flowId}", htmx.MakeHandler(addFlowToFunnelEndpoint, renderer))
+			r.Delete("/funnels/{id}/flows/{flowId}", htmx.MakeHandler(deleteFlowFromFunnelEndpoint, renderer))
 		})
 	}
 }
 
-func decodeEmptyRequest(ctx context.Context, request *http.Request) (interface{}, error) {
+func decodeEmptyRequest(_ context.Context, _ *http.Request) (interface{}, error) {
 	return nil, nil
 }
 
-func decodeCreateFunnelRequest(ctx context.Context, request *http.Request) (interface{}, error) {
-	var req CreateFunnelRequest
+func decodeCreateFunnelRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	var req createFunnelRequest
 	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(err, "funneling.decodeCreateFunnelRequest")
 	}
 
 	return req, nil
+}
+
+func decodeFunnelIDRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	return funnelIDRequest{
+		ID: chi.URLParam(request, "id"),
+	}, nil
+}
+
+func decodeFunnelBuilderRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	var req funnelBuilderRequest
+
+	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
+		if request.Method != http.MethodGet {
+			return req, errors.Wrap(err, "funneling.decodeFunnalBuilderRequest")
+		}
+	}
+
+	req.ID = chi.URLParam(request, "id")
+	return req, nil
+}
+
+func decodeSearchFlowsRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	var req searchFlowsRequest
+	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
+		return nil, errors.Wrap(err, "funneling.decodeSearchFlowsRequest")
+	}
+
+	return req, nil
+}
+
+func decodeAddFlowToFunnelRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	return addFlowToFunnelRequest{
+		FunnelID: chi.URLParam(request, "id"),
+		FlowID:   chi.URLParam(request, "flowId"),
+	}, nil
+}
+
+func decodeRemoveFlowFromFunnelRequest(_ context.Context, request *http.Request) (interface{}, error) {
+	return removeFlowFromFunnelRequest{
+		FunnelID: chi.URLParam(request, "id"),
+		FlowID:   chi.URLParam(request, "flowId"),
+	}, nil
 }

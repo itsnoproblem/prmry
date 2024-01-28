@@ -145,7 +145,7 @@ func main() {
 	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	flowingService := flowing.NewService(flowsRepo)
-	funnelingService := funneling.NewService(funnelsRepo)
+	funnelingService := funneling.NewService(funnelsRepo, flowsRepo)
 
 	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
 	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)

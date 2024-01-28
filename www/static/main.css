@@ -624,3 +624,20 @@ li.dropdown {
 .highlight div {
     opacity: 0;
 }
+
+label[for="flow-search-input"] {
+    margin: -0.2em 1.4em;
+}
+
+#form-flow-search input:not(focus) + label {
+    padding-top: 1.4em;
+}
+
+#flow-search-results-table {
+    position: absolute;
+    z-index: 999;
+    max-width: 24em;
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 1em;
+}

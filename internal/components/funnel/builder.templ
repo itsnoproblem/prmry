@@ -1,0 +1,253 @@
+package funnel
+
+import (
+    "github.com/itsnoproblem/prmry/internal/components"
+)
+
+templ FunnelBuilderPage(view FunnelFormView) {
+    @components.Page(&view) {
+        @FunnelBuilder(view)
+    }
+}
+
+templ FunnelBuilder(view FunnelFormView) {
+    <div class="container p-4">
+        <h1 class="mb-4">Funnel Builder</h1>
+            <form
+                id="form-funnel-create"
+                if view.ID == "" {
+                    hx-post={ "/funnels" }
+                } else {
+                    hx-put={ "/funnels/" + view.ID }
+                }
+                hx-target="#content-root"
+                hx-ext="json-enc"
+            >
+
+            // funnel settings
+            <div class="row mb-3">
+                <div class="form-floating col-12 col-lg-5 mb-3">
+                    <input type="hidden" name="id" value={ view.ID } />
+                    <input
+                        class="form-control input-lg"
+                        name="name"
+                        id="funnel-name"
+                        placeholder="Name"
+                        value={ view.Name }
+                    />
+                    <label for="funnel-name">Name</label>
+                </div>
+                <div class="form-floating col-12 col-lg-5">
+                    <input
+                        class="form-control input-lg"
+                        name="path"
+                        id="funnel-path"
+                        placeholder="Path"
+                        value={ view.Path }
+                    />
+                    <label for="funnel-path">Path</label>
+                </div>
+                <div class="form-floating col-12 col-lg-2">
+                    <div class="container">
+                        <button type="submit"
+                            class="form-control btn btn-lg btn-primary"
+                        >Save</button>
+                    </div>
+                </div>
+            </div>
+
+            @FunnelFlows(view, false)
+
+        </form>
+    </div>
+}
+
+templ FunnelFlows(view FunnelFormView, isOOB bool) {
+
+    if isOOB {
+        @FlowFinderOOB(view)
+    } else {
+        @FlowFinderInBand(view, isOOB)
+    }
+
+    <div id="funnel-flows">
+        if len(view.Flows) > 0 {
+            <div class="row mb-3">
+                <div class="col">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            for _, flow := range view.Flows {
+                                <tr>
+                                    <th scope="row">{ flow.Name }</th>
+                                    <td scope="col">
+                                        <i
+                                            type="button"
+                                            class="fa fa-close ps-2 pe-2"
+                                            hx-delete={ "/funnels/"+ view.FunnelView.ID +"/flows/"+ flow.ID }
+                                            hx-target="#funnel-flows"
+                                            hx-confirm={ "Remove '"+ flow.Name +"' from this funnel?" }
+                                        ></i>
+                                        <span>Remove</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        } else {
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">No flows</h4>
+                        <p>
+                            This funnel has no flows. Add a flow to
+                            get started.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        } // end if
+    </div>
+}
+
+templ FlowFinderInBand(view FunnelFormView, isOOB bool) {
+    <div id="form-flow-search" hx-ext="json-enc" hx-disinherit="*">
+        <h3>
+          <span class="htmx-indicator">
+            Searching. . .
+          </span>
+        </h3>
+
+        <input name="funnelID" type="hidden" value={ view.ID } />
+
+        <div class="pb-3 form-floating">
+            <input id="flow-search-input" name="search" class="form-control rounded-pill" type="search"
+                autocomplete="off"
+                placeholder="Search"
+                hx-trigger="input changed delay:500ms, search"
+                hx-post="/funnels/search-flows"
+                hx-target="#flow-search-results"
+                hx-indicator=".htmx-indicator"
+            />
+            <label for="flow-search-input" class="text-primary-emphasis">
+                <span>Press &lt;space&gt; or start typing</span>
+                <span class="ms-1 d-none d-lg-inline"> to search for flows to add</span>
+            </label>
+        </div>
+
+        <table id="flow-search-results-table"
+            class="table table-striped table-hover bg-secondary-subtle"
+            cellspacing="0" cellpadding="0">
+            <tbody id="flow-search-results">
+            </tbody>
+        </table>
+        </div>
+        <script hx-script="true">
+            const searchInput = document.getElementById("flow-search-input");
+            const clearFlowSearch = function() {
+                document.getElementById("flow-search-results").innerHTML = '';
+                searchInput.value = '';
+            }
+
+            searchInput.onkeyup = function(e) {
+                var key = e.key || e.charCode || e.keyCode || 0;
+                if (key === 13) {
+                    e.preventDefault();
+                    e.target.trigger("changed");
+                }
+
+                if (key === 'Escape') {
+                    e.preventDefault();
+                    clearFlowSearch();
+                    searchInput.trigger("changed");
+                }
+            }
+
+            // Event for blur
+            searchInput.addEventListener('blur', function(e) {
+                setTimeout(clearFlowSearch, 500);
+            });
+        </script>
+}
+
+templ FlowFinderOOB(view FunnelFormView) {
+    <div id="form-flow-search" hx-ext="json-enc" hx-disinherit="*" hx-swap-oob="true">
+        <h3>
+          <span class="htmx-indicator">
+            Searching. . .
+          </span>
+        </h3>
+
+        <input name="funnelID" type="hidden" value={ view.ID } />
+
+        <div class="pb-3 form-floating">
+            <input id="flow-search-input" name="search" class="form-control rounded-pill" type="search"
+                autocomplete="off"
+                placeholder="Search"
+                hx-trigger="input changed delay:500ms, search"
+                hx-post="/funnels/search-flows"
+                hx-target="#flow-search-results"
+                hx-indicator=".htmx-indicator"
+            />
+            <label for="flow-search-input">
+                <span>Press &lt;space&gt; or start typing</span>
+                <span class="ms-1 d-none d-lg-inline"> to search for flows to add</span>
+            </label>
+        </div>
+
+        <table id="flow-search-results-table"
+            class="table table-striped table-hover bg-secondary-subtle"
+            cellspacing="0" cellpadding="0">
+            <tbody id="flow-search-results">
+            </tbody>
+        </table>
+        </div>
+        <script hx-script="true">
+            const searchInput = document.getElementById("flow-search-input");
+            const clearFlowSearch = function() {
+                document.getElementById("flow-search-results").innerHTML = '';
+                searchInput.value = '';
+            }
+
+            searchInput.onkeyup = function(e) {
+                var key = e.key || e.charCode || e.keyCode || 0;
+                if (key === 13) {
+                    e.preventDefault();
+                    e.target.trigger("changed");
+                }
+
+                if (key === 'Escape') {
+                    e.preventDefault();
+                    clearFlowSearch();
+                    searchInput.trigger("changed");
+                }
+            }
+
+            // Event for blur
+            searchInput.addEventListener('blur', function(e) {
+                setTimeout(function() clearFlowSearch, 500);
+            });
+        </script>
+}
+
+templ FlowsList(view FlowSearchResultsView) {
+    <tbody id="flow-search-results" hx-swap-oob="true" class="border border-info">
+    for _, flow := range view.Flows {
+        <tr class="fade-out p-2">
+            <th scope="row"
+                class="pt-3 clickable"
+                hx-post={ "/funnels/"+view.FunnelID+"/flows/"+flow.ID }
+                hx-target="#funnel-flows"
+            >{ flow.Name }</th>
+        </tr>
+    }
+    </tbody>
+}
+

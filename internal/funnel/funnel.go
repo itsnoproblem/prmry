@@ -20,6 +20,7 @@ type WithFlows struct {
 }
 
 type Summary struct {
+	ID        string
 	Name      string
 	Path      string
 	FlowCount int

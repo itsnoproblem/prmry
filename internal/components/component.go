@@ -21,6 +21,7 @@ type Component interface {
 	SetTemplates(full, fragment templ.Component)
 	GetFullTemplate() templ.Component
 	GetFragmentTemplate() templ.Component
+	GetErrors() []ErrorView
 }
 
 type BaseComponent struct {
@@ -29,10 +30,15 @@ type BaseComponent struct {
 	templFragment templ.Component
 	user          *auth.User
 	requiresAuth  bool
+	Errors        []ErrorView
 }
 
 func (c *BaseComponent) SetUser(u *auth.User) {
 	c.user = u
+}
+
+func (c *BaseComponent) GetErrors() []ErrorView {
+	return c.Errors
 }
 
 func (c *BaseComponent) SetTemplates(full, fragment templ.Component) {
