@@ -20,6 +20,7 @@ type Service interface {
 	RemoveFlowsFromFunnel(ctx context.Context, funnelID string, flowIDs ...string) error
 	SearchFlows(ctx context.Context, userID, search string) ([]flow.Flow, error)
 	GetFunnelWithFlows(ctx context.Context, funnelID string) (funnel.WithFlows, error)
+	ExecuteFunnel(ctx context.Context, path, message string, payload map[string]string) (flow.Execution, error)
 }
 
 type createFunnelRequest struct {
@@ -359,5 +360,27 @@ func makeDeleteFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
 			Status:   http.StatusTemporaryRedirect,
 			Location: "/funnels",
 		}, nil
+	}
+}
+
+type executeFunnelRequest struct {
+	Path    string
+	Message string            `json:"message"`
+	Params  map[string]string `json:"params"`
+}
+
+func makeExecuteFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(executeFunnelRequest)
+		if !ok {
+			return nil, errors.New("funneling.makeExecuteFunnelEndpoint: invalid request")
+		}
+
+		exec, err := svc.ExecuteFunnel(ctx, req.Path, req.Message, req.Params)
+		if err != nil {
+			return nil, errors.Wrap(err, "funneling.makeExecuteFunnelEndpoint")
+		}
+
+		return exec, nil
 	}
 }

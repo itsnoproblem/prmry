@@ -4,17 +4,12 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"github.com/itsnoproblem/prmry/internal/funneling"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
+	"github.com/itsnoproblem/prmry/internal/funneling"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
@@ -22,6 +17,11 @@ import (
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 	openai "github.com/sashabaranov/go-openai"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"text/tabwriter"
 
 	"github.com/itsnoproblem/prmry/internal/accounting"
 	"github.com/itsnoproblem/prmry/internal/api"
@@ -145,7 +145,7 @@ func main() {
 	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
 	flowingService := flowing.NewService(flowsRepo)
-	funnelingService := funneling.NewService(funnelsRepo, flowsRepo)
+	funnelingService := funneling.NewService(funnelsRepo, flowsRepo, interactingService)
 
 	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
 	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)
@@ -164,6 +164,7 @@ func main() {
 	// API Transports
 	interactingAPITransport := interacting.JSONRouteHandler(interactingService, apiRenderer)
 	flowingAPITransport := flowing.JSONRouteHandler(flowingService, apiRenderer)
+	funnelingAPITransport := funneling.JSONRouteHandler(funnelingService, apiRenderer)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -195,6 +196,14 @@ func main() {
 	// API Routes
 	r.Group(interactingAPITransport)
 	r.Group(flowingAPITransport)
+	r.Group(funnelingAPITransport)
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		fmt.Fprintf(writer, "%s\t\t'%s'\thas %d middlewares\n", method, route, len(middlewares))
+		return nil
+	})
+	writer.Flush()
 
 	staticFS := http.FileServer(http.Dir("www/static"))
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))

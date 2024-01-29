@@ -3,10 +3,12 @@ package funneling
 import (
 	"context"
 	"fmt"
+	"github.com/google/martian/log"
 	"github.com/google/uuid"
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/funnel"
 	"github.com/pkg/errors"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -19,6 +21,7 @@ type FunnelsRepository interface {
 	AddFlowsToFunnel(ctx context.Context, funnelID string, flowIDs ...string) error
 	RemoveFlowsFromFunnel(ctx context.Context, funnelID string, flowIDs ...string) error
 	GetFunnel(ctx context.Context, id string) (funnel.Funnel, error)
+	GetFunnelByPath(ctx context.Context, path string) (funnel.Funnel, error)
 	GetFunnelSummariesForUser(ctx context.Context, userID string) ([]funnel.Summary, error)
 }
 
@@ -27,15 +30,21 @@ type FlowsRepository interface {
 	GetFlowsForFunnel(ctx context.Context, funnelID string) ([]flow.Flow, error)
 }
 
+type Executor interface {
+	ExecuteFlow(ctx context.Context, inputText, flowID string, params map[string]string) (exec flow.Execution, err error)
+}
+
 type service struct {
 	repo      FunnelsRepository
 	flowsRepo FlowsRepository
+	executor  Executor
 }
 
-func NewService(r FunnelsRepository, f FlowsRepository) *service {
+func NewService(r FunnelsRepository, f FlowsRepository, e Executor) *service {
 	return &service{
 		repo:      r,
 		flowsRepo: f,
+		executor:  e,
 	}
 }
 
@@ -138,6 +147,50 @@ func (s *service) GetFunnelWithFlows(ctx context.Context, funnelID string) (funn
 		Funnel: fnl,
 		Flows:  flows,
 	}, nil
+}
+
+func (s *service) GetFunnelByPathWithFlows(ctx context.Context, funnelID string) (funnel.WithFlows, error) {
+	fnl, err := s.repo.GetFunnelByPath(ctx, funnelID)
+	if err != nil {
+		return funnel.WithFlows{}, errors.Wrap(err, "funneling.GetFunnelWithFlows")
+	}
+
+	flows, err := s.flowsRepo.GetFlowsForFunnel(ctx, fnl.ID)
+	if err != nil {
+		return funnel.WithFlows{}, errors.Wrap(err, "funneling.GetFunnelWithFlows")
+	}
+
+	return funnel.WithFlows{
+		Funnel: fnl,
+		Flows:  flows,
+	}, nil
+}
+
+func (s *service) ExecuteFunnel(ctx context.Context, path, message string, payload map[string]string) (flow.Execution, error) {
+	fnl, err := s.GetFunnelByPathWithFlows(ctx, path)
+	if err != nil {
+		return flow.Execution{}, errors.Wrap(err, "funneling.ExecuteFunnel")
+	}
+
+	if len(fnl.Flows) == 0 {
+		return flow.Execution{}, nil
+	}
+
+	flows := fnl.Flows
+	rand.Shuffle(len(flows), func(i, j int) { flows[i], flows[j] = flows[j], flows[i] })
+
+	for _, flw := range flows {
+		result, err := s.executor.ExecuteFlow(ctx, message, flw.ID, payload)
+		if err != nil {
+			log.Errorf("funneling.ExecuteFunnel: failed to execute flow %s: %s", flw.ID, err)
+		}
+
+		if result.Executes {
+			return result, nil
+		}
+	}
+
+	return flow.Execution{}, nil
 }
 
 func normalizePath(path string) string {

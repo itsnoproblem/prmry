@@ -146,6 +146,38 @@ func (r *funnelsRepo) GetFunnel(ctx context.Context, id string) (funnel.Funnel, 
 	return funnel.Funnel{}, errors.New("sql.funnels.GetFunnel: no funnel found")
 }
 
+func (r *funnelsRepo) GetFunnelByPath(ctx context.Context, path string) (funnel.Funnel, error) {
+	sql := `
+		SELECT 
+		    f.id,
+		    f.user_id,
+		    f.name,
+		    f.path,
+		    f.created_at,
+		    f.updated_at
+		FROM funnels AS f
+		WHERE f.path = ?
+		LIMIT 1
+	`
+	result, err := r.db.QueryxContext(ctx, sql, path)
+	defer result.Close()
+	if err != nil {
+		return funnel.Funnel{}, errors.Wrap(err, "sql.funnels.GetFunnelByPath")
+	}
+
+	var row funnelRow
+	for result.Next() {
+
+		if err = result.StructScan(&row); err != nil {
+			return funnel.Funnel{}, errors.Wrap(err, "sql.funnels.GetFunnelByPath")
+		}
+
+		return row.toFunnel(), nil
+	}
+
+	return funnel.Funnel{}, errors.New("sql.funnels.GetFunnelByPath: no funnel found")
+}
+
 func (r *funnelsRepo) InsertFunnel(ctx context.Context, f funnel.Funnel) error {
 	newRow := newFunnelRow(f)
 

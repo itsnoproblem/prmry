@@ -150,6 +150,8 @@ func (s service) ExecuteFlow(ctx context.Context, inputText, flowID string, para
 	}
 
 	return flow.Execution{
+		FlowID:      flw.ID,
+		FlowName:    flw.Name,
 		Model:       flw.Model,
 		Temperature: flw.Temperature,
 		Executes:    true,
