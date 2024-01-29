@@ -54,7 +54,7 @@ func makeCreateFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
 		newFunnel := funnel.Funnel{
 			UserID: user.ID,
 			Name:   req.Name,
-			Path:   req.Path,
+			Path:   normalizePath(req.Path),
 		}
 
 		var err error
@@ -63,9 +63,9 @@ func makeCreateFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
 			return nil, errors.Wrap(err, "funneling.makeCreateFunnelEndpoint")
 		}
 
-		return funnel.WithFlows{
-			Funnel: newFunnel,
-			Flows:  make([]flow.Flow, 0),
+		return redirect.View{
+			Status:   http.StatusTemporaryRedirect,
+			Location: "/funnels/" + newFunnel.ID,
 		}, nil
 	}
 }
@@ -153,6 +153,7 @@ func makeSaveFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
 		funnelWithFlows := funnel.WithFlows{
 			Funnel: funnel.Funnel{
 				UserID: user.ID,
+				ID:     req.ID,
 				Name:   req.Name,
 				Path:   req.Path,
 			},
@@ -171,6 +172,9 @@ func makeSaveFunnelEndpoint(svc Service) internalhttp.HandlerFunc {
 			if err != nil {
 				return funnel.WithFlows{}, errors.Wrap(err, "funneling.makeSaveFunnelEndpoint")
 			}
+
+			funnelWithFlows.Name = req.Name
+			funnelWithFlows.Path = req.Path
 
 			err = svc.UpdateFunnel(ctx, funnelWithFlows.Funnel)
 		}

@@ -200,7 +200,42 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"funnel-flows\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script hx-script=\"true\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var9 := `
+        (() => {
+            const searchInput = document.getElementById("flow-search-input");
+            const clearFlowSearch = function() {
+                document.getElementById("flow-search-results").innerHTML = '';
+                searchInput.value = '';
+            }
+
+            searchInput.onkeyup = function(e) {
+                var key = e.key || e.charCode || e.keyCode || 0;
+                if (key === 13) {
+                    e.preventDefault();
+                    e.target.trigger("changed");
+                }
+
+                if (key === 'Escape') {
+                    e.preventDefault();
+                    clearFlowSearch();
+                    searchInput.trigger("changed");
+                }
+            }
+
+            searchInput.addEventListener('blur', function(e) {
+                setTimeout(clearFlowSearch, 500);
+            });
+        })();
+    `
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><div id=\"funnel-flows\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -209,8 +244,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var9 := `Name`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			templ_7745c5c3_Var10 := `Name`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,8 +253,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var10 := `Actions`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			templ_7745c5c3_Var11 := `Actions`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -232,12 +267,12 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(flow.Name)
+				var templ_7745c5c3_Var12 string
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(flow.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/funnel/builder.templ`, Line: 86, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/funnel/builder.templ`, Line: 113, Col: 63}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -261,8 +296,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Var12 := `Remove`
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+				templ_7745c5c3_Var13 := `Remove`
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -280,8 +315,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var13 := `No flows`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			templ_7745c5c3_Var14 := `No flows`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -289,8 +324,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var14 := `This funnel has no flows. Add a flow to`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			templ_7745c5c3_Var15 := `This funnel has no flows. Add a flow to`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -298,8 +333,8 @@ func FunnelFlows(view FunnelFormView, isOOB bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Var15 := `get started.`
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			templ_7745c5c3_Var16 := `get started.`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -327,17 +362,17 @@ func FlowFinderInBand(view FunnelFormView, isOOB bool) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var16 == nil {
-			templ_7745c5c3_Var16 = templ.NopComponent
+		templ_7745c5c3_Var17 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var17 == nil {
+			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"form-flow-search\" hx-ext=\"json-enc\" hx-disinherit=\"*\"><h3><span class=\"htmx-indicator\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var17 := `Searching. . .`
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+		templ_7745c5c3_Var18 := `Searching. . .`
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -353,8 +388,8 @@ func FlowFinderInBand(view FunnelFormView, isOOB bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var18 := `Press &lt;space&gt; or start typing`
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+		templ_7745c5c3_Var19 := `Press &lt;space&gt; or start typing`
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -362,46 +397,12 @@ func FlowFinderInBand(view FunnelFormView, isOOB bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var19 := `to search for flows to add`
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></label></div><table id=\"flow-search-results-table\" class=\"table table-striped table-hover bg-secondary-subtle\" cellspacing=\"0\" cellpadding=\"0\"><tbody id=\"flow-search-results\"></tbody></table></div><script hx-script=\"true\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var20 := `
-            const searchInput = document.getElementById("flow-search-input");
-            const clearFlowSearch = function() {
-                document.getElementById("flow-search-results").innerHTML = '';
-                searchInput.value = '';
-            }
-
-            searchInput.onkeyup = function(e) {
-                var key = e.key || e.charCode || e.keyCode || 0;
-                if (key === 13) {
-                    e.preventDefault();
-                    e.target.trigger("changed");
-                }
-
-                if (key === 'Escape') {
-                    e.preventDefault();
-                    clearFlowSearch();
-                    searchInput.trigger("changed");
-                }
-            }
-
-            // Event for blur
-            searchInput.addEventListener('blur', function(e) {
-                setTimeout(clearFlowSearch, 500);
-            });
-        `
+		templ_7745c5c3_Var20 := `to search for flows to add`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></label></div><table id=\"flow-search-results-table\" class=\"table table-striped table-hover bg-secondary-subtle\" cellspacing=\"0\" cellpadding=\"0\"><tbody id=\"flow-search-results\"></tbody></table></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -460,41 +461,7 @@ func FlowFinderOOB(view FunnelFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></label></div><table id=\"flow-search-results-table\" class=\"table table-striped table-hover bg-secondary-subtle\" cellspacing=\"0\" cellpadding=\"0\"><tbody id=\"flow-search-results\"></tbody></table></div><script hx-script=\"true\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var25 := `
-            const searchInput = document.getElementById("flow-search-input");
-            const clearFlowSearch = function() {
-                document.getElementById("flow-search-results").innerHTML = '';
-                searchInput.value = '';
-            }
-
-            searchInput.onkeyup = function(e) {
-                var key = e.key || e.charCode || e.keyCode || 0;
-                if (key === 13) {
-                    e.preventDefault();
-                    e.target.trigger("changed");
-                }
-
-                if (key === 'Escape') {
-                    e.preventDefault();
-                    clearFlowSearch();
-                    searchInput.trigger("changed");
-                }
-            }
-
-            // Event for blur
-            searchInput.addEventListener('blur', function(e) {
-                setTimeout(function() clearFlowSearch, 500);
-            });
-        `
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></label></div><table id=\"flow-search-results-table\" class=\"table table-striped table-hover bg-secondary-subtle\" cellspacing=\"0\" cellpadding=\"0\"><tbody id=\"flow-search-results\"></tbody></table></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -513,9 +480,9 @@ func FlowsList(view FlowSearchResultsView) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var26 == nil {
-			templ_7745c5c3_Var26 = templ.NopComponent
+		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var25 == nil {
+			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tbody id=\"flow-search-results\" hx-swap-oob=\"true\" class=\"border border-info\">")
@@ -535,12 +502,12 @@ func FlowsList(view FlowSearchResultsView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(flow.Name)
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(flow.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/funnel/builder.templ`, Line: 247, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/components/funnel/builder.templ`, Line: 223, Col: 24}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

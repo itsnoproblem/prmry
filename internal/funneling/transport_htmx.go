@@ -72,7 +72,7 @@ func RouteHandler(svc Service, renderer Renderer) func(chi.Router) {
 	createFunnelEndpoint := internalhttp.NewHTMXEndpoint(
 		makeCreateFunnelEndpoint(svc),
 		decodeCreateFunnelRequest,
-		formatFunnelBuilderResponse,
+		formatRedirectResponse,
 		auth.Required,
 	)
 

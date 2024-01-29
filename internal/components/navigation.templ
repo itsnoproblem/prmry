@@ -109,8 +109,8 @@ templ ProfileNavButton(cmp Component) {
 
 templ UserNavigation(cmp Component) {
     <ul class="navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end">
-        <li class="nav-item text-center-lg ms-4">
-            <a class="nav-link d-block text-center-lg"
+        <li class="nav-item text-lg-center ms-4">
+            <a class="nav-link d-block text-lg-center"
                title="Flows"
                hx-get="/flows"
                hx-target="#content-root"
@@ -123,8 +123,8 @@ templ UserNavigation(cmp Component) {
                 <div class="d-none d-lg-block smaller">flows</div>
             </a>
         </li>
-        <li class="nav-item text-center-lg ms-4">
-            <a class="nav-link d-block text-center-lg"
+        <li class="nav-item text-lg-center ms-4">
+            <a class="nav-link d-block text-lg-center"
                title="Funnels"
                hx-get="/funnels"
                hx-target="#content-root"
@@ -137,22 +137,22 @@ templ UserNavigation(cmp Component) {
                 <div class="d-none d-lg-block smaller">funnels</div>
             </a>
         </li>
-        <li class="nav-item text-center-lg ms-4">
-            <a class="nav-link d-block text-center-lg"
-               title="Create"
+        <li class="nav-item text-lg-center ms-4">
+            <a class="nav-link d-block text-lg-center"
+               title="Generate"
                hx-get="/interactions/chat"
                hx-target="#content-root"
                hx-push-url="true"
                data-bs-toggle="collapse"
                data-bs-target=".navbar-collapse.show"
             >
-                <span class="d-lg-none smaller pe-3">create</span>
+                <span class="d-lg-none smaller pe-3">generate</span>
                 <i class="fa fa-bolt fa-2x pb-2" aria-hidden="true"></i>
-                <div class="d-none d-lg-block smaller">create</div>
+                <div class="d-none d-lg-block smaller">generate</div>
             </a>
         </li>
-        <li class="nav-item text-center-lg ms-4">
-            <a class="nav-link d-block text-center-lg"
+        <li class="nav-item text-lg-center ms-4">
+            <a class="nav-link d-block text-lg-center"
                title="History"
                hx-get="/interactions"
                hx-target="#content-root"

@@ -7,6 +7,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/flow"
 	"github.com/itsnoproblem/prmry/internal/funnel"
 	"github.com/pkg/errors"
+	"strings"
 	"time"
 )
 
@@ -47,16 +48,17 @@ func (s *service) SearchFlows(ctx context.Context, userID, search string) ([]flo
 	return flows, nil
 }
 
-func (s *service) CreateFunnel(ctx context.Context, funnel funnel.Funnel) (string, error) {
-	funnel.ID = uuid.NewString()
-	funnel.CreatedAt = time.Now()
-	funnel.UpdatedAt = funnel.CreatedAt
+func (s *service) CreateFunnel(ctx context.Context, fnl funnel.Funnel) (string, error) {
+	fnl.ID = uuid.NewString()
+	fnl.CreatedAt = time.Now()
+	fnl.UpdatedAt = fnl.CreatedAt
+	fnl.Path = normalizePath(fnl.Path)
 
-	if err := s.repo.InsertFunnel(ctx, funnel); err != nil {
+	if err := s.repo.InsertFunnel(ctx, fnl); err != nil {
 		return "", errors.Wrap(err, "funneling.CreateFunnel")
 	}
 
-	return funnel.ID, nil
+	return fnl.ID, nil
 }
 
 func (s *service) UpdateFunnel(ctx context.Context, fnl funnel.Funnel) error {
@@ -68,6 +70,7 @@ func (s *service) UpdateFunnel(ctx context.Context, fnl funnel.Funnel) error {
 	fnl.UpdatedAt = time.Now()
 	fnl.CreatedAt = existing.CreatedAt
 	fnl.UserID = existing.UserID
+	fnl.Path = normalizePath(fnl.Path)
 
 	if err := s.repo.UpdateFunnel(ctx, fnl); err != nil {
 		return errors.Wrap(err, "funneling.UpdateFunnel")
@@ -135,4 +138,10 @@ func (s *service) GetFunnelWithFlows(ctx context.Context, funnelID string) (funn
 		Funnel: fnl,
 		Flows:  flows,
 	}, nil
+}
+
+func normalizePath(path string) string {
+	path = strings.TrimPrefix(path, "/")
+	path = strings.TrimSuffix(path, "/")
+	return path
 }

@@ -234,7 +234,7 @@ func UserNavigation(cmp Component) templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end\"><li class=\"nav-item text-center-lg ms-4\"><a class=\"nav-link d-block text-center-lg\" title=\"Flows\" hx-get=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul class=\"navbar-nav me-auto mb-2 mt-2 mb-lg-0 text-end\"><li class=\"nav-item text-lg-center ms-4\"><a class=\"nav-link d-block text-lg-center\" title=\"Flows\" hx-get=\"/flows\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -252,7 +252,7 @@ func UserNavigation(cmp Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-center-lg ms-4\"><a class=\"nav-link d-block text-center-lg\" title=\"Funnels\" hx-get=\"/funnels\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-lg-center ms-4\"><a class=\"nav-link d-block text-lg-center\" title=\"Funnels\" hx-get=\"/funnels\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -270,11 +270,11 @@ func UserNavigation(cmp Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-center-lg ms-4\"><a class=\"nav-link d-block text-center-lg\" title=\"Create\" hx-get=\"/interactions/chat\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-lg-center ms-4\"><a class=\"nav-link d-block text-lg-center\" title=\"Generate\" hx-get=\"/interactions/chat\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var19 := `create`
+		templ_7745c5c3_Var19 := `generate`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -283,12 +283,12 @@ func UserNavigation(cmp Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var20 := `create`
+		templ_7745c5c3_Var20 := `generate`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-center-lg ms-4\"><a class=\"nav-link d-block text-center-lg\" title=\"History\" hx-get=\"/interactions\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a></li><li class=\"nav-item text-lg-center ms-4\"><a class=\"nav-link d-block text-lg-center\" title=\"History\" hx-get=\"/interactions\" hx-target=\"#content-root\" hx-push-url=\"true\" data-bs-toggle=\"collapse\" data-bs-target=\".navbar-collapse.show\"><span class=\"d-lg-none smaller pe-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -70,6 +70,33 @@ templ FunnelFlows(view FunnelFormView, isOOB bool) {
         @FlowFinderInBand(view, isOOB)
     }
 
+    <script hx-script="true">
+        (() => {
+            const searchInput = document.getElementById("flow-search-input");
+            const clearFlowSearch = function() {
+                document.getElementById("flow-search-results").innerHTML = '';
+                searchInput.value = '';
+            }
+
+            searchInput.onkeyup = function(e) {
+                var key = e.key || e.charCode || e.keyCode || 0;
+                if (key === 13) {
+                    e.preventDefault();
+                    e.target.trigger("changed");
+                }
+
+                if (key === 'Escape') {
+                    e.preventDefault();
+                    clearFlowSearch();
+                    searchInput.trigger("changed");
+                }
+            }
+
+            searchInput.addEventListener('blur', function(e) {
+                setTimeout(clearFlowSearch, 500);
+            });
+        })();
+    </script>
     <div id="funnel-flows">
         if len(view.Flows) > 0 {
             <div class="row mb-3">
@@ -148,33 +175,8 @@ templ FlowFinderInBand(view FunnelFormView, isOOB bool) {
             <tbody id="flow-search-results">
             </tbody>
         </table>
-        </div>
-        <script hx-script="true">
-            const searchInput = document.getElementById("flow-search-input");
-            const clearFlowSearch = function() {
-                document.getElementById("flow-search-results").innerHTML = '';
-                searchInput.value = '';
-            }
+    </div>
 
-            searchInput.onkeyup = function(e) {
-                var key = e.key || e.charCode || e.keyCode || 0;
-                if (key === 13) {
-                    e.preventDefault();
-                    e.target.trigger("changed");
-                }
-
-                if (key === 'Escape') {
-                    e.preventDefault();
-                    clearFlowSearch();
-                    searchInput.trigger("changed");
-                }
-            }
-
-            // Event for blur
-            searchInput.addEventListener('blur', function(e) {
-                setTimeout(clearFlowSearch, 500);
-            });
-        </script>
 }
 
 templ FlowFinderOOB(view FunnelFormView) {
@@ -208,33 +210,7 @@ templ FlowFinderOOB(view FunnelFormView) {
             <tbody id="flow-search-results">
             </tbody>
         </table>
-        </div>
-        <script hx-script="true">
-            const searchInput = document.getElementById("flow-search-input");
-            const clearFlowSearch = function() {
-                document.getElementById("flow-search-results").innerHTML = '';
-                searchInput.value = '';
-            }
-
-            searchInput.onkeyup = function(e) {
-                var key = e.key || e.charCode || e.keyCode || 0;
-                if (key === 13) {
-                    e.preventDefault();
-                    e.target.trigger("changed");
-                }
-
-                if (key === 'Escape') {
-                    e.preventDefault();
-                    clearFlowSearch();
-                    searchInput.trigger("changed");
-                }
-            }
-
-            // Event for blur
-            searchInput.addEventListener('blur', function(e) {
-                setTimeout(function() clearFlowSearch, 500);
-            });
-        </script>
+    </div>
 }
 
 templ FlowsList(view FlowSearchResultsView) {

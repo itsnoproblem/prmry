@@ -55,6 +55,7 @@ func formatListFunnelsResponse(ctx context.Context, response interface{}) (compo
 	cmp := funnelcmp.FunnelsListView{
 		Funnels: funnelcmp.NewFunnelSummaryView(res),
 	}
+	cmp.SetUser(auth.UserFromContext(ctx))
 	cmp.SetTemplates(funnelcmp.FunnelsListPage(cmp), funnelcmp.FunnelsList(cmp))
 
 	return &cmp, nil
@@ -67,6 +68,7 @@ func formatSearchFlowsResponse(ctx context.Context, response interface{}) (compo
 	}
 
 	cmp := funnelcmp.NewFlowSearchResultsView(res.FunnelID, res.Flows)
+	cmp.SetUser(auth.UserFromContext(ctx))
 	cmp.SetTemplates(funnelcmp.FlowsList(cmp), funnelcmp.FlowsList(cmp))
 
 	return &cmp, nil
@@ -83,6 +85,7 @@ func formatAddFlowToFunnelResponse(ctx context.Context, response interface{}) (c
 		return &components.BaseComponent{}, fmt.Errorf("formatAddFlowToFunnelResponse: %w", err)
 	}
 
+	cmp.SetUser(auth.UserFromContext(ctx))
 	return cmp, nil
 }
 
@@ -97,6 +100,7 @@ func formatRemoveFlowFromFunnelResponse(ctx context.Context, response interface{
 		return &components.BaseComponent{}, fmt.Errorf("formatRemoveFlowFromFunnelResponse: %w", err)
 	}
 
+	cmp.SetUser(auth.UserFromContext(ctx))
 	return cmp, nil
 }
 
