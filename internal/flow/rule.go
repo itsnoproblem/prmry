@@ -1,81 +1,81 @@
 package flow
 
 import (
-	"fmt"
-	"strings"
+    "fmt"
+    "strings"
 )
 
 const (
-	ConditionTypeEquals      ConditionType = "equals"
-	ConditionTypeNotEquals   ConditionType = "does not equal"
-	ConditionTypeContains    ConditionType = "contains"
-	ConditionTypeNotContains ConditionType = "does not contain"
-	ConditionTypeStartsWith  ConditionType = "starts with"
-	ConditionTypeEndsWith    ConditionType = "ends with"
+    ConditionTypeEquals      ConditionType = "equals"
+    ConditionTypeNotEquals   ConditionType = "does not equal"
+    ConditionTypeContains    ConditionType = "contains"
+    ConditionTypeNotContains ConditionType = "does not contain"
+    ConditionTypeStartsWith  ConditionType = "starts with"
+    ConditionTypeEndsWith    ConditionType = "ends with"
 )
 
 type ConditionType string
 
 func (t ConditionType) String() string {
-	return string(t)
+    return string(t)
 }
 
 type Trigger struct {
-	Field     Field
-	Condition ConditionType
-	Value     string
+    Field     Field
+    Condition ConditionType
+    Value     string
 }
 
 func (r Trigger) String() string {
-	fieldDescription := r.Field.Source.String() + " " + r.Field.Value
-	return fmt.Sprintf("%s %s %s", fieldDescription, r.Condition, r.Value)
+    fieldDescription := r.Field.Source.String() + " " + r.Field.Value
+    return fmt.Sprintf("%s %s %s", fieldDescription, r.Condition, r.Value)
 }
 
 func (c Trigger) Matches(field string) (bool, error) {
-	matches := false
-	fld := strings.ToLower(field)
-	val := strings.ToLower(c.Value)
+    matches := false
+    fld := strings.ToLower(field)
+    val := strings.ToLower(c.Value)
 
-	for strings.HasPrefix(val, "\n") {
-		val = strings.TrimPrefix(val, "\n")
-	}
-	for strings.HasPrefix(fld, "\n") {
-		fld = strings.TrimPrefix(fld, "\n")
-	}
+    for strings.HasPrefix(val, "\n") {
+        val = strings.TrimPrefix(val, "\n")
+    }
+    for strings.HasPrefix(fld, "\n") {
+        fld = strings.TrimPrefix(fld, "\n")
+    }
 
-	switch c.Condition {
-	case ConditionTypeContains:
-		matches = strings.Contains(fld, val)
-		break
-	case ConditionTypeNotContains:
-		matches = !strings.Contains(fld, val)
-		break
-	case ConditionTypeEquals:
-		matches = fld == val
-		break
-	case ConditionTypeNotEquals:
-		matches = fld != val
-		break
-	case ConditionTypeStartsWith:
-		matches = strings.HasPrefix(fld, val)
-		break
-	case ConditionTypeEndsWith:
-		matches = strings.HasSuffix(fld, val)
-		break
-	default:
-		return false, fmt.Errorf("Trigger.Matches: unknown condition type: %s", c.Condition)
-	}
+    switch c.Condition {
+    case ConditionTypeContains:
+        matches = strings.Contains(fld, val)
+        break
+    case ConditionTypeNotContains:
+        matches = !strings.Contains(fld, val)
+        break
+    case ConditionTypeEquals:
+        matches = fld == val
+        break
+    case ConditionTypeNotEquals:
+        matches = fld != val
+        break
+    case ConditionTypeStartsWith:
+        matches = strings.HasPrefix(fld, val)
+        break
+    case ConditionTypeEndsWith:
+        matches = strings.HasSuffix(fld, val)
+        break
+    default:
+        return false, fmt.Errorf("Trigger.Matches: unknown condition type: %s", c.Condition)
+    }
 
-	return matches, nil
+    return matches, nil
 }
 
 func SupportedConditions() map[string]string {
-	return map[string]string{
-		ConditionTypeContains.String():    ConditionTypeContains.String(),
-		ConditionTypeNotContains.String(): ConditionTypeNotContains.String(),
-		ConditionTypeEquals.String():      ConditionTypeEquals.String(),
-		ConditionTypeNotEquals.String():   ConditionTypeNotEquals.String(),
-		ConditionTypeStartsWith.String():  ConditionTypeStartsWith.String(),
-		ConditionTypeEndsWith.String():    ConditionTypeEndsWith.String(),
-	}
+    return map[string]string{
+        ConditionTypeContains.String():    ConditionTypeContains.String(),
+        ConditionTypeNotContains.String(): ConditionTypeNotContains.String(),
+        ConditionTypeEquals.String():      ConditionTypeEquals.String(),
+        ConditionTypeNotEquals.String():   ConditionTypeNotEquals.String(),
+        ConditionTypeStartsWith.String():  ConditionTypeStartsWith.String(),
+        ConditionTypeEndsWith.String():    ConditionTypeEndsWith.String(),
+    }
 }
