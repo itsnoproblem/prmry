@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-create table funnels
+create table `funnels`
 (
     id         varchar(36) not null default '',
     user_id    varchar(36)  not null default '',
@@ -13,22 +13,12 @@ create table funnels
     constraint idx_path
         unique key (path),
     key idx_user_path (user_id, path)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB;
 
-create table funnel_flows
-(
-    funnel_id   varchar(36)  not null default '',
-    flow_id    varchar(36)  not null default '',
-    created_at datetime     not null default CURRENT_TIMESTAMP,
-    constraint funnel_flows_pk
-        primary key (funnel_id, flow_id),
-    key `idx_funnel_id` (funnel_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 drop table `funnels`;
-drop table `funnel_flows`;
 -- +goose StatementEnd
