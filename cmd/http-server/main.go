@@ -4,12 +4,17 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strings"
+	"text/tabwriter"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
-	"github.com/itsnoproblem/prmry/internal/funneling"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/markbates/goth"
@@ -17,11 +22,6 @@ import (
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 	openai "github.com/sashabaranov/go-openai"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-	"text/tabwriter"
 
 	"github.com/itsnoproblem/prmry/internal/accounting"
 	"github.com/itsnoproblem/prmry/internal/api"
@@ -29,6 +29,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/authenticating"
 	"github.com/itsnoproblem/prmry/internal/envvars"
 	"github.com/itsnoproblem/prmry/internal/flowing"
+	"github.com/itsnoproblem/prmry/internal/funneling"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 	"github.com/itsnoproblem/prmry/internal/interacting"
 	"github.com/itsnoproblem/prmry/internal/prmrying"
@@ -144,8 +145,8 @@ func main() {
 	accountingService := accounting.NewService(&usersRepo)
 	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
-	flowingService := flowing.NewService(flowsRepo)
 	funnelingService := funneling.NewService(funnelsRepo, flowsRepo, interactingService)
+	flowingService := flowing.NewService(flowsRepo, funnelsRepo, appConfig.AppURL)
 
 	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
 	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)

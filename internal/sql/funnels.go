@@ -114,6 +114,43 @@ func (r *funnelsRepo) GetFunnelSummariesForUser(ctx context.Context, userID stri
 	return funnels, nil
 }
 
+func (r *funnelsRepo) GetFunnelsForFlow(ctx context.Context, flowID string) ([]funnel.Funnel, error) {
+	sql := `
+		SELECT 
+		    f.id,
+		    f.user_id,
+		    f.name,
+		    f.path,
+		    f.created_at,
+		    f.updated_at
+		FROM funnel_flows AS ff
+		INNER JOIN funnels AS f ON f.id = ff.funnel_id
+		WHERE ff.flow_id = ?
+		ORDER BY f.updated_at DESC
+	`
+	result, err := r.db.QueryxContext(ctx, sql, flowID)
+	if err != nil {
+		return nil, errors.Wrap(err, "sql.funnels.GetFunnelsForFlow")
+	}
+	defer result.Close()
+
+	rows := make([]funnelRow, 0)
+	for result.Next() {
+		var row funnelRow
+		if err = result.StructScan(&row); err != nil {
+			return nil, errors.Wrap(err, "sql.funnels.GetFunnelsForFlow")
+		}
+		rows = append(rows, row)
+	}
+
+	funnels := make([]funnel.Funnel, len(rows))
+	for i, row := range rows {
+		funnels[i] = row.toFunnel()
+	}
+
+	return funnels, nil
+}
+
 func (r *funnelsRepo) GetFunnel(ctx context.Context, id string) (funnel.Funnel, error) {
 	sql := `
 		SELECT 

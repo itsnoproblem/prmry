@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/itsnoproblem/prmry/internal/funnel"
 	"github.com/pkg/errors"
 
 	"github.com/itsnoproblem/prmry/internal/auth"
@@ -25,6 +26,8 @@ type Service interface {
 	DeleteFlow(ctx context.Context, flowID string) error
 	GetFlow(ctx context.Context, flowID string) (flow.Flow, error)
 	GetFlowsForUser(ctx context.Context, userID string) ([]flow.Flow, error)
+	GetFunnelsForFlow(ctx context.Context, flowID string) ([]funnel.Funnel, error)
+	APIURL() string
 }
 
 func makeListFlowsEndpoint(svc Service) internalhttp.HandlerFunc {
@@ -72,6 +75,20 @@ func makeFlowBuilderEndpoint(svc Service) internalhttp.HandlerFunc {
 		cmp.SetAvalableFlows(flows)
 		cmp.SetUser(&user)
 		cmp.SelectedTab = req.SelectedTab
+		cmp.FlowURL = svc.APIURL() + "/flows/" + req.ID
+
+		associatedFunnels, err := svc.GetFunnelsForFlow(ctx, req.ID)
+		if err != nil {
+			return nil, errors.Wrap(err, "makeFlowBuilderEndpoint")
+		}
+
+		cmp.Funnels = make([]flowcmp.Funnel, 0)
+		for _, fnl := range associatedFunnels {
+			cmp.Funnels = append(cmp.Funnels, flowcmp.Funnel{
+				Name: fnl.Name,
+				URL:  svc.APIURL() + "/funnels/" + fnl.Path,
+			})
+		}
 
 		fullPage := flowcmp.FlowBuilderPage(cmp)
 		fragment := flowcmp.FlowBuilder(cmp)
@@ -123,7 +140,21 @@ func makeEditFlowFormEndpoint(svc Service) internalhttp.HandlerFunc {
 
 		cmp.SupportedFields = flow.SupportedFields()
 		cmp.SupportedConditions = flow.SupportedConditions()
+		cmp.FlowURL = svc.APIURL() + "/flows/" + req.FlowID
 		cmp.SelectedTab = req.SelectedTab
+
+		associatedFunnels, err := svc.GetFunnelsForFlow(ctx, req.FlowID)
+		if err != nil {
+			return nil, errors.Wrap(err, "makeEditFlowFormEndpoint")
+		}
+
+		cmp.Funnels = make([]flowcmp.Funnel, 0)
+		for _, fnl := range associatedFunnels {
+			cmp.Funnels = append(cmp.Funnels, flowcmp.Funnel{
+				Name: fnl.Name,
+				URL:  svc.APIURL() + "/funnels/" + fnl.Path,
+			})
+		}
 
 		return flowBuilderResponse{
 			Form: cmp,

@@ -2,7 +2,7 @@ package flow
 
 const (
 	FieldSourceInput      SourceType = "input message"
-	FieldSourceInputArg   SourceType = "input tag"
+	FieldSourceInputArg   SourceType = "input parameter"
 	FieldSourceFlow       SourceType = "interaction result from another flow"
 	FieldSourceModeration SourceType = "moderation result"
 )

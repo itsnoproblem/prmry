@@ -641,3 +641,42 @@ label[for="flow-search-input"] {
     border-collapse: separate;
     border-radius: 1em;
 }
+
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+pre[class*="language-"] {
+    position: relative;
+    overflow: auto;
+    margin: 5px 0;
+    padding: 1.75em 0 1.75em 1em;
+    border-radius: 10px;
+}
+
+pre[class*="language-"] button {
+    position: absolute;
+    font-size: 0.9em;
+    padding: 0.15em;
+    background-color: #828282;
+
+    border: ridge 1px #7b7b7c;
+    border-radius: 1em;
+    text-shadow: #c4c4c4 0 0 2px;
+    margin: 1em;
+    top: 1em;
+    right: 1em;
+
+}
+
+pre[class*="language-"] button:hover {
+    cursor: pointer;
+    background-color: #343a40;
+}
+
+pre.copy>button {
+
+}

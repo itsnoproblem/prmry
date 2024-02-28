@@ -1,10 +1,12 @@
 package flow
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/itsnoproblem/prmry/internal/components"
 	"github.com/itsnoproblem/prmry/internal/flow"
-	"strconv"
 )
 
 const (
@@ -70,12 +72,33 @@ type Detail struct {
 	SelectedTab         string
 	RequireAll          bool
 	Prompt              string
+	FlowURL             string
 	PromptArgs          []PromptArg
+	Funnels             []Funnel
 	SupportedModels     components.SortedMap
 	SupportedFields     components.SortedMap
 	SupportedConditions components.SortedMap
 	AvailableFlowsByID  components.SortedMap
 	InputParams         InputParams
+}
+
+type Funnel struct {
+	Name string
+	URL  string
+}
+
+type APIPayload struct {
+	Params  map[string]string `json:"params"`
+	Message string            `json:"message"`
+}
+
+func (d *Detail) APIPayload() string {
+	p := APIPayload{
+		Params:  d.InputParams.Map(),
+		Message: "The quick brown fox jumps over the lazy dog",
+	}
+	byt, _ := json.MarshalIndent(p, "", "    ")
+	return string(byt)
 }
 
 func (d *Detail) AvailableTags() components.SortedMap {
