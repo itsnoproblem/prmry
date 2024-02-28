@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -28,6 +29,7 @@ import (
 	"github.com/itsnoproblem/prmry/internal/authenticating"
 	"github.com/itsnoproblem/prmry/internal/envvars"
 	"github.com/itsnoproblem/prmry/internal/flowing"
+	"github.com/itsnoproblem/prmry/internal/funneling"
 	"github.com/itsnoproblem/prmry/internal/htmx"
 	"github.com/itsnoproblem/prmry/internal/interacting"
 	"github.com/itsnoproblem/prmry/internal/prmrying"
@@ -138,11 +140,13 @@ func main() {
 	interactionsRepo := sql.NewInteractionsRepo(db)
 	moderationsRepo := sql.NewModerationsRepo(db)
 	flowsRepo := sql.NewFlowsRepository(db)
+	funnelsRepo := sql.NewFunnelsRepository(db)
 
 	accountingService := accounting.NewService(&usersRepo)
 	authService := authenticating.NewService(&usersRepo)
 	interactingService := interacting.NewService(gptClient, &interactionsRepo, &moderationsRepo, flowsRepo)
-	flowingService := flowing.NewService(flowsRepo)
+	funnelingService := funneling.NewService(funnelsRepo, flowsRepo, interactingService)
+	flowingService := flowing.NewService(flowsRepo, funnelsRepo, appConfig.AppURL)
 
 	// TODO: replace this shortcut OAuth implementation that uses goth / gothic
 	authResource, err := authenticating.NewResource(renderer, appConfig.AuthSecret, authService)
@@ -155,11 +159,13 @@ func main() {
 	flowingTransport := flowing.RouteHandler(flowingService, renderer)
 	staticTransport := prmrying.RouteHandler(renderer)
 	accountingTransport := accounting.RouteHandler(accountingService, renderer)
+	funnelingTransport := funneling.RouteHandler(funnelingService, renderer)
 	authenticatingTransport := authResource.RouteHandler()
 
 	// API Transports
 	interactingAPITransport := interacting.JSONRouteHandler(interactingService, apiRenderer)
 	flowingAPITransport := flowing.JSONRouteHandler(flowingService, apiRenderer)
+	funnelingAPITransport := funneling.JSONRouteHandler(funnelingService, apiRenderer)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -181,15 +187,24 @@ func main() {
 	}
 
 	// UI Routes
+	r.Group(staticTransport)
 	r.Group(authenticatingTransport)
 	r.Group(accountingTransport)
 	r.Group(interactingTransport)
 	r.Group(flowingTransport)
-	r.Group(staticTransport)
+	r.Group(funnelingTransport)
 
 	// API Routes
 	r.Group(interactingAPITransport)
 	r.Group(flowingAPITransport)
+	r.Group(funnelingAPITransport)
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		fmt.Fprintf(writer, "%s\t\t'%s'\thas %d middlewares\n", method, route, len(middlewares))
+		return nil
+	})
+	writer.Flush()
 
 	staticFS := http.FileServer(http.Dir("www/static"))
 	wellknownFS := http.FileServer(http.Dir("www/.well-known"))

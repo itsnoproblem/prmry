@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/pkg/errors"
@@ -37,6 +38,20 @@ func (rnd *renderer) Render(w http.ResponseWriter, r *http.Request, cmp componen
 		if tmpl == nil {
 			return errors.New("htmx.Render: missing fragment template")
 		}
+
+		allErrors := cmp.GetErrors()
+		if len(allErrors) > 0 {
+			errs := make([]string, len(allErrors))
+			for i, err := range allErrors {
+				errs[i] = err.Error
+				errTempl := components.Error(err)
+				errTempl.Render(r.Context(), newHTMLWriter(w))
+			}
+			w.Header().Set("HX-Trigger", "error")
+			w.Header().Set("HX-Trigger-Error", strings.Join(errs, ","))
+			return tmpl.Render(r.Context(), newHTMLWriter(w))
+		}
+
 		return tmpl.Render(r.Context(), newHTMLWriter(w))
 	}
 
@@ -60,7 +75,9 @@ func (rnd *renderer) RenderError(w http.ResponseWriter, r *http.Request, err err
 	view := components.NewErrorView(err.Error(), http.StatusInternalServerError)
 	ctx := r.Context()
 
-	//w.WriteHeader(view.Code)
+	//statusCode := view.Code
+	//statusCode := http.StatusInternalServerError
+	//w.WriteHeader(statusCode)
 
 	if IsHXRequest(ctx) {
 		components.Error(view).Render(ctx, newHTMLWriter(w))

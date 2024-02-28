@@ -66,6 +66,96 @@ func (r *repository) GetFlowsForUser(ctx context.Context, userID string) ([]flow
 	return flows, nil
 }
 
+func (r *repository) GetFlowsForFunnel(ctx context.Context, funnelID string) ([]flow.Flow, error) {
+	sql := `
+		SELECT 
+		    f.id,
+		    f.user_id,
+		    f.name,
+		    f.model,
+		    f.temperature,
+		    f.rules,
+		    f.require_all,
+		    f.prompt,
+		    f.prompt_args,
+		    f.inputs,
+		    f.created_at,
+		    f.updated_at
+		FROM flows AS f
+		INNER JOIN funnel_flows AS ff ON ff.flow_id = f.id
+		WHERE ff.funnel_id = ?
+		ORDER BY f.updated_at DESC
+	`
+	result, err := r.db.QueryxContext(ctx, sql, funnelID)
+	defer result.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "sql.flows.GetFlowsForFunnel")
+	}
+
+	rows := make([]flowsRow, 0)
+	for result.Next() {
+		var row flowsRow
+		if err = result.StructScan(&row); err != nil {
+			return nil, errors.Wrap(err, "sql.flows.GetFlowsForFunnel")
+		}
+		rows = append(rows, row)
+	}
+
+	flows := make([]flow.Flow, len(rows))
+	for i, row := range rows {
+		if flows[i], err = row.toFlow(); err != nil {
+			return nil, errors.Wrap(err, "sql.flows.GetFlowsForFunnel")
+		}
+	}
+
+	return flows, nil
+}
+
+func (r *repository) SearchFlows(ctx context.Context, userID, search string) ([]flow.Flow, error) {
+	sql := `
+		SELECT 
+		    id,
+		    user_id,
+		    name,
+		    model,
+		    temperature,
+		    rules,
+		    require_all,
+		    prompt,
+		    prompt_args,
+		    inputs,
+		    created_at,
+		    updated_at
+		FROM flows
+		WHERE user_id = ?
+		AND name LIKE ?
+		ORDER BY updated_at DESC
+	`
+	result, err := r.db.QueryxContext(ctx, sql, userID, "%"+search+"%")
+	defer result.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "sql.flows.SearchFlows")
+	}
+
+	rows := make([]flowsRow, 0)
+	for result.Next() {
+		var row flowsRow
+		if err = result.StructScan(&row); err != nil {
+			return nil, errors.Wrap(err, "sql.flows.SearchFlows")
+		}
+		rows = append(rows, row)
+	}
+
+	flows := make([]flow.Flow, len(rows))
+	for i, row := range rows {
+		if flows[i], err = row.toFlow(); err != nil {
+			return nil, errors.Wrap(err, "sql.flows.SearchFlows")
+		}
+	}
+
+	return flows, nil
+}
+
 func (r *repository) GetFlow(ctx context.Context, flowID string) (flow.Flow, error) {
 	sql := `
 		SELECT 
@@ -220,7 +310,7 @@ func (r *repository) UpdateFlow(ctx context.Context, flw flow.Flow) error {
 	return nil
 }
 
-func (r repository) DeleteFlow(ctx context.Context, flowID string) error {
+func (r *repository) DeleteFlow(ctx context.Context, flowID string) error {
 	sql := `
 		DELETE FROM flows WHERE id = ?
 	`

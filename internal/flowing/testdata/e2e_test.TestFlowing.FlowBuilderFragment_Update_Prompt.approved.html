@@ -1,13 +1,13 @@
 <div class="mb-3" id="prompt-args">
   <div class="mb-2">
-    <label>Prompt Arguments:</label>
+    <div class="larger pb-2">Prompt Arguments:</div>
   </div>
   <div class="row mb-3">
     <div class="form-floating col">
       <select id="promptArgs-0" name="promptArgs" class="form-select form-select-md" aria-label="Argument 0" hx-put="/flow-builder/prompt" hx-target="#prompt-args">
         <option value="" selected="selected">Choose...</option>
         <option value="input message">The Input Message</option>
-        <option value="input tag">An Input Parameter</option>
+        <option value="input parameter">An Input Parameter</option>
         <option value="interaction result from another flow">Output from another Flow</option>
         <option value="moderation result">A Moderation result (of the input message)</option>
       </select>

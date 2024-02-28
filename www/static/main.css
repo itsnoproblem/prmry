@@ -196,14 +196,14 @@ label[for=flow-selector] {
     color: unset;
 }
 
-#flow-builder .smaller {
-    font-size: 14px;
+.smaller {
+    font-size: 0.86em;
     font-weight: normal;
     letter-spacing: 0.14em;
 }
 
-#flow-builder .larger {
-    font-size: 18px;
+.larger {
+    font-size: 1.4em;
     font-weight: 600;
 }
 
@@ -623,4 +623,60 @@ li.dropdown {
 
 .highlight div {
     opacity: 0;
+}
+
+label[for="flow-search-input"] {
+    margin: -0.2em 1.4em;
+}
+
+#form-flow-search input:not(focus) + label {
+    padding-top: 1.4em;
+}
+
+#flow-search-results-table {
+    position: absolute;
+    z-index: 999;
+    max-width: 24em;
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 1em;
+}
+
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+pre[class*="language-"] {
+    position: relative;
+    overflow: auto;
+    margin: 5px 0;
+    padding: 1.75em 0 1.75em 1em;
+    border-radius: 10px;
+}
+
+pre[class*="language-"] button {
+    position: absolute;
+    font-size: 0.9em;
+    padding: 0.15em;
+    background-color: #828282;
+
+    border: ridge 1px #7b7b7c;
+    border-radius: 1em;
+    text-shadow: #c4c4c4 0 0 2px;
+    margin: 1em;
+    top: 1em;
+    right: 1em;
+
+}
+
+pre[class*="language-"] button:hover {
+    cursor: pointer;
+    background-color: #343a40;
+}
+
+pre.copy>button {
+
 }

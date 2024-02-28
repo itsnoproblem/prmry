@@ -147,6 +147,3 @@ function selectContent(element) {
     selection.removeAllRanges();
     selection.addRange(range);
 }
-
-
-
